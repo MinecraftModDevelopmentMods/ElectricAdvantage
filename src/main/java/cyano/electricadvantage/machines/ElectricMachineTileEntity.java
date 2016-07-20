@@ -50,6 +50,20 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	public ElectricMachineTileEntity(String name,int numInputSlots, int numOutputSlots, int numOtherSlots) {
 		this(name,500f,numInputSlots,numOutputSlots,numOtherSlots);
 	}
+	public ElectricMachineTileEntity(String name,int numInputSlots, int numOutputSlots, int numOtherSlots, ConduitType[] energyTypes, float[] energyBuffers) {
+		super(energyTypes, energyBuffers, name);
+		inventory = new ItemStack[numInputSlots+numOutputSlots+numOtherSlots];
+		inputSlots = new int[numInputSlots];
+		outputSlots = new int[numOutputSlots];
+		ioSlots = new int[numInputSlots+numOutputSlots];
+		otherSlots = new int[numOtherSlots];
+		for(int i = 0; i < inventory.length; i++){
+			if(i < inputSlots.length)inputSlots[i] = i;
+			if(i < outputSlots.length)outputSlots[i] = inputSlots.length + i;
+			if(i < ioSlots.length)ioSlots[i] = i;
+			if(i < otherSlots.length)otherSlots[i] = inputSlots.length + outputSlots.length + i;
+		}
+	}
 	
 	private boolean redstone = false;
 	private float oldEnergy = 0f;
@@ -195,9 +209,10 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	public abstract float[] getProgress();
 	
 	@Override
-	public void writeToNBT(NBTTagCompound tagRoot){
+	public NBTTagCompound writeToNBT(NBTTagCompound tagRoot){
 		super.writeToNBT(tagRoot);
 		saveTo(tagRoot);
+		return tagRoot;
 	}
 
 	@Override
@@ -310,7 +325,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 				x - range, y - range, z - range,
 				x + range, y + range, z + range));
 		for(EntityPlayerMP player : players){
-			player.playerNetServerHandler.sendPacket(new SPacketCustomSound(sound.getRegistryName().toString(), SoundCategory.BLOCKS,
+			player.connection.sendPacket(new SPacketCustomSound(sound.getRegistryName().toString(), SoundCategory.BLOCKS,
 					x, y, z, (float)volume, (float)pitch));
 		}
 	}

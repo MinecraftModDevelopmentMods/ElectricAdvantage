@@ -34,6 +34,15 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 		}
 	}
 
+	public ElectricGeneratorTileEntity(String name,int numInputSlots, ConduitType[] types, float[] energyBuffers) {
+		super(types, energyBuffers, name);
+		inventory = new ItemStack[numInputSlots];
+		inputSlots = new int[numInputSlots];
+		for(int i = 0; i < inventory.length; i++){
+			if(i < inputSlots.length)inputSlots[i] = i;
+		}
+	}
+
 
 	private boolean redstone = false;
 	private float oldEnergy = 0f;
@@ -83,7 +92,7 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 				x - range, y - range, z - range,
 				x + range, y + range, z + range));
 		for(EntityPlayerMP player : players){
-			player.playerNetServerHandler.sendPacket(new SPacketCustomSound(sound.getRegistryName().toString(), SoundCategory.BLOCKS,
+			player.connection.sendPacket(new SPacketCustomSound(sound.getRegistryName().toString(), SoundCategory.BLOCKS,
 					x, y, z, (float)volume, (float)pitch));
 		}
 	}
@@ -172,9 +181,10 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public void writeToNBT(NBTTagCompound tagRoot){
+	public NBTTagCompound writeToNBT(NBTTagCompound tagRoot){
 		super.writeToNBT(tagRoot);
 		saveTo(tagRoot);
+		return tagRoot;
 	}
 	
 	@Override
