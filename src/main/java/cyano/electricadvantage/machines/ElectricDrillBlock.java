@@ -157,6 +157,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
 	 * @param coord Block coordinate
 	 * @param state Block state
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void setDefaultFacing(final World w, final BlockPos coord, final IBlockState state) {
 		if (w.isRemote) {
 			return;

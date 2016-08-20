@@ -181,10 +181,9 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tagRoot){
+	public void writeToNBT(NBTTagCompound tagRoot){
 		super.writeToNBT(tagRoot);
 		saveTo(tagRoot);
-		return tagRoot;
 	}
 	
 	@Override

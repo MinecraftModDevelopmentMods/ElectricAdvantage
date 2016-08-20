@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SuppressWarnings("rawtypes")
 @SideOnly(Side.CLIENT) // This is needed for classes that extend client-only classes
 public class LaserTurretRenderer extends TileEntitySpecialRenderer{
 

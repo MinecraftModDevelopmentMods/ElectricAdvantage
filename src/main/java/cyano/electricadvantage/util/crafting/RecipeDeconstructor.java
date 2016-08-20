@@ -46,7 +46,8 @@ public class RecipeDeconstructor {
 	}
 	
 	public List<IRecipe> getRecipesForItem(ItemStack item){
-		if(recipeCache == null) initializeRecipeCache();
+		if(recipeCache == null)
+			initializeRecipeCache();
 		return recipeCache.get(new ItemRecord(item));
 	}
 	
@@ -110,34 +111,40 @@ public class RecipeDeconstructor {
 	 */
 	private SerializedInventory attemptToCraft(ItemStack craftingTarget, SerializedInventory serializedInventory, AtomicReference<ItemStack> output, int recursionDepth){
 		// check recusion limit
-		if(recursionDepth > RECURSION_LIMIT) return null;
-		if(craftingTarget == null) return null;
+		if(recursionDepth > RECURSION_LIMIT)
+			return null;
+		if(craftingTarget == null)
+			return null;
 		
 		debug("Looking up recipe for %s in %s",craftingTarget,serializedInventory);
 		// handle wild-card items by attempting to craft each valid variant
 		if(craftingTarget.getMetadata() == OreDictionary.WILDCARD_VALUE){
 			debug("%s has wild-card meta value",craftingTarget);
 			SerializedInventory attempt1 = attemptToCraft(craftingTarget,serializedInventory,output,recursionDepth+1);
-			if(attempt1 != null || craftingTarget.getItem().isDamageable()) return attempt1;
+			if(attempt1 != null || craftingTarget.getItem().isDamageable())
+				return attempt1;
 			ItemStack newTarget = craftingTarget.copy();
 			for(int meta = 0; meta < 16; meta++){
 				debug("Trying recipe with meta value ",meta);
 				newTarget.setItemDamage(meta);
 				SerializedInventory attempt2 = attemptToCraft(newTarget,serializedInventory,output,recursionDepth+1);
-				if(attempt2 != null) return attempt2;
+				if(attempt2 != null)
+					return attempt2;
 			}
 			return null;
 		}
 		// get recipes for item
 		List<IRecipe> recipes = getRecipesForItem(craftingTarget);
-		if(recipes == null || recipes.isEmpty()) return null;
+		if(recipes == null || recipes.isEmpty())
+			return null;
 		
 		for(IRecipe recipe : recipes){
 			// make local copy of inventory and marshal the recipe into a list of item matchers
 			recipeAttempt:{
 				SerializedInventory tempInv = serializedInventory.copy();
 				List<ItemMatcher> ingredients = marshalCraftingRecipe(recipe);
-				if(ingredients == null || ingredients.isEmpty()) continue;
+				if(ingredients == null || ingredients.isEmpty())
+					continue;
 
 				debug("Recipe: %s",ingredients);
 				
@@ -170,7 +177,8 @@ public class RecipeDeconstructor {
 								break;
 							}
 						}
-						if(failure) break recipeAttempt;
+						if(failure)
+							break recipeAttempt;
 					}
 				}
 				// if we made it this far, then we successfully crafted the item
@@ -207,10 +215,12 @@ public class RecipeDeconstructor {
 	private static List<ItemMatcher> marshalCraftingRecipe(Object[] recipeItems) {
 		return marshalCraftingRecipe(Arrays.asList(recipeItems));
 	}
+	@SuppressWarnings("rawtypes")
 	private static List<ItemMatcher> marshalCraftingRecipe(List recipeItems) {
 		List<ItemMatcher> output = new ArrayList<>(recipeItems.size());
 		for(Object o : recipeItems){
-			if(o == null) continue;
+			if(o == null)
+				continue;
 			if(o instanceof ItemStack){
 				output.add(new ItemMatcher((ItemStack)o));
 			} else if(o instanceof String){

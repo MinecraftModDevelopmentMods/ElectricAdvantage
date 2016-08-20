@@ -14,6 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SuppressWarnings("rawtypes")
 @SideOnly(Side.CLIENT)
 public class HydroturbineRenderer extends Render{
 	private static final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/entity/hydroturbine.png");
@@ -24,6 +25,7 @@ public class HydroturbineRenderer extends Render{
 		super(rm);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void doRender(final Entity entity, final double x, final double y, final double z, final float scale, final float partialTick) {
 		if(entity instanceof HydroturbineEntity){

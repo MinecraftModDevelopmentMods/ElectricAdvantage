@@ -187,13 +187,12 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public NBTTagCompound writeToNBT(final NBTTagCompound tagRoot) {
+	public void writeToNBT(final NBTTagCompound tagRoot) {
 		super.writeToNBT(tagRoot);
 		NBTTagCompound tankTag = new NBTTagCompound();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.setTag("Tank", tankTag);
 		tagRoot.setFloat("soil", soil);
-		return tagRoot;
 	}
 	/**
 	 * Handles data saving and loading

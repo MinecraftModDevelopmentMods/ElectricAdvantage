@@ -8,7 +8,7 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
 	}
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -32,19 +32,19 @@ javadoc {
 
 version = "2.1.0"
 group= "cyano.electricadvantage" 
-archivesBaseName = "ElectricAdvantage_1.9"
+archivesBaseName = "ElectricAdvantage_1.9.0"
 
 minecraft {
-	version = "1.9.4-12.17.0.1922-1.9.4"
+	version = "1.9-12.16.1.1887"
 	runDir = "run"
-	mappings = "snapshot_20160518"
+	mappings = "stable_24"
 }
 
 
 dependencies {
     compile files(
-        'lib/PowerAdvantage/PowerAdvantage_1.9.4-API-2.2.1.jar',
-			'lib/BaseMetals/BaseMetals_1.9.4-API-2.3.2.6.jar',
+        'lib/PowerAdvantage/PowerAdvantage_1.9.0-API-2.1.2.jar',
+			'lib/BaseMetals/BaseMetals_1.9-API-2.2.2.jar',
     )
 
 }

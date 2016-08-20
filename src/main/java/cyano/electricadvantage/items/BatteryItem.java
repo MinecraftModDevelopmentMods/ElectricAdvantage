@@ -98,12 +98,14 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 		return Power.ELECTRIC_POWER;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b){
 		super.addInformation(stack,player,list,b);
 		StringBuilder sb = new StringBuilder();
 		float max = getMaxEnergy(stack);
-		if(max <= 0) return; // not a battery!
+		if(max <= 0)
+			return; // not a battery!
 		float e = getEnergy(stack);
 		//sb.append(nf.format(e)).append('/').append(nf.format(max)).append(" kJ");
 		sb.append(nf.format(100*e/max)).append("% ").append(I18n.translateToLocal("tooltip.battery.charge"));

@@ -12,6 +12,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ITickable;
@@ -168,7 +169,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 						}
 					} else {
 						for (Entity e : entities) {
-							if (e.getPositionVector().squareDistanceTo(getOpticPosition()) > maxRangeSquared) continue;
+							if (e.getPositionVector().squareDistanceTo(getOpticPosition()) > maxRangeSquared)
+								continue;
 							if (e instanceof EntityPlayer) {
 								if (isEnemy((EntityPlayer) e)) {
 									setTarget(e);
@@ -217,7 +219,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 	
 	private boolean isEnemy(EntityPlayer player) {
-		if(player.capabilities.isCreativeMode) return false;
+		if(player.capabilities.isCreativeMode)
+			return false;
 		if(this.teamIdentity == null || this.teamIdentity.isEmpty()){
 			return false;
 		} else if(player.getTeam() == null){
@@ -378,7 +381,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 	
 	public boolean canSeeEntity(Entity e){
-		if(e == null) return false;
+		if(e == null)
+			return false;
 		Vec3d offsetOrigin = getOpticPosition().add(e.getPositionVector().subtract(getOpticPosition()).normalize());
 		RayTraceResult collision = getWorld().rayTraceBlocks(offsetOrigin, e.getPositionVector().addVector(0, e.height*0.5, 0), true, true, false);
 		if(collision != null && collision.typeOfHit == RayTraceResult.Type.BLOCK){
@@ -407,7 +411,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 	
 	private Vec3d getOpticPosition(){
-		if(opticPosition == null)setOpticPosition();
+		if(opticPosition == null)
+			setOpticPosition();
 		return opticPosition;
 	}
 	
@@ -485,8 +490,9 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	/**
 	 * Turns the data field NBT into a network packet
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override 
-	public SPacketUpdateTileEntity getUpdatePacket(){
+	public Packet getDescriptionPacket(){
 		NBTTagCompound nbtTag = new NBTTagCompound();
 		nbtTag.setFloat("energy", getEnergy());
 		nbtTag.setBoolean("lock", targetLocked);
@@ -620,6 +626,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	// Helps with laser rendering
 	final private int renderRange = ATTACK_RANGE * 2;
 	@SideOnly(Side.CLIENT)
+	@Override
 	public AxisAlignedBB getRenderBoundingBox()
 	{
 		return new AxisAlignedBB(getPos().add(-renderRange, -renderRange, -renderRange), getPos().add(renderRange, renderRange, renderRange));

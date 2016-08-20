@@ -43,6 +43,7 @@ public class ItemMatcher{
 		}
 		array = null;
 	}
+	@SuppressWarnings("rawtypes")
 	public ItemMatcher(List expandedList) {
 		name = null;
 		item = null;

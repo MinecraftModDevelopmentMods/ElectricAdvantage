@@ -17,7 +17,8 @@ public abstract class Entities {
 
 	private static boolean initDone = false;
 	public static void init(){
-		if(initDone) return;
+		if(initDone)
+			return;
 		
 		Blocks.init();
 
@@ -48,6 +49,7 @@ public abstract class Entities {
 	
 	
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void registerTileEntity(Class tileEntityClass){
 		String name = tileEntityClass.getSimpleName();
 		if(name.endsWith("TileEntity")){
@@ -57,6 +59,7 @@ public abstract class Entities {
 	}
 
 	private static int entityIndex = 0;
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void registerEntity(Class entityClass) {
 		String name=ElectricAdvantage.MODID+"."+entityClass.getSimpleName();
 		if(name.endsWith("Entity")){
@@ -81,6 +84,7 @@ public abstract class Entities {
 		return sb.toString();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@SideOnly(Side.CLIENT)
 	public static void registerRenderers(){
 		RenderManager rm = Minecraft.getMinecraft().getRenderManager();

@@ -24,6 +24,7 @@ public class ElectricScaffoldBlock extends cyano.poweradvantage.api.simple.Block
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
 		return FULL_BLOCK_AABB;
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void addCollisionBoxToList(final IBlockState bs, final World world, final BlockPos coord,
 									  final AxisAlignedBB box, final List collisionBoxList,

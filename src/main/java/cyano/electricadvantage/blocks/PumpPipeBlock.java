@@ -36,6 +36,7 @@ public class PumpPipeBlock extends Block{
 		return 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune){
 		return Collections.EMPTY_LIST;
 	}
@@ -56,6 +57,7 @@ public class PumpPipeBlock extends Block{
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
 		return bounds;
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void addCollisionBoxToList(final IBlockState bs, final World world, final BlockPos coord,
 									  final AxisAlignedBB box, final List collisionBoxList,
@@ -80,7 +82,8 @@ public class PumpPipeBlock extends Block{
 
 	
 	private void destroyNeighbors(World w, BlockPos coord, IBlockState state) {
-		if(w.isRemote) return;
+		if(w.isRemote)
+			return;
 		// destroy connected drill bits
 		BlockPos c = coord.down();
 		while(c.getY() > 0 && w.getBlockState(c).getBlock() == this){

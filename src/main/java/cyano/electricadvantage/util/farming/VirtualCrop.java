@@ -31,7 +31,8 @@ public class VirtualCrop {
 	}
 	
 	public static VirtualCrop createVirtualCrop(ItemStack stack, World w, BlockPos pos){
-		if(stack == null || stack.getItem() == null) return null;
+		if(stack == null || stack.getItem() == null)
+			return null;
 		ItemRecord r = new ItemRecord(stack);
 		ItemStack seed = stack.copy();
 		seed.stackSize = 1;
@@ -82,6 +83,7 @@ public class VirtualCrop {
 	}
 	
 
+	@SuppressWarnings("rawtypes")
 	private static int getNumberOfGrowthStages(IBlockState startingState) {
 		for(Object o : startingState.getProperties().entrySet()){
 			Map.Entry e = (Map.Entry)o;
@@ -96,6 +98,7 @@ public class VirtualCrop {
 	}
 	
 
+	@SuppressWarnings("rawtypes")
 	private static IBlockState ageToMax(IBlockState startingState) {
 		for(Object o : startingState.getProperties().entrySet()){
 			Map.Entry e = (Map.Entry)o;
@@ -104,7 +107,9 @@ public class VirtualCrop {
 				if("age".equals(prop.getName())){
 					int max = 0;
 					for(Object i : prop.getAllowedValues()){
-						if((Integer)i > max){max = (Integer)i;}
+						if((Integer)i > max) {
+							max = (Integer)i;
+						}
 					}
 					return startingState.withProperty(prop, Integer.valueOf(max));
 				}
@@ -113,6 +118,7 @@ public class VirtualCrop {
 		return startingState;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static Block getBlockFieldByReflection(Object target) {
 		Class type = Block.class;
 		Field[] fields = target.getClass().getDeclaredFields();

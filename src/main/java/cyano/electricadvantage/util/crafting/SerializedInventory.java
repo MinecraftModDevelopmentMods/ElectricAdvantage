@@ -60,7 +60,8 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 	
 	public void add(Iterable<ItemStack> items){
 		for(ItemStack item : items){
-			if(item == null) continue;
+			if(item == null)
+				continue;
 			ItemRecord r = new ItemRecord(item);
 			if(!this.containsKey(r)){
 				this.put(r, 1);
@@ -72,7 +73,8 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 	
 	public void add(ItemStack... items){
 		for(ItemStack item : items){
-			if(item == null) continue;
+			if(item == null)
+				continue;
 			ItemRecord r = new ItemRecord(item);
 			if(!this.containsKey(r)){
 				this.put(r, item.stackSize);
@@ -104,14 +106,16 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 
 	public boolean contains(ItemMatcher matcher){
 		for(ItemRecord r : keySet()){
-			if(matcher.matches(r)) return true;
+			if(matcher.matches(r))
+				return true;
 		}
 		return false;
 	}
 	
 	public boolean decrement(ItemMatcher matcher){
 		ItemRecord itemRef = getMatchingRecord(matcher);
-		if(itemRef == null) return false;
+		if(itemRef == null)
+			return false;
 		return decrement(itemRef);
 	}
 	
@@ -123,7 +127,8 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 	public static SerializedInventory serialize(Collection<ItemStack> inventory){
 		SerializedInventory serialized = new SerializedInventory(inventory.size()*16);
 		for(ItemStack i : inventory){
-			if(i == null) continue;
+			if(i == null)
+				continue;
 			ItemStack temp = i.copy();
 			int count = i.stackSize;
 			temp.stackSize = 1;
@@ -140,7 +145,8 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 	public static List<ItemStack> deserialize(SerializedInventory serializedInventory){
 		List<ItemStack> output = new ArrayList<>(serializedInventory.size());
 		for(Map.Entry<ItemRecord,Integer> e : serializedInventory.entrySet()){
-			if(e.getKey() == null) continue;
+			if(e.getKey() == null)
+				continue;
 			ItemStack k = e.getKey().getItem().copy();
 			k.stackSize = e.getValue();
 			while(k.stackSize > k.getMaxStackSize()){

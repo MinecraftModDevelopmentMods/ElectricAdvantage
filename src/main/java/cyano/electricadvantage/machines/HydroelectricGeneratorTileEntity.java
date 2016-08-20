@@ -24,6 +24,7 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 		isInitialized = false;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void tickUpdate(boolean isServer) {
 		if(isServer){
