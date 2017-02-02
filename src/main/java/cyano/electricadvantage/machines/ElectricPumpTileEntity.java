@@ -380,7 +380,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 		if(getTank().getFluidAmount() > 0 && getTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getTank().drain(fluid.amount,forReal);
 		} else {
-			return new FluidStack(getTank().getFluid().getFluid(),0);
+			return getTank().drain(0,false);
 		}
 	}
 	/**
@@ -394,7 +394,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 		if(getTank().getFluidAmount() > 0 ){
 			return getTank().drain(amount,forReal);
 		} else {
-			return null;
+			return getTank().drain(0,false);
 		}
 	}
 	/**
