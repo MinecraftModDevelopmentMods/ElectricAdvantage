@@ -113,7 +113,7 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 	@Override
 	protected void loadFrom(NBTTagCompound tagRoot) {
 		NBTTagList times = tagRoot.getTagList("smashTime", 2);
-		for(int i = 0; i < numberOfInputSlots(); i++){
+		for(int i = 0; i < numberOfInputSlots() && i < times.tagCount(); i++){
 			smashTime[i] = ((NBTTagShort)times.get(i)).getShort();
 		}
 	}
