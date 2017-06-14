@@ -5,9 +5,6 @@ import cyano.poweradvantage.gui.FluidTankGUI;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class GUIHelper {
 	private static final int INDICATOR_LED_X = 182;
 	private static final int INDICATOR_LED_Y = 2;
@@ -21,8 +18,6 @@ public class GUIHelper {
 	private static final int LED_BAR_W8 = 4;
 	
 
-	private static final Map<ResourceLocation,ResourceLocation> realTextureLocationCache = new HashMap<>();
-	
 	public static void drawIndicatorLight(boolean on,GUIContainer gc, int xOffset, int yOffset){
 		if(on){
 			gc.drawTexturedModalRect(8+xOffset, 8+yOffset, INDICATOR_LED_X, INDICATOR_LED_Y, INDICATOR_LED_W, INDICATOR_LED_H);

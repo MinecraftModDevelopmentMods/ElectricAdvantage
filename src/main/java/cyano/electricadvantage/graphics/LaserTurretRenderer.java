@@ -22,8 +22,6 @@ public class LaserTurretRenderer extends TileEntitySpecialRenderer{
 	
 	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/entity/laser_turret.png");
 
-	private static final float RADIANS_TO_DEGREES = (float)(180 / Math.PI);
-	
 	public LaserTurretRenderer() {
 		super();
 	}

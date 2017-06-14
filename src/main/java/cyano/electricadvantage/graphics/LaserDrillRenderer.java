@@ -21,9 +21,6 @@ public class LaserDrillRenderer extends TileEntitySpecialRenderer{
 	
 	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/materials/laser_beam.png");
 
-	private static final float RADIANS_TO_DEGREES = (float)(180 / Math.PI);
-	
-	
 	public LaserDrillRenderer() {
 		super();
 	}
@@ -57,11 +54,9 @@ public class LaserDrillRenderer extends TileEntitySpecialRenderer{
 			final float laserV0 = 1.0f;
 			final float laserV1 = 1.0f;
 
-			final float radius = 0.25f;
 			final float laserRadius = 0.125f;
 
 
-			float tickRemainder = 1 - partialTick;
 			EnumFacing dir = e.getFacing();
 
 			float rotY = 0, rotX = 0;

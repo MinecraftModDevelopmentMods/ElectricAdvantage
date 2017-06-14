@@ -83,6 +83,7 @@ public abstract class Entities {
 		return sb.toString();
 	}
 	
+	@SuppressWarnings("deprecation")
 	@SideOnly(Side.CLIENT)
 	public static void registerRenderers(){
 		RenderManager rm = Minecraft.getMinecraft().getRenderManager();

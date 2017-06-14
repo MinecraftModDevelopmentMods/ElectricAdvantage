@@ -14,7 +14,6 @@ public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 	
 	@Override
 	public ElectricGeneratorTileEntity createNewTileEntity(World arg0, int arg1) {
-		net.minecraft.block.BlockDaylightDetector k;
 		return new PhotovoltaicGeneratorTileEntity();
 	}
 	
