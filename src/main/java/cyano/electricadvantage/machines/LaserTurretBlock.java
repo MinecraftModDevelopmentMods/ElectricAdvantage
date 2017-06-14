@@ -40,11 +40,10 @@ public class LaserTurretBlock extends ElectricMachineBlock {
 		return baseBounds;
 	}
 	@Override
-	public void addCollisionBoxToList(final IBlockState bs, final World world, final BlockPos coord,
-									  final AxisAlignedBB box, final List<AxisAlignedBB> collisionBoxList,
-									  final Entity entity) {
-
-		final EnumFacing orientation = (EnumFacing) world.getBlockState(coord).getValue(FACING);
+	public void addCollisionBoxToList(IBlockState state, World world, BlockPos coord, AxisAlignedBB box,
+			List<AxisAlignedBB> collisionBoxList, Entity entityIn, boolean p_185477_7_) {
+		
+		world.getBlockState(coord).getValue(FACING);
 		super.addCollisionBoxToList(coord, box, collisionBoxList, baseBounds);
 		super.addCollisionBoxToList(coord, box, collisionBoxList, shaftBounds);
 	}

@@ -43,7 +43,7 @@ public class ItemMatcher{
 		}
 		array = null;
 	}
-	public ItemMatcher(List expandedList) {
+	public ItemMatcher(List<?> expandedList) {
 		name = null;
 		item = null;
 		block = null;

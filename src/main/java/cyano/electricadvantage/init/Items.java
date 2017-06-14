@@ -5,6 +5,7 @@ import cyano.electricadvantage.items.BatteryItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -77,7 +78,7 @@ public abstract class Items {
 	}
 	private static Item addItem(String unlocalizedName, Item i){
 		i.setUnlocalizedName(ElectricAdvantage.MODID+"."+unlocalizedName);
-		GameRegistry.registerItem(i, unlocalizedName);
+		GameRegistry.register(i, new ResourceLocation(unlocalizedName));
 		i.setCreativeTab(cyano.poweradvantage.init.ItemGroups.tab_powerAdvantage);
 		allItems.put(unlocalizedName, i);
 		return i;

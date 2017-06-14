@@ -37,7 +37,7 @@ public class PumpPipeBlock extends Block{
 	}
 	
 	@Override public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune){
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 
@@ -56,11 +56,11 @@ public class PumpPipeBlock extends Block{
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
 		return bounds;
 	}
+	
 	@Override
-	public void addCollisionBoxToList(final IBlockState bs, final World world, final BlockPos coord,
-									  final AxisAlignedBB box, final List collisionBoxList,
-									  final Entity entity) {
-		super.addCollisionBoxToList(coord, box, collisionBoxList, bounds);
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+			List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean p_185477_7_) {
+		super.addCollisionBoxToList(pos, entityBox, collidingBoxes, bounds);
 	}
 
 

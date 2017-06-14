@@ -6,10 +6,17 @@ import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.fluid.FluidRequest;
 import cyano.poweradvantage.init.Fluids;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements IFluidHandler{
@@ -49,8 +56,8 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 			// server-side logic
 			if(MAX_SOIL - soil > SOIL_PER_BLOCK && isDirt(inventory[0])){
 				soil += SOIL_PER_BLOCK;
-				inventory[0].stackSize--;
-				if(inventory[0].stackSize <= 0){
+				inventory[0].shrink(1);
+				if(inventory[0].getCount() <= 0){
 					inventory[0] = null;
 				}
 			}
@@ -257,7 +264,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 		if(Fluids.isFluidType(type)){
 			// water
 			if(this.canFill(null, Fluids.conduitTypeToFluid(type))){
-				return this.fill(null, new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true);
+				return this.fill(new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true);
 			} else {
 				return 0;
 			}
@@ -289,7 +296,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	public float subtractEnergy(float amount, ConduitType type){
 		if(Fluids.isFluidType(type)){
 			if(this.canDrain(null, Fluids.conduitTypeToFluid(type))){
-				return -1*this.drain(null, new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true).amount;
+				return -1*this.drain(new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true).amount;
 			} else {
 				return 0;
 			}
@@ -335,7 +342,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public int fill(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public int fill(FluidStack fluid, boolean forReal) {
 		if(getTank().getFluidAmount() <= 0 || getTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getTank().fill(fluid, forReal);
 		} else {
@@ -349,7 +356,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public FluidStack drain(FluidStack fluid, boolean forReal) {
 		if(getTank().getFluidAmount() > 0 && getTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getTank().drain(fluid.amount,forReal);
 		} else {
@@ -363,7 +370,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, int amount, boolean forReal) {
+	public FluidStack drain(int amount, boolean forReal) {
 		if(getTank().getFluidAmount() > 0 ){
 			return getTank().drain(amount,forReal);
 		} else {
@@ -413,5 +420,20 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 		} else {
 			return 0;
 		}
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
+	}
+
+	@Override
+	public IFluidTankProperties[] getTankProperties() {
+		return null;
 	}
 }

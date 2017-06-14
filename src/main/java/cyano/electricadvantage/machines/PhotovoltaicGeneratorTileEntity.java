@@ -1,6 +1,7 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -93,7 +94,7 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	
 	public static float getLightIntensityAt(BlockPos pos, World w){
 		float light;
-		if(w.canSeeSky(pos) && (w.provider.getHasNoSky() == false)){
+		if(w.canSeeSky(pos) && (w.provider.hasNoSky() == false)){
 			// outdoor light imposes no penalty
 			light = MathHelper.sin((float)w.getWorldTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather
@@ -107,6 +108,16 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 			light = BLOCKLIGHT_FACTOR * blockLight;
 		}
 		return light;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 
 }

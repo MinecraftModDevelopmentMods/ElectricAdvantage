@@ -6,6 +6,8 @@ import cyano.electricadvantage.graphics.*;
 import cyano.electricadvantage.machines.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -48,7 +50,7 @@ public abstract class Entities {
 	
 	
 
-	private static void registerTileEntity(Class tileEntityClass){
+	private static void registerTileEntity(Class<? extends TileEntity> tileEntityClass){
 		String name = tileEntityClass.getSimpleName();
 		if(name.endsWith("TileEntity")){
 			name = name.substring(0, name.lastIndexOf("TileEntity"));
@@ -57,14 +59,14 @@ public abstract class Entities {
 	}
 
 	private static int entityIndex = 0;
-	private static void registerEntity(Class entityClass) {
+	private static void registerEntity(Class<HydroturbineEntity> entityClass) {
 		String name=ElectricAdvantage.MODID+"."+entityClass.getSimpleName();
 		if(name.endsWith("Entity")){
 			name = name.substring(0, name.lastIndexOf("Entity"));
 		} else if(name.startsWith("Entity")){
 			name = name.substring("Entity".length(),name.length());
 		}
-		EntityRegistry.registerModEntity(entityClass, name, entityIndex++, ElectricAdvantage.INSTANCE, 64, 1, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(name), entityClass, name, entityIndex++, ElectricAdvantage.INSTANCE, 64, 1, true);
 	}
 	
 	private static String toUnderscoreStyle(String camelCase){

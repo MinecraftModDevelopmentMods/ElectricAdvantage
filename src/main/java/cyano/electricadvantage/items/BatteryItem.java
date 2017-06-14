@@ -12,6 +12,7 @@ import java.text.NumberFormat;
 import java.util.List;
 
 
+@SuppressWarnings("deprecation")
 public class BatteryItem extends net.minecraft.item.Item implements IRechargeableItem {
 	private final float capacity;
 	private final NumberFormat nf;
@@ -99,7 +100,7 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	}
 
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b){
+	public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean b){
 		super.addInformation(stack,player,list,b);
 		StringBuilder sb = new StringBuilder();
 		float max = getMaxEnergy(stack);

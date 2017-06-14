@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockDynamicLiquid;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -322,9 +324,9 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	public float addEnergy(float amount, ConduitType type){
 		if(Fluids.isFluidType(type) && type != Fluids.fluidConduit_general){
 			if(amount > 0 && this.canFill(null, Fluids.conduitTypeToFluid(type))){
-				return this.fill(null, new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true);
+				return this.fill(new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true);
 			} else if (amount < 0 && this.canDrain(null, Fluids.conduitTypeToFluid(type))){
-				return -1 * this.drain(null, (int)amount, true).amount;
+				return -1 * this.drain((int)amount, true).amount;
 			}
 		}
 		return super.addEnergy(amount, type);
@@ -433,6 +435,24 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 		return arr;
 	}
 	///// end multi-type overrides /////
+
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
+	}
+
+
+	@Override
+	public IFluidTankProperties[] getTankProperties() {
+		return null;
+	}
 
 
 

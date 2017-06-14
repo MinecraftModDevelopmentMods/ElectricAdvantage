@@ -3,6 +3,7 @@ package cyano.electricadvantage.machines;
 import java.util.Arrays;
 
 import cyano.electricadvantage.init.Power;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -55,18 +56,6 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 			this.setActiveState(active && getEnergy() >= ENERGY_PER_TICK);
 		}
 	}
-
-
-	
-	private static boolean areNotEqual(short[] a, short[] b){
-		if(a.length == b.length){
-			for(int i = 0; i < a.length; i++){
-				if(a[i] != b[i]) return true;
-			}
-			return false;
-		}
-		return true;
-	}
 	
 	private boolean canSmelt(int slot){
 		ItemStack input = this.getInputSlot(slot);
@@ -80,8 +69,8 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 		ItemStack input = this.getInputSlot(slot);
 		ItemStack output = FurnaceRecipes.instance().getSmeltingResult(input).copy();
 		this.insertItemToOutputSlots(output);
-		input.stackSize--;
-		if(input.stackSize <= 0){
+		input.shrink(1);
+		if(input.getCount() <= 0){
 			setInputSlot(slot,null);
 		}
 	}
@@ -150,6 +139,18 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 	@Override
 	public boolean isPowered() {
 		return getEnergy() > ENERGY_PER_TICK;
+	}
+
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 
 }

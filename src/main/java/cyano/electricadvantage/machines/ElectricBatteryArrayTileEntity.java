@@ -4,6 +4,7 @@ import cyano.electricadvantage.common.IRechargeableItem;
 import cyano.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -199,6 +200,18 @@ public class ElectricBatteryArrayTileEntity extends ElectricGeneratorTileEntity{
 	}
 	@Override
 	public boolean isPowerSink(ConduitType e){
+		return true;
+	}
+
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return true;
 	}
 }

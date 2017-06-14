@@ -28,7 +28,7 @@ public class FabricatorGUI extends SimpleMachineGUI{
 			@Override
 			public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
 			{
-				stack.onCrafting(player.getEntityWorld(), player, stack.stackSize);
+				stack.onCrafting(player.getEntityWorld(), player, stack.getCount());
 				super.onPickupFromSlot(player, stack);
 			}
 			@Override

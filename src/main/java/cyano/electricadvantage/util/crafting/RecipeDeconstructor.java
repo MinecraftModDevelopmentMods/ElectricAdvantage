@@ -59,7 +59,7 @@ public class RecipeDeconstructor {
 				ItemStack output = recipe.getRecipeOutput();
 				ItemRecord key;
 				try{
-					if(output == null || output.getItem() == null || output.stackSize <= 0) {
+					if(output == null || output.getItem() == null || output.getCount() <= 0) {
 						// invalid recipe
 						continue;
 					}
@@ -161,8 +161,8 @@ public class RecipeDeconstructor {
 							SerializedInventory r = attemptToCraft(vi,tempInv,ret,recursionDepth+1);
 							if(r != null) {
 								ItemStack y = ret.get();
-								if(y.stackSize > 1){
-									y.stackSize--;
+								if(y.getCount() > 1){
+									y.shrink(1);
 									r.add(y);
 								}
 								tempInv = r;
@@ -207,7 +207,7 @@ public class RecipeDeconstructor {
 	private static List<ItemMatcher> marshalCraftingRecipe(Object[] recipeItems) {
 		return marshalCraftingRecipe(Arrays.asList(recipeItems));
 	}
-	private static List<ItemMatcher> marshalCraftingRecipe(List recipeItems) {
+	private static List<ItemMatcher> marshalCraftingRecipe(List<?> recipeItems) {
 		List<ItemMatcher> output = new ArrayList<>(recipeItems.size());
 		for(Object o : recipeItems){
 			if(o == null) continue;
@@ -220,7 +220,7 @@ public class RecipeDeconstructor {
 			} else if(o instanceof Item){
 				output.add(new ItemMatcher((Item)o));
 			} else if(o instanceof List){
-				output.add(new ItemMatcher((List)o));
+				output.add(new ItemMatcher((List<?>)o));
 			} else {
 				FMLLog.severe("%s: Recipe item %s of class type %s was not recognized!", 
 						RecipeDeconstructor.class.getName(),

@@ -223,7 +223,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		} else if(player.getTeam() == null){
 			return true;
 		} else{
-			return !teamIdentity.equals(player.getTeam().getRegisteredName());
+			return !teamIdentity.equals(player.getTeam().getName());
 		}
 	}
 
@@ -245,7 +245,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		}
 		final Vec3d terminus = followRayToSolidBlock(origin,dir,ATTACK_RANGE);
 		final double maxDistSqr = origin.squareDistanceTo(terminus);
-		final double maxDist = MathHelper.sqrt_double(maxDistSqr);
+		final double maxDist = MathHelper.sqrt(maxDistSqr);
 		List<Entity> potentialVictims = w.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(
 				origin.xCoord - maxDist, origin.yCoord - maxDist, origin.zCoord - maxDist,
 				origin.xCoord + maxDist, origin.yCoord + maxDist, origin.zCoord + maxDist));
@@ -338,9 +338,6 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	
-	private static Vec3d mul(Vec3d a, double b){
-		return new Vec3d(a.xCoord * b, a.yCoord * b, a.zCoord * b);
-	}
 	private static double max(double a, double b){
 		return Math.max(a, b);
 	}
@@ -420,7 +417,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		if(t == null) {
 			teamIdentity = null;
 		} else {
-			teamIdentity = t.getRegisteredName();
+			teamIdentity = t.getName();
 		}
 	}
 	
@@ -448,7 +445,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		double dx = x2-x1;
 		double dy = y2-y1;
 		double dz = z2-z1;
-		return MathHelper.sqrt_double(dx * dx + dy * dy + dz * dz);
+		return MathHelper.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
 	private float atan2(double dy, double dx){
@@ -493,7 +490,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		if(targetLocked){
 			if(targetID != Integer.MIN_VALUE && getWorld().getEntityByID(targetID) != null){
 				Entity e = getWorld().getEntityByID(targetID);
-				Vec3d pos = e.getPositionVector().addVector(0, e.height*0.5, 0);
+				e.getPositionVector().addVector(0, e.height*0.5, 0);
 				NBTTagCompound target = new NBTTagCompound();
 				target.setInteger("id", this.targetID);
 				target.setFloat("yaw", rotTargetYaw);
@@ -623,5 +620,15 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	public AxisAlignedBB getRenderBoundingBox()
 	{
 		return new AxisAlignedBB(getPos().add(-renderRange, -renderRange, -renderRange), getPos().add(renderRange, renderRange, renderRange));
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 }

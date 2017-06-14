@@ -5,6 +5,7 @@ import cyano.electricadvantage.util.farming.VirtualCrop;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -70,7 +71,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 									for(ItemStack i : harvest){
 										ItemStack remainder = this.insertItemToOutputSlots(i);
 										if(remainder != null){
-											getWorld().spawnEntityInWorld(
+											getWorld().spawnEntity(
 													new EntityItem(
 															getWorld(),
 															2*(getWorld().rand.nextDouble()-0.5),
@@ -83,8 +84,8 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 									}
 									crops[slot] = null;
 									ItemStack seed = getInputSlot(slot);
-									seed.stackSize--;
-									if(seed.stackSize <= 0){
+									seed.shrink(1);
+									if(seed.getCount() <= 0){
 										setInputSlot(slot,null);
 									}
 								}
@@ -239,5 +240,17 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 			);
 		}
 		return PowerRequest.REQUEST_NOTHING;
+	}
+
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 }

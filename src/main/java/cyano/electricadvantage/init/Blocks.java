@@ -1,11 +1,29 @@
 package cyano.electricadvantage.init;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import cyano.electricadvantage.ElectricAdvantage;
 import cyano.electricadvantage.blocks.ElectricConduitBlock;
 import cyano.electricadvantage.blocks.ElectricScaffoldBlock;
 import cyano.electricadvantage.blocks.Ore;
 import cyano.electricadvantage.blocks.PumpPipeBlock;
-import cyano.electricadvantage.machines.*;
+import cyano.electricadvantage.machines.ElectricBatteryArrayBlock;
+import cyano.electricadvantage.machines.ElectricCrusherBlock;
+import cyano.electricadvantage.machines.ElectricDrillBlock;
+import cyano.electricadvantage.machines.ElectricFabricatorBlock;
+import cyano.electricadvantage.machines.ElectricFurnaceBlock;
+import cyano.electricadvantage.machines.ElectricOvenBlock;
+import cyano.electricadvantage.machines.ElectricPumpBlock;
+import cyano.electricadvantage.machines.ElectricStillBlock;
+import cyano.electricadvantage.machines.GrowthChamberBlock;
+import cyano.electricadvantage.machines.GrowthChamberControllerBlock;
+import cyano.electricadvantage.machines.HydroelectricGeneratorBlock;
+import cyano.electricadvantage.machines.LEDBlock;
+import cyano.electricadvantage.machines.LaserTurretBlock;
+import cyano.electricadvantage.machines.PhotovoltaicGeneratorBlock;
+import cyano.electricadvantage.machines.PlasticRefineryBlock;
+import cyano.electricadvantage.machines.SteamPoweredElectricGeneratorBlock;
 import cyano.poweradvantage.api.GUIBlock;
 import cyano.poweradvantage.blocks.BlockPowerSwitch;
 import net.minecraft.block.Block;
@@ -13,14 +31,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class Blocks {
 	private static final Map<String,Block> allBlocks = new HashMap<>();
@@ -103,7 +119,7 @@ public abstract class Blocks {
 
 	private static Block addBlock(Block block, String name, String... oreDictNames){
 		block.setUnlocalizedName(ElectricAdvantage.MODID+"."+name);
-		GameRegistry.registerBlock(block, name);
+		GameRegistry.register(block, new ResourceLocation(name));
 		block.setCreativeTab(cyano.poweradvantage.init.ItemGroups.tab_powerAdvantage);
 		allBlocks.put(name, block);
 		for(String oreName : oreDictNames){

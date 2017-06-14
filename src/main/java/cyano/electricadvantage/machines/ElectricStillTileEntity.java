@@ -1,5 +1,7 @@
 package cyano.electricadvantage.machines;
 
+import java.util.Arrays;
+
 import cyano.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
@@ -8,13 +10,18 @@ import cyano.poweradvantage.conduitnetwork.ConduitRegistry;
 import cyano.poweradvantage.init.Fluids;
 import cyano.poweradvantage.registry.still.recipe.DistillationRecipe;
 import cyano.poweradvantage.registry.still.recipe.DistillationRecipeRegistry;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fluids.*;
-
-import java.util.Arrays;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 public class ElectricStillTileEntity extends ElectricMachineTileEntity implements IFluidHandler{
 
@@ -203,7 +210,6 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 
 	///// Overrides to make this a multi-type block /////
 	private boolean redstone = false;
-	private float oldEnergy = 0f;
 	private int[] syncArrayOld = null;
 	private int[] syncArrayNew = null;
 	@Override
@@ -269,13 +275,13 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 		if(Fluids.isFluidType(type) && type != Fluids.fluidConduit_general){
 			if(amount > 0){
 				if(this.canFill(null, Fluids.conduitTypeToFluid(type))){
-					return this.fill(null, new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true);
+					return this.fill(new FluidStack(Fluids.conduitTypeToFluid(type),(int)amount), true);
 				} else {
 					return 0;
 				}
 			} else {
 				if(this.canDrain(null, Fluids.conduitTypeToFluid(type))){
-					return -1*this.drain(null, (int)amount, true).amount;
+					return -1*this.drain((int)amount, true).amount;
 				} else {
 					return 0;
 				}
@@ -313,7 +319,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public int fill(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public int fill(FluidStack fluid, boolean forReal) {
 		if(fluid == null) return 0;
 		if(getInputTank().getFluidAmount() <= 0 || getInputTank().getFluid().getFluid().equals(fluid.getFluid())){
 			if(canDistill(fluid)){
@@ -329,7 +335,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public FluidStack drain(FluidStack fluid, boolean forReal) {
 		if(getOutputTank().getFluidAmount() > 0 && getOutputTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getOutputTank().drain(fluid.amount,forReal);
 		} else {
@@ -343,7 +349,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, int amount, boolean forReal) {
+	public FluidStack drain(int amount, boolean forReal) {
 		if(getOutputTank().getFluidAmount() > 0 ){
 			return getOutputTank().drain(amount,forReal);
 		} else {
@@ -394,6 +400,27 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 		return types;
 	}
 	///// end multi-type overrides /////
+
+
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
+	}
+
+
+
+	@Override
+	public IFluidTankProperties[] getTankProperties() {
+		return null;
+	}
 
 
 }

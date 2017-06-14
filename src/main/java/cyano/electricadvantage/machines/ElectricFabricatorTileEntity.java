@@ -2,6 +2,7 @@ package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.util.crafting.RecipeDeconstructor;
 import cyano.electricadvantage.util.crafting.SerializedInventory;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -235,5 +236,16 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 		READY,
 		CRAFTING,
 		CRAFT_COMPLETE
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 }

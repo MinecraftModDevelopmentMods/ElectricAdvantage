@@ -1,6 +1,7 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -31,8 +32,8 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 					progress++;
 					if(progress >= totalCookTime){
 						this.insertItemToOutputSlots(output.copy());
-						getInputSlot(0).stackSize--;
-						if(getInputSlot(0).stackSize <= 0){
+						getInputSlot(0).shrink(1);
+						if(getInputSlot(0).getCount() <= 0){
 							setInputSlot(0,null);
 						}
 						progress = 0;
@@ -108,6 +109,16 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	public void prepareDataFieldsForSync() {
 		dataArray[0] = Float.floatToIntBits(getEnergy());
 		dataArray[1] = progress;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 
 

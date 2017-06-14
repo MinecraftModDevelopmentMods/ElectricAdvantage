@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -65,6 +66,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		}
 		return progArr;
 	}
+	@SuppressWarnings("deprecation")
 	@Override
 	public void tickUpdate(boolean isServerWorld) {
 		if(isServerWorld){
@@ -302,7 +304,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		if(this.isActive() && this.targetBlocks != null && this.targetBlockCoord != null){
 			BlockPos pos = getPos();
 			// distance calculation is taking a short-cut by assuming that 2 out of the 3 XYZ coordinates are identical
-			laserLength = MathHelper.abs_int((pos.getX() - targetBlockCoord.getX()) + (pos.getY() - targetBlockCoord.getY()) + (pos.getZ() - targetBlockCoord.getZ()));
+			laserLength = MathHelper.abs((pos.getX() - targetBlockCoord.getX()) + (pos.getY() - targetBlockCoord.getY()) + (pos.getZ() - targetBlockCoord.getZ()));
 		} else {
 			laserLength = 0;
 		}
@@ -382,7 +384,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	}
 	private void updateFacing(){
 		final EnumFacing old = facingCache;
-		facingCache = (EnumFacing)worldObj.getBlockState(getPos()).getValue(ElectricDrillBlock.FACING);
+		facingCache = (EnumFacing)world.getBlockState(getPos()).getValue(ElectricDrillBlock.FACING);
 		if(old != null && old != facingCache){
 			untargetBlock();
 			this.sync();
@@ -390,6 +392,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	}
 	
 	
+	@SuppressWarnings("deprecation")
 	private boolean canMine(BlockPos coord){
 		IBlockState bs  = getWorld().getBlockState(coord);
 		Block b = bs.getBlock();
@@ -397,6 +400,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		return !(b.getBlockHardness(bs, getWorld(), coord) < 0);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private int getBlockStrength(BlockPos coord){
 		if(getWorld().isAirBlock(coord)){
 			return 0;
@@ -423,18 +427,18 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 					if(inv.canInsertItem(theirSlot, inventory[mySlot], otherFace)){
 						if(theirItem == null){
 							ItemStack newItem = inventory[mySlot].copy();
-							newItem.stackSize = 1;
+							newItem.setCount(1);
 							inv.setInventorySlotContents(theirSlot, newItem);
-							inventory[mySlot].stackSize--;
-							if(inventory[mySlot].stackSize <= 0) inventory[mySlot] = null;
+							inventory[mySlot].shrink(1);
+							if(inventory[mySlot].getCount() <= 0) inventory[mySlot] = null;
 							return;
 						} else if(ItemStack.areItemsEqual(theirItem, inventory[mySlot]) 
 								&& ItemStack.areItemStackTagsEqual(theirItem, inventory[mySlot])
-								&& theirItem.stackSize < theirItem.getMaxStackSize()
-								&& theirItem.stackSize < inv.getInventoryStackLimit()){
-							theirItem.stackSize++;
-							inventory[mySlot].stackSize--;
-							if(inventory[mySlot].stackSize <= 0) inventory[mySlot] = null;
+								&& theirItem.getCount() < theirItem.getMaxStackSize()
+								&& theirItem.getCount() < inv.getInventoryStackLimit()){
+							theirItem.grow(1);
+							inventory[mySlot].shrink(1);
+							if(inventory[mySlot].getCount() <= 0) inventory[mySlot] = null;
 							return;
 						}
 					}
@@ -522,5 +526,15 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	{
 		return new AxisAlignedBB(getPos().add(-renderRange, -renderRange, -renderRange), getPos().add(renderRange, renderRange, renderRange));
 		//return super.INFINITE_EXTENT_AABB;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 }

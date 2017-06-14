@@ -19,7 +19,6 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 
 	public static final float DEGREES_PER_TICK = 30;
 	private static final float RADIANS_TO_DEGREES = (float)(180 / Math.PI);
-	private static final float DEGREES_TO_RADIANS = (float)(Math.PI / 180);
 	public static final float PROPELLER_DAMAGE = 5f;
 	public float rotation = 0;
 	public boolean isSpinning = false;
@@ -54,7 +53,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	@Override
 	public void onUpdate(){
 		super.onUpdate();
-		IBlockState bs = this.worldObj.getBlockState(getPosition());
+		IBlockState bs = this.world.getBlockState(getPosition());
 		Block b = bs.getBlock();
 		Vec3d directionVector;
 		if(b instanceof BlockLiquid){
@@ -79,7 +78,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 				parentCoord = null;
 			}
 			if(parent == null || parent.isInvalid()){
-				this.kill();
+				this.onKillCommand();
 			} else if(parent instanceof HydroelectricGeneratorTileEntity){
 				HydroelectricGeneratorTileEntity generator = (HydroelectricGeneratorTileEntity)parent;
 				if(isSpinning){

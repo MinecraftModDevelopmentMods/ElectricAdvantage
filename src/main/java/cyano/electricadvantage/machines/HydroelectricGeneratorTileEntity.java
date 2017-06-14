@@ -1,6 +1,7 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.entities.HydroturbineEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -32,7 +33,7 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 			}
 			if((getWorld().getTotalWorldTime() + checkOffset) % checkInterval == 0){
 				// periodically check if the hydroturbine entity is still present
-				List turbines = getWorld().getEntitiesWithinAABB(HydroturbineEntity.class, new AxisAlignedBB(
+				List<HydroturbineEntity> turbines = getWorld().getEntitiesWithinAABB(HydroturbineEntity.class, new AxisAlignedBB(
 						getPos().getX(),getPos().getY()-1,getPos().getZ(),
 						getPos().getX()+1,getPos().getY(),getPos().getZ()+1));
 				if(turbines == null || turbines.isEmpty()){
@@ -46,7 +47,7 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	private void initialize() {
 		isInitialized = true;
 		if(getPos().getY() > 0){
-			getWorld().spawnEntityInWorld(new HydroturbineEntity(getWorld(),this));
+			getWorld().spawnEntity(new HydroturbineEntity(getWorld(),this));
 		}
 	}
 
@@ -96,5 +97,15 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	public void setActive(boolean active){
 		// make public
 		super.setActive(active);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return true;
 	}
 }
