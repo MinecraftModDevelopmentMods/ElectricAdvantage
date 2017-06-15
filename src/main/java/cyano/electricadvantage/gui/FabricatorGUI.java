@@ -26,10 +26,10 @@ public class FabricatorGUI extends SimpleMachineGUI{
 
 		for(int i = 12; i <= 13; i++)super.specialSlots.put(i, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){
 			@Override
-			public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
+			public ItemStack onTake(EntityPlayer player, ItemStack stack)
 			{
 				stack.onCrafting(player.getEntityWorld(), player, stack.getCount());
-				super.onPickupFromSlot(player, stack);
+				return super.onTake(player, stack);
 			}
 			@Override
 			public boolean isItemValid(ItemStack stack){ return false; }

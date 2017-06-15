@@ -16,10 +16,10 @@ public class OvenGUI extends SimpleMachineGUI{
 				Integer2D.fromCoordinates(27,67, 133,67));
 		super.specialSlots.put(1, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){
 			@Override
-			public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
+			public ItemStack onTake(EntityPlayer player, ItemStack stack)
 			{
 				stack.onCrafting(player.getEntityWorld(), player, stack.getCount());
-				super.onPickupFromSlot(player, stack);
+				return super.onTake(player, stack);
 			}
 			@Override
 			public boolean isItemValid(ItemStack stack){ return false; }

@@ -94,7 +94,7 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	
 	public static float getLightIntensityAt(BlockPos pos, World w){
 		float light;
-		if(w.canSeeSky(pos) && (w.provider.hasNoSky() == false)){
+		if(w.canSeeSky(pos) && (w.provider.hasSkyLight() == false)){
 			// outdoor light imposes no penalty
 			light = MathHelper.sin((float)w.getWorldTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather

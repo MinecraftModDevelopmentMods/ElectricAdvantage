@@ -148,9 +148,9 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 					} else {
 						isEvil = false;
 					}
-					double x = this.getOpticPosition().xCoord;
-					double y = this.getOpticPosition().yCoord;
-					double z = this.getOpticPosition().zCoord;
+					double x = this.getOpticPosition().x;
+					double y = this.getOpticPosition().y;
+					double z = this.getOpticPosition().z;
 					List<Entity> entities = w.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(x-TARGET_RANGE, y-TARGET_RANGE, z-TARGET_RANGE, x+TARGET_RANGE, y+TARGET_RANGE, z+TARGET_RANGE));
 					final double maxRangeSquared = TARGET_RANGE * TARGET_RANGE;
 					if(isEvil){
@@ -189,7 +189,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 				if(targetLocked ){
 					if(laserAttack == HIT_TIME){
 						// dish out the laser damage
-						playSoundEffect(getOpticPosition().xCoord, getOpticPosition().yCoord, getOpticPosition().zCoord,
+						playSoundEffect(getOpticPosition().x, getOpticPosition().y, getOpticPosition().z,
 								LASER_SOUND,1F,1F);
 						List<Entity> victims = getLaserAttackVictims();
 						Entity e = w.getEntityByID(targetID);
@@ -247,8 +247,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		final double maxDistSqr = origin.squareDistanceTo(terminus);
 		final double maxDist = MathHelper.sqrt(maxDistSqr);
 		List<Entity> potentialVictims = w.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(
-				origin.xCoord - maxDist, origin.yCoord - maxDist, origin.zCoord - maxDist,
-				origin.xCoord + maxDist, origin.yCoord + maxDist, origin.zCoord + maxDist));
+				origin.x - maxDist, origin.y - maxDist, origin.z - maxDist,
+				origin.x + maxDist, origin.y + maxDist, origin.z + maxDist));
 		List<Entity> victims = new ArrayList<>();
 		for(Entity v : potentialVictims){
 			if(origin.squareDistanceTo(v.getPositionVector()) < maxDistSqr
@@ -290,7 +290,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
 	private Vec3d followRayToSolidBlock(Vec3d origin, Vec3d dir, double maxRange){
-		Vec3d max = origin.add(dir).addVector(maxRange * dir.xCoord, maxRange * dir.yCoord, maxRange * dir.zCoord);
+		Vec3d max = origin.add(dir).addVector(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
 		RayTraceResult impact = getWorld().rayTraceBlocks(origin, max, true, true, false);
 		if(impact != null && impact.typeOfHit == RayTraceResult.Type.BLOCK){
 			final Vec3d impactSite;
@@ -311,13 +311,13 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 			return false;
 		}
 		// algorithm from http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
-		Vec3d inverse = new Vec3d(1.0 / rayDirection.xCoord, 1.0 / rayDirection.yCoord, 1.0 / rayDirection.zCoord);
-		double t1 = (box.minX - rayOrigin.xCoord)*inverse.xCoord;
-		double t2 = (box.maxX- rayOrigin.xCoord)*inverse.xCoord;
-		double t3 = (box.minY - rayOrigin.yCoord)*inverse.yCoord;
-		double t4 = (box.maxY - rayOrigin.yCoord)*inverse.yCoord;
-		double t5 = (box.minZ - rayOrigin.zCoord)*inverse.zCoord;
-		double t6 = (box.maxZ - rayOrigin.zCoord)*inverse.zCoord;
+		Vec3d inverse = new Vec3d(1.0 / rayDirection.x, 1.0 / rayDirection.y, 1.0 / rayDirection.z);
+		double t1 = (box.minX - rayOrigin.x)*inverse.x;
+		double t2 = (box.maxX- rayOrigin.x)*inverse.x;
+		double t3 = (box.minY - rayOrigin.y)*inverse.y;
+		double t4 = (box.maxY - rayOrigin.y)*inverse.y;
+		double t5 = (box.minZ - rayOrigin.z)*inverse.z;
+		double t6 = (box.maxZ - rayOrigin.z)*inverse.z;
 
 		double tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
 		double tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
@@ -433,12 +433,12 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	
 	private void targetPosition(Vec3d coord) {
 		Vec3d pos = getOpticPosition();
-		double x = pos.xCoord;
-		double y = pos.yCoord;
-		double z = pos.zCoord;
-		double dist = distance(x,y,z,coord.xCoord, coord.yCoord, coord.zCoord);
-		this.rotTargetYaw = RADIANS_TO_DEGREES * atan2(coord.zCoord - z, coord.xCoord - x);
-		this.rotTargetPitch = RADIANS_TO_DEGREES * asin((coord.yCoord - y)/dist);
+		double x = pos.x;
+		double y = pos.y;
+		double z = pos.z;
+		double dist = distance(x,y,z,coord.x, coord.y, coord.z);
+		this.rotTargetYaw = RADIANS_TO_DEGREES * atan2(coord.z - z, coord.x - x);
+		this.rotTargetPitch = RADIANS_TO_DEGREES * asin((coord.y - y)/dist);
 	}
 	
 	private double distance(double x1,double y1,double z1,double x2,double y2,double z2){

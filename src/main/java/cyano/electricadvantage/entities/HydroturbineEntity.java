@@ -58,7 +58,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 		Vec3d directionVector;
 		if(b instanceof BlockLiquid){
 			directionVector = ((BlockLiquid)b).modifyAcceleration(getEntityWorld(), getPosition(), null, new Vec3d(0,0,0));
-			isSpinning = !(directionVector.xCoord == 0 && directionVector.zCoord == 0);
+			isSpinning = !(directionVector.x == 0 && directionVector.z == 0);
 		} else {
 			isSpinning = false;
 			directionVector = new Vec3d(0,0,0);
@@ -67,7 +67,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 			// client-side only
 			if(isSpinning){
 				rotation += DEGREES_PER_TICK;
-				this.rotationYaw = RADIANS_TO_DEGREES * (float)Math.atan2(-directionVector.zCoord, directionVector.xCoord) -90;
+				this.rotationYaw = RADIANS_TO_DEGREES * (float)Math.atan2(-directionVector.z, directionVector.x) -90;
 			} else {
 				// do nothing
 			}
