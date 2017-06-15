@@ -1,7 +1,7 @@
 package cyano.electricadvantage.machines;
 
-import cyano.basemetals.registry.CrusherRecipeRegistry;
-import cyano.basemetals.registry.recipe.ICrusherRecipe;
+import com.mcmoddev.basemetals.registry.CrusherRecipeRegistry;
+import com.mcmoddev.basemetals.registry.recipe.ICrusherRecipe;
 import cyano.electricadvantage.init.Power;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
