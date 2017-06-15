@@ -31,11 +31,36 @@ minecraft {
     mappings = "stable_29"
 }
 
+repositories {
+    maven {
+        name "MMD"
+        url "https://maven.mcmoddev.com/"
+    }
+    maven {
+        name "Dankhax"
+        url "http://maven.epoxide.org"
+    }
+    maven { // Mantle, TCon, JEI
+        name "DVS1 Maven FS"
+        url "http://dvs1.progwml6.com/files/maven"
+    }
+    maven { // CCL, CCC, NEI
+        name "Chickenbones Repo"
+        url "http://chickenbones.net/maven/"
+    }
+    maven { // CoFH
+    	name "Covers Maven"
+    	url "http://maven.covers1624.net"
+    }
+    maven {
+	    name "SpongePowered"
+        url 'https://repo.spongepowered.org/maven/'
+    }
+}
+
 dependencies {
-    compile files(
-        'libs/PowerAdvantage_1.9.4-API-2.2.1.jar',
-        'libs/BaseMetals_1.9.4-API-2.3.2.6.jar',
-    )
+    deobfCompile "cyano:BaseMetals:1.10.2-2.4.0"
+    deobfCompile "cyano:PowerAdvantage:1.10.2-2.3.0"
 }
 
 processResources {
