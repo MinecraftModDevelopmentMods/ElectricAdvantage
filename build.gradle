@@ -264,9 +264,6 @@ repositories {
 }
 
 dependencies {
-    compile files(
-        'libs/PowerAdvantage-1.12.2-2.4.0.jar',
-   )
   deobfCompile "net.darkhax.tesla:Tesla-${mc_version}.2:${tesla_version}"
   deobfCompile "cofh:RedstoneFlux:${mc_version}-${rfapi_version}:universal"
   deobfCompile "com.mcmoddev:BaseMetals:${mc_version}-${bme_version}"
