@@ -106,7 +106,6 @@ public class ElectricAdvantage
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		Recipes.init();
 		Entities.init();
 		GUI.init();
 		Enchantments.init();
