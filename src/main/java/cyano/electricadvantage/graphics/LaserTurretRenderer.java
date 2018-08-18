@@ -3,10 +3,10 @@ package cyano.electricadvantage.graphics;
 import cyano.electricadvantage.ElectricAdvantage;
 import cyano.electricadvantage.machines.LaserTurretTileEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
@@ -45,7 +45,7 @@ public class LaserTurretRenderer extends TileEntitySpecialRenderer{
 		final Tessellator tessellator = Tessellator.getInstance();
 		
 		
-		final VertexBuffer worldRenderer = tessellator.getBuffer();
+		final BufferBuilder worldRenderer = tessellator.getBuffer();
 		final float sideU0 = 0;
 		final float sideU1 = 0.5f;
 		final float sideV0 = 0;
