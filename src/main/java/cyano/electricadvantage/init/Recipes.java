@@ -92,7 +92,10 @@ public class Recipes {
 
 		// Machine recipes
 		addRecipe(event, electricMachineRecipe(Blocks.steam_powered_generator, "conduitSteam","governor"));
-		addRecipe(new ShapedOreRecipe(Blocks.arc_furnace, "bbb","bub","bbb",'b',"blockBrick",'u',"PSU"));
+		addRecipe(event, new ItemStack(Blocks.arc_furnace),
+						"bbb", "bub", "bbb",
+						'b', "blockBrick",
+						'u', "PSU");
 		addRecipe(event, electricMachineRecipe(Blocks.hydroelectric_generator, "sprocket", "sprocket"));
 		addRecipe(event, electricMachineRecipe(Blocks.battery_array, "chest"));
 		addRecipe(event, electricMachineRecipe(Blocks.rock_crusher, "sprocket", "gemDiamond"));
@@ -104,7 +107,11 @@ public class Recipes {
 		addRecipe(event, electricMachineRecipe(Blocks.growth_chamber_controller, net.minecraft.init.Items.FLOWER_POT, "circuitBoard"));
 		addRecipe(event, electricMachineRecipe(Blocks.oven, "paneGlass", "PSU"));
 
-		addRecipe(new ShapedOreRecipe(Blocks.electric_switch," L ","pfp",'L',net.minecraft.init.Blocks.LEVER,'p',"wire",'f',"frameSteel"));
+		addRecipe(event, new ItemStack(Blocks.electric_switch),
+				" L ", "pfp",
+						'L', net.minecraft.init.Blocks.LEVER,
+						'p', "wire",
+						'f', "frameSteel");
 		addRecipe(event, electricMachineRecipe(Blocks.electric_still, net.minecraft.init.Items.BUCKET, net.minecraft.init.Items.BUCKET));
 		addRecipe(event, electricMachineRecipe(Blocks.electric_pump, net.minecraft.init.Blocks.PISTON, net.minecraft.init.Items.BUCKET));
 		addRecipe(event, electricMachineRecipe(Blocks.plastic_refinery, net.minecraft.init.Blocks.PISTON, "sprocket"));
@@ -122,15 +129,37 @@ public class Recipes {
 				.setRegistryName(stack.getItem().getRegistryName()));
 	}
 
-	private static ShapedOreRecipe electricMachineRecipe(Block output, Object item){
-		return new ShapedOreRecipe(output, "uX ","pmp",'X',item,'u',"PSU",'p',"plateSteel",'m',"frameSteel");
+	private static ShapedOreRecipe electricMachineRecipe(Block output, Object item) {
+		ShapedOreRecipe ret = new ShapedOreRecipe(output.getRegistryName(), new ItemStack(output),
+						"uX ","pmp",
+						'X', item,
+						'u', "PSU",
+						'p', "plateSteel",
+						'm', "frameSteel");
+		ret.setRegistryName(output.getRegistryName());
+		return ret;
 	}
 
-	private static ShapedOreRecipe electricMachineRecipe(Block output, Object item1, Object item2){
-		return new ShapedOreRecipe(output, "uXY","pmp",'X',item1,'Y',item2,'u',"PSU",'p',"plateSteel",'m',"frameSteel");
+	private static ShapedOreRecipe electricMachineRecipe(Block output, Object item1, Object item2) {
+		ShapedOreRecipe ret = new ShapedOreRecipe(output.getRegistryName(), new ItemStack(output),
+						"uXY", "pmp",
+						'X', item1,
+						'Y', item2,
+						'u', "PSU",
+						'p', "plateSteel",
+						'm', "frameSteel");
+		ret.setRegistryName(output.getRegistryName());
+		return ret;
 	}
 
-	private static ShapedOreRecipe batteryRecipe(Item output, Object top, Object middle, Object bottom){
-        return new ShapedOreRecipe(output, "pXp","pYp","pZp",'X',top,'Y',middle,'Z',bottom,'p',"plastic");
+	private static ShapedOreRecipe batteryRecipe(Item output, Object top, Object middle, Object bottom) {
+		ShapedOreRecipe ret = new ShapedOreRecipe(output.getRegistryName(), new ItemStack(output),
+						"pXp", "pYp", "pZp",
+						'X', top,
+						'Y', middle,
+						'Z', bottom,
+						'p', "plastic");
+		ret.setRegistryName(output.getRegistryName());
+		return ret;
 	}
 }
