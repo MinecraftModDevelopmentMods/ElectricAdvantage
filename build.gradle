@@ -32,12 +32,12 @@ javadoc {
 
 version = "2.2.0"
 group= "cyano.electricadvantage" 
-archivesBaseName = "ElectricAdvantage_1.10.2"
+archivesBaseName = "ElectricAdvantage_1.9.4"
 
 minecraft {
-    version = "1.10.2-12.18.1.2011"
+    version = "1.9.4-12.17.0.1976"
 	runDir = "run"
-    mappings = "snapshot_20160518"
+    mappings = "stable_26"
 }
 
 
@@ -49,8 +49,7 @@ dependencies {
 
 }
 
-processResources
-		{
+processResources {
 			// this will ensure that this task is redone when the versions change.
 			inputs.property "version", project.version
 			inputs.property "mcversion", project.minecraft.version
