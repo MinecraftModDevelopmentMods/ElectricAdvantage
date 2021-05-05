@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class ElectricScaffoldBlock extends cyano.poweradvantage.api.simple.BlockSimplePowerConduit{
+public class ElectricScaffoldBlock extends com.mcmoddev.poweradvantage.api.simple.BlockSimplePowerConduit{
 
 	public ElectricScaffoldBlock() {
 		super(Material.PISTON, 0.75f, 2f/16f, Power.ELECTRIC_POWER);

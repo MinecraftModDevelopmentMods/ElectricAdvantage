@@ -1,9 +1,9 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
-import cyano.poweradvantage.api.PowerConnectorContext;
-import cyano.poweradvantage.init.Fluids;
+import com.mcmoddev.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.PowerConnectorContext;
+import com.mcmoddev.poweradvantage.init.Fluids;
 import net.minecraft.world.World;
 
 public class ElectricStillBlock extends ElectricMachineBlock{

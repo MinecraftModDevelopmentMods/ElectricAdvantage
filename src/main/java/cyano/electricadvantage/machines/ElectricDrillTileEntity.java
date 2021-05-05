@@ -2,7 +2,7 @@ package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Blocks;
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.util.InventoryWrapper;
+import com.mcmoddev.poweradvantage.util.InventoryWrapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;

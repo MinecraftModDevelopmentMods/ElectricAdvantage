@@ -1,10 +1,10 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
-import cyano.poweradvantage.api.PowerConnectorContext;
-import cyano.poweradvantage.conduitnetwork.ConduitRegistry;
-import cyano.poweradvantage.init.Fluids;
+import com.mcmoddev.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.PowerConnectorContext;
+import com.mcmoddev.poweradvantage.conduitnetwork.ConduitRegistry;
+import com.mcmoddev.poweradvantage.init.Fluids;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
@@ -25,7 +25,7 @@ public class PlasticRefineryBlock extends ElectricMachineBlock{
 	@Override
 	public void onBlockAdded(World w, BlockPos coord, IBlockState state){
 		super.onBlockAdded(w, coord, state);
-		ConduitRegistry.getInstance().conduitBlockPlacedEvent(w, w.provider.getDimension(), coord, cyano.poweradvantage.init.Fluids.fluidConduit_general);
+		ConduitRegistry.getInstance().conduitBlockPlacedEvent(w, w.provider.getDimension(), coord, com.mcmoddev.poweradvantage.init.Fluids.fluidConduit_general);
 	}
 	
 	/**
@@ -34,7 +34,7 @@ public class PlasticRefineryBlock extends ElectricMachineBlock{
 	@Override
 	public void onBlockDestroyedByPlayer(World w, BlockPos coord, IBlockState state){
 		super.onBlockDestroyedByPlayer(w, coord, state);
-		ConduitRegistry.getInstance().conduitBlockPlacedEvent(w, w.provider.getDimension(), coord, cyano.poweradvantage.init.Fluids.fluidConduit_general);
+		ConduitRegistry.getInstance().conduitBlockPlacedEvent(w, w.provider.getDimension(), coord, com.mcmoddev.poweradvantage.init.Fluids.fluidConduit_general);
 	}
 	/**
 	 * This method is called when the block is destroyed by an explosion.

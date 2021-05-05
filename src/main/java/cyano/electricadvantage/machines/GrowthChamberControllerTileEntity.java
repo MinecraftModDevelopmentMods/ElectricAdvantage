@@ -1,11 +1,11 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
-import cyano.poweradvantage.api.PowerConnectorContext;
-import cyano.poweradvantage.api.PowerRequest;
-import cyano.poweradvantage.api.fluid.FluidRequest;
-import cyano.poweradvantage.init.Fluids;
+import com.mcmoddev.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.PowerConnectorContext;
+import com.mcmoddev.poweradvantage.api.PowerRequest;
+import com.mcmoddev.poweradvantage.api.fluid.FluidRequest;
+import com.mcmoddev.poweradvantage.init.Fluids;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,7 +19,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements IFluidHandler{
+public class GrowthChamberControllerTileEntity extends com.mcmoddev.poweradvantage.api.simple.TileEntitySimplePowerMachine implements IFluidHandler{
 
 
 	static final float ELECTRICITY_PER_UNIT = 8f;

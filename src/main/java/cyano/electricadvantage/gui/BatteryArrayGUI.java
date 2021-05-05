@@ -2,8 +2,8 @@ package cyano.electricadvantage.gui;
 
 import cyano.electricadvantage.ElectricAdvantage;
 import cyano.electricadvantage.machines.ElectricBatteryArrayTileEntity;
-import cyano.poweradvantage.api.simple.SimpleMachineGUI;
-import cyano.poweradvantage.math.Integer2D;
+import com.mcmoddev.poweradvantage.api.simple.SimpleMachineGUI;
+import com.mcmoddev.poweradvantage.math.Integer2D;
 import net.minecraft.util.ResourceLocation;
 
 public class BatteryArrayGUI extends SimpleMachineGUI{

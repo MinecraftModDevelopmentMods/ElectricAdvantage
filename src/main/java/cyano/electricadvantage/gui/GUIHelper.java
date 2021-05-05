@@ -1,7 +1,7 @@
 package cyano.electricadvantage.gui;
 
-import cyano.poweradvantage.api.simple.SimpleMachineGUI.GUIContainer;
-import cyano.poweradvantage.gui.FluidTankGUI;
+import com.mcmoddev.poweradvantage.api.simple.SimpleMachineGUI.GUIContainer;
+import com.mcmoddev.poweradvantage.gui.FluidTankGUI;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 

@@ -1,8 +1,8 @@
 package cyano.electricadvantage.init;
 
 import com.mcmoddev.lib.registry.CrusherRecipeRegistry;
-import cyano.poweradvantage.PowerAdvantage;
-import cyano.poweradvantage.RecipeMode;
+import com.mcmoddev.poweradvantage.PowerAdvantage;
+import com.mcmoddev.poweradvantage.RecipeMode;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

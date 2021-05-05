@@ -2,7 +2,7 @@ package cyano.electricadvantage.items;
 
 import cyano.electricadvantage.common.IRechargeableItem;
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.ConduitType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

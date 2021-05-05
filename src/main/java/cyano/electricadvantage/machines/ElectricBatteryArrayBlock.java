@@ -1,6 +1,6 @@
 package cyano.electricadvantage.machines;
 
-import cyano.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.ConduitType;
 import net.minecraft.world.World;
 
 public class ElectricBatteryArrayBlock extends ElectricGeneratorBlock {

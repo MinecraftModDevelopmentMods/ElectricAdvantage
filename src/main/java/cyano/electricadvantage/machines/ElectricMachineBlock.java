@@ -1,7 +1,7 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.ConduitType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -14,7 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public abstract class ElectricMachineBlock extends cyano.poweradvantage.api.simple.BlockSimplePowerMachine{
+public abstract class ElectricMachineBlock extends com.mcmoddev.poweradvantage.api.simple.BlockSimplePowerMachine{
 
 	/**
 	 * Blockstate property

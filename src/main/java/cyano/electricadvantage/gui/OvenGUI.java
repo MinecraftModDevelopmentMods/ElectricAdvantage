@@ -2,8 +2,8 @@ package cyano.electricadvantage.gui;
 
 import cyano.electricadvantage.ElectricAdvantage;
 import cyano.electricadvantage.machines.ElectricMachineTileEntity;
-import cyano.poweradvantage.api.simple.SimpleMachineGUI;
-import cyano.poweradvantage.math.Integer2D;
+import com.mcmoddev.poweradvantage.api.simple.SimpleMachineGUI;
+import com.mcmoddev.poweradvantage.math.Integer2D;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

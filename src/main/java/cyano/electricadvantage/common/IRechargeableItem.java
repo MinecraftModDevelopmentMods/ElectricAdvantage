@@ -1,6 +1,6 @@
 package cyano.electricadvantage.common;
 
-import cyano.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.ConduitType;
 import net.minecraft.item.ItemStack;
 
 public interface IRechargeableItem {

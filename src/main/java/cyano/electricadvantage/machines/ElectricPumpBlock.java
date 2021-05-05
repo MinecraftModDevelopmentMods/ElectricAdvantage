@@ -2,10 +2,10 @@ package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Blocks;
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
-import cyano.poweradvantage.api.PowerConnectorContext;
-import cyano.poweradvantage.conduitnetwork.ConduitRegistry;
-import cyano.poweradvantage.init.Fluids;
+import com.mcmoddev.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.PowerConnectorContext;
+import com.mcmoddev.poweradvantage.conduitnetwork.ConduitRegistry;
+import com.mcmoddev.poweradvantage.init.Fluids;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;

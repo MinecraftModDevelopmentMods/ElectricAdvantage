@@ -1,7 +1,7 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.ConduitType;
+import com.mcmoddev.poweradvantage.api.ConduitType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.FMLLog;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine{
+public abstract class ElectricMachineTileEntity extends com.mcmoddev.poweradvantage.api.simple.TileEntitySimplePowerMachine{
 
 	private final ItemStack[] inventory;
 	private final int[] inputSlots;

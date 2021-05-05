@@ -1,7 +1,7 @@
 package cyano.electricadvantage.init;
 
-import cyano.poweradvantage.PowerAdvantage;
-import cyano.poweradvantage.registry.MachineGUIRegistry;
+import com.mcmoddev.poweradvantage.PowerAdvantage;
+import com.mcmoddev.poweradvantage.registry.MachineGUIRegistry;
 import cyano.electricadvantage.gui.*;
 
 public abstract class GUI {

@@ -1,8 +1,8 @@
 package cyano.electricadvantage.machines;
 
 import cyano.electricadvantage.init.Power;
-import cyano.poweradvantage.api.*;
-import cyano.poweradvantage.conduitnetwork.ConduitRegistry;
+import com.mcmoddev.poweradvantage.api.*;
+import com.mcmoddev.poweradvantage.conduitnetwork.ConduitRegistry;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
