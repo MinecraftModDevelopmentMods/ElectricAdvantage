@@ -1,0 +1,158 @@
+package com.mcmoddev.electricadvantage.machines;
+
+import com.mcmoddev.electricadvantage.compat.BaseMetalsCompat;
+import com.mcmoddev.electricadvantage.init.Power;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagShort;
+
+import java.util.Arrays;
+
+public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
+	
+
+	public static final float ENERGY_PER_TICK = 12f;
+
+	
+
+	private short[] smashTime = new short[3];
+	private final short totalSmashTime = 200;
+	
+
+	public ElectricCrusherTileEntity() {
+		super("tile.electricadvantage.electric_crusher.name", 
+				3, 6, 0);
+		Arrays.fill(smashTime, (short)0);
+	}
+
+
+	@Override
+	public void tickUpdate(boolean isServerWorld) {
+		if(isServerWorld){
+			boolean active = false;
+			for(int i = 0; i < this.numberOfInputSlots(); i++){
+				if(getInputSlot(i) == null){
+					smashTime[i] = 0;
+					continue;
+				}
+				if(getEnergy(Power.ELECTRIC_POWER) >= ENERGY_PER_TICK && !hasRedstoneSignal()){
+					if(canCrush(i)){
+						subtractEnergy(ENERGY_PER_TICK,Power.ELECTRIC_POWER);
+						smashTime[i]++;
+						if(smashTime[i] >= totalSmashTime){
+							doCrush(i);
+							this.playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_GRAVEL_BREAK, 0.5f, 1f);
+							smashTime[i] = 0;
+						}
+						active = true;
+					} else {
+						smashTime[i] = 0;
+					}
+				} else {
+					if(smashTime[i] > 0) smashTime[i]--;
+				}
+			}
+			this.setActiveState(active && getEnergy(Power.ELECTRIC_POWER) >= ENERGY_PER_TICK);
+		}
+	}
+
+
+	
+	private static boolean areNotEqual(short[] a, short[] b){
+		if(a.length == b.length){
+			for(int i = 0; i < a.length; i++){
+				if(a[i] != b[i]) return true;
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean canCrush(int slot){
+		ItemStack input = this.getInputSlot(slot);
+		if(input == null) return false;
+		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(input);
+		if(output == null) return false;
+		return this.hasSpaceForItemInOutputSlots(output);
+	}
+	
+	private void doCrush(int slot){
+		ItemStack input = this.getInputSlot(slot);
+		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(input);
+		if(output == null) return;
+		this.insertItemToOutputSlots(output);
+		input.stackSize--;
+		if(input.stackSize <= 0){
+			setInputSlot(slot,null);
+		}
+	}
+	
+	private final float[] progress = new float[3];
+	@Override
+	public float[] getProgress() {
+		for(int i = 0; i < progress.length; i++){
+			progress[i] = (float)smashTime[i] / (float)totalSmashTime;
+		}
+		return progress;
+	}
+	
+	
+	@Override
+	protected void saveTo(NBTTagCompound tagRoot) {
+		NBTTagList times = new NBTTagList();
+		for(int i = 0; i < numberOfInputSlots(); i++){
+			times.appendTag(new NBTTagShort(smashTime[i]));
+		}
+		tagRoot.setTag("smashTime", times);
+	}
+
+	@Override
+	protected void loadFrom(NBTTagCompound tagRoot) {
+		NBTTagList times = tagRoot.getTagList("smashTime", 2);
+		for(int i = 0; i < numberOfInputSlots() && i < times.tagCount(); i++){
+			smashTime[i] = ((NBTTagShort)times.get(i)).getShort();
+		}
+	}
+
+	@Override
+	protected boolean isValidInputItem(ItemStack item) {
+		if(item == null) return false;
+		return BaseMetalsCompat.hasCrusherRecipe(item);
+	}
+
+	private int[] dataArray = null;
+	@Override
+	public int[] getDataFieldArray() {
+		if(dataArray == null){
+			dataArray = new int[numberOfInputSlots()+1];
+		}
+		return dataArray;
+	}
+
+	@Override
+	public void onDataFieldUpdate() {
+		int[] arr = getDataFieldArray();
+		setEnergy(Float.intBitsToFloat(arr[0]),Power.ELECTRIC_POWER);
+		for(int i = 0; i < numberOfInputSlots(); i++){
+			smashTime[i] = (short) arr[i+1];
+		}
+	}
+
+	@Override
+	public void prepareDataFieldsForSync() {
+		int[] arr = getDataFieldArray();
+		arr[0] = Float.floatToIntBits(getEnergy(Power.ELECTRIC_POWER));
+		for(int i = 0; i < numberOfInputSlots(); i++){
+			arr[i+1] = smashTime[i];
+		}
+	}
+
+
+	@Override
+	public boolean isPowered() {
+		return getEnergy(Power.ELECTRIC_POWER) >= ENERGY_PER_TICK;
+	}
+
+}

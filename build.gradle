@@ -25,9 +25,19 @@ apply plugin: "com.matthewprenger.cursegradle"
 
 def mod_file = getModFile()
 version = getVersion("VERSION", mod_file)
-group= "cyano.electricadvantage"
+group= "com.mcmoddev.electricadvantage"
 archivesBaseName = "ElectricAdvantage_1.10.2"
 sourceCompatibility = targetCompatibility = "1.8"
+
+// ElectricAdvantage is compiled against the sibling PowerAdvantage deobf jar because
+// the old public Maven artifacts are no longer available. Build it with
+// `gradlew.bat deobfJar` from the PowerAdvantage project when this file is missing.
+def powerAdvantageProjectDir = file("../../PowerAdvantage")
+def powerAdvantageDeobfJarName = "PowerAdvantage-1.10.2-2.4.0-deobf.jar"
+def powerAdvantageDeobfJar = new File(powerAdvantageProjectDir, "build/libs/${powerAdvantageDeobfJarName}")
+if (!powerAdvantageDeobfJar.exists()) {
+    throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. Run gradlew.bat deobfJar in ${powerAdvantageProjectDir} first.")
+}
 
 minecraft {
     version = "1.10.2-12.18.3.2185"
@@ -36,10 +46,6 @@ minecraft {
 }
 
 repositories {
-    maven {
-        name "MMD"
-        url "https://maven.mcmoddev.com/"
-    }
     maven { // Mantle, TCon, JEI
         name "DVS1 Maven FS"
         url "http://dvs1.progwml6.com/files/maven"
@@ -59,8 +65,7 @@ repositories {
 }
 
 dependencies {
-    deobfCompile "cyano:BaseMetals:1.10.2-2.4.0"
-    deobfCompile "cyano:PowerAdvantage:1.10.2-2.3.0"
+    compile files(powerAdvantageDeobfJar)
 }
 
 processResources {
@@ -103,6 +108,7 @@ curseforge {
             displayName = "Electric Advantage $project.version"
             relations {
                 requiredLibrary "power-advantage"
+                requiredLibrary "base-metals"
             }
         }
         addArtifact sourceJar
