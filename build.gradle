@@ -33,7 +33,7 @@ sourceCompatibility = targetCompatibility = "1.8"
 // the old public Maven artifacts are no longer available. Build it with
 // `gradlew.bat deobfJar` from the PowerAdvantage project when this file is missing.
 def powerAdvantageProjectDir = file("../../PowerAdvantage")
-def powerAdvantageDeobfJarName = "PowerAdvantage-1.10.2-2.4.0-deobf.jar"
+def powerAdvantageDeobfJarName = "PowerAdvantage-1.10.2-2.4.1-deobf.jar"
 def powerAdvantageDeobfJar = new File(powerAdvantageProjectDir, "build/libs/${powerAdvantageDeobfJarName}")
 if (!powerAdvantageDeobfJar.exists()) {
     throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. Run gradlew.bat deobfJar in ${powerAdvantageProjectDir} first.")
