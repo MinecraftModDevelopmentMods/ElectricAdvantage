@@ -18,6 +18,24 @@ classes
 build
 .gradle
 
+# compiled/build artifacts
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.zip
+
+# local agent/workspace files
+AGENT.md
+AGENTS.md
+.agent/
+.agents/
+.codex/
+.claude/
+CLAUDE.md
+.aider*
+.cursor/
+.cursorrules
+
 # other
 eclipse
 run
