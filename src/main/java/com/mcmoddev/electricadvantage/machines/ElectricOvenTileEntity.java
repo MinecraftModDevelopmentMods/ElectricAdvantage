@@ -31,8 +31,8 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 					progress++;
 					if(progress >= totalCookTime){
 						this.insertItemToOutputSlots(output.copy());
-						getInputSlot(0).stackSize--;
-						if(getInputSlot(0).stackSize <= 0){
+						getInputSlot(0).shrink(1);
+						if(getInputSlot(0).isEmpty()){
 							setInputSlot(0,null);
 						}
 						progress = 0;

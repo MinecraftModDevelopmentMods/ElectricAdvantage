@@ -3,10 +3,11 @@ package com.mcmoddev.electricadvantage.items;
 import com.mcmoddev.electricadvantage.common.IRechargeableItem;
 import com.mcmoddev.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -99,8 +100,8 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	}
 
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b){
-		super.addInformation(stack,player,list,b);
+	public void addInformation(ItemStack stack, World world, List<String> list, ITooltipFlag flag){
+		super.addInformation(stack, world, list, flag);
 		StringBuilder sb = new StringBuilder();
 		float max = getMaxEnergy(stack);
 		if(max <= 0) return; // not a battery!

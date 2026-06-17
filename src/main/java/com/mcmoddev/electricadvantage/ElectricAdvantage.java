@@ -23,7 +23,7 @@ import java.util.Set;
 
 @Mod(modid = ElectricAdvantage.MODID, version = ElectricAdvantage.VERSION, name=ElectricAdvantage.NAME, 
 		dependencies = "required-after:poweradvantage;after:basemetals",
-		acceptedMinecraftVersions = "[1.10.2,)")
+		acceptedMinecraftVersions = "[1.12.2]")
 public class ElectricAdvantage
 {/** The identifier for this mod */
 	public static final String MODID = "electricadvantage";
@@ -48,6 +48,8 @@ public class ElectricAdvantage
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		INSTANCE = this;
+		Entities.registerDataFixers();
+
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		

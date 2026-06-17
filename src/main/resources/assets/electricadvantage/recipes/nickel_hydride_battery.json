@@ -1,0 +1,29 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"pXp",
+		"pYp",
+		"pZp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "ingotNickel"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "dustRedstone"
+		},
+		"Z": {
+			"item": "minecraft:water_bucket"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:nickel_hydride_battery"
+	},
+	"group": "batteries"
+}

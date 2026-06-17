@@ -1,0 +1,27 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"ggg",
+		"xxx",
+		"ccc"
+	],
+	"key": {
+		"g": {
+			"type": "forge:ore_dict",
+			"ore": "paneGlass"
+		},
+		"x": {
+			"type": "forge:ore_dict",
+			"ore": "microchip"
+		},
+		"c": {
+			"type": "forge:ore_dict",
+			"ore": "wire"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:led_bar",
+		"count": 3
+	},
+	"group": "parts"
+}

@@ -27,6 +27,7 @@ build
 # local agent/workspace files
 AGENT.md
 AGENTS.md
+agent-notes/
 .agent/
 .agents/
 .codex/

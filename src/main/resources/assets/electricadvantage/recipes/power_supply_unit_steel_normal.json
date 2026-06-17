@@ -1,0 +1,31 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"wcw",
+		" s "
+	],
+	"key": {
+		"w": {
+			"type": "forge:ore_dict",
+			"ore": "wire"
+		},
+		"c": {
+			"type": "forge:ore_dict",
+			"ore": "circuitBoard"
+		},
+		"s": {
+			"type": "forge:ore_dict",
+			"ore": "ingotSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:psu"
+	},
+	"conditions": [
+		{
+			"type": "electricadvantage:recipe_mode",
+			"mode": "NORMAL"
+		}
+	],
+	"group": "circuits"
+}

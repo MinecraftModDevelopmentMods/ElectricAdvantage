@@ -1,0 +1,32 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uXY",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"item": "minecraft:flower_pot"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "circuitBoard"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:growth_chamber_controller"
+	},
+	"group": "electric_machines"
+}

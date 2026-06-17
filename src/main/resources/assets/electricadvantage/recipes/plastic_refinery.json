@@ -1,0 +1,32 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uXY",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"item": "minecraft:piston"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "sprocket"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:plastic_refinery"
+	},
+	"group": "electric_machines"
+}

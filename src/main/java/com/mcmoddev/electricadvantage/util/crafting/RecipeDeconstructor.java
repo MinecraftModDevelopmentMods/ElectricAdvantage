@@ -3,11 +3,12 @@ package com.mcmoddev.electricadvantage.util.crafting;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -53,13 +54,13 @@ public class RecipeDeconstructor {
 	
 	public void initializeRecipeCache(){
 		recipeCache = new HashMap<>();
-		for(Object o : CraftingManager.getInstance().getRecipeList()){
+		for(Object o : ForgeRegistries.RECIPES.getValuesCollection()){
 			if(o instanceof IRecipe){
 				IRecipe recipe = (IRecipe)o;
 				ItemStack output = recipe.getRecipeOutput();
 				ItemRecord key;
 				try{
-					if(output == null || output.getItem() == null || output.stackSize <= 0) {
+					if(output == null || output.getItem() == null || output.isEmpty()) {
 						// invalid recipe
 						continue;
 					}
@@ -161,8 +162,8 @@ public class RecipeDeconstructor {
 							SerializedInventory r = attemptToCraft(vi,tempInv,ret,recursionDepth+1);
 							if(r != null) {
 								ItemStack y = ret.get();
-								if(y.stackSize > 1){
-									y.stackSize--;
+								if(y.getCount() > 1){
+									y.shrink(1);
 									r.add(y);
 								}
 								tempInv = r;
@@ -189,17 +190,31 @@ public class RecipeDeconstructor {
 
 	private static List<ItemMatcher> marshalCraftingRecipe(IRecipe recipe) {
 		if(recipe instanceof ShapedRecipes){
-			return marshalCraftingRecipe(((ShapedRecipes)recipe).recipeItems);
+			return marshalIngredients(((ShapedRecipes)recipe).recipeItems);
 		} else if(recipe instanceof ShapelessRecipes){
-			return marshalCraftingRecipe(((ShapelessRecipes)recipe).recipeItems);
+			return marshalIngredients(((ShapelessRecipes)recipe).recipeItems);
 		} else if(recipe instanceof ShapedOreRecipe){
-			return marshalCraftingRecipe(((ShapedOreRecipe)recipe).getInput());
+			return marshalIngredients(((ShapedOreRecipe)recipe).getIngredients());
 		} else if(recipe instanceof ShapelessOreRecipe){
-			return marshalCraftingRecipe(((ShapelessOreRecipe)recipe).getInput());
+			return marshalIngredients(((ShapelessOreRecipe)recipe).getIngredients());
 		} else {
 			// unsupported recipe type
-			return null;
+			return marshalIngredients(recipe.getIngredients());
 		}
+	}
+	private static List<ItemMatcher> marshalIngredients(List<Ingredient> recipeItems) {
+		List<ItemMatcher> output = new ArrayList<>(recipeItems.size());
+		for(Ingredient ingredient : recipeItems){
+			if(ingredient == null || ingredient == Ingredient.EMPTY) continue;
+			ItemStack[] stacks = ingredient.getMatchingStacks();
+			if(stacks == null || stacks.length == 0) continue;
+			if(stacks.length == 1){
+				output.add(new ItemMatcher(stacks[0]));
+			} else {
+				output.add(new ItemMatcher(Arrays.asList(stacks)));
+			}
+		}
+		return output;
 	}
 	private static List<ItemMatcher> marshalCraftingRecipe(ItemStack[] recipeItems) {
 		return marshalCraftingRecipe(Arrays.asList(recipeItems));

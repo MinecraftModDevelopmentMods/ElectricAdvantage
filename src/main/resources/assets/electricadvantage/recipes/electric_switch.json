@@ -1,0 +1,24 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		" L ",
+		"pfp"
+	],
+	"key": {
+		"L": {
+			"item": "minecraft:lever"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "wire"
+		},
+		"f": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_switch"
+	},
+	"group": "electric_machines"
+}

@@ -1,0 +1,21 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"xx",
+		"cc"
+	],
+	"key": {
+		"x": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		},
+		"c": {
+			"type": "forge:ore_dict",
+			"ore": "rodCopper"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_conduit"
+	},
+	"group": "wires"
+}

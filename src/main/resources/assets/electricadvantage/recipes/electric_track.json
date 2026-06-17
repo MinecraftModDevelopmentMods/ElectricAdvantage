@@ -1,0 +1,15 @@
+{
+	"type": "forge:ore_shapeless",
+	"ingredients": [
+		{
+			"item": "electricadvantage:electric_conduit"
+		},
+		{
+			"item": "poweradvantage:steel_frame"
+		}
+	],
+	"result": {
+		"item": "electricadvantage:electric_track"
+	},
+	"group": "tracks"
+}

@@ -206,6 +206,26 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		return inventory;
 	}
 
+	protected static boolean isEmptyStack(ItemStack stack) {
+		return stack == null || stack.isEmpty();
+	}
+
+	protected static ItemStack copyStackOrNull(ItemStack stack) {
+		return isEmptyStack(stack) ? null : stack.copy();
+	}
+
+	protected static boolean areItemsEqualNullable(ItemStack left, ItemStack right) {
+		if(isEmptyStack(left)) return isEmptyStack(right);
+		if(isEmptyStack(right)) return false;
+		return ItemStack.areItemsEqual(left, right);
+	}
+
+	protected static boolean areItemStacksEqualNullable(ItemStack left, ItemStack right) {
+		if(isEmptyStack(left)) return isEmptyStack(right);
+		if(isEmptyStack(right)) return false;
+		return ItemStack.areItemStacksEqual(left, right);
+	}
+
 	public abstract float[] getProgress();
 	
 	@Override
@@ -241,18 +261,19 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 
 	public boolean hasSpaceForItemInOutputSlots(ItemStack stack){
+		if(isEmptyStack(stack)) return false;
 		ItemStack item = stack.copy();
 		for(int slot = 0; slot < numberOfOutputSlots(); slot++){
 			ItemStack dest = getOutputSlot(slot);
-			if(dest == null) return true;
+			if(isEmptyStack(dest)) return true;
 			int stackLimit = Math.min(dest.getMaxStackSize(), this.getInventoryStackLimit());
-			if(dest.stackSize >= stackLimit) continue;
-			int combinedStackSize = item.stackSize + dest.stackSize;
+			if(dest.getCount() >= stackLimit) continue;
+			int combinedStackSize = item.getCount() + dest.getCount();
 			if(ItemStack.areItemsEqual(item, dest) ){
 				if(combinedStackSize <= stackLimit){
 					return true;
-				} else if (item.stackSize <= stackLimit) {
-					item.stackSize -= stackLimit - dest.stackSize;
+				} else if (item.getCount() <= stackLimit) {
+					item.shrink(stackLimit - dest.getCount());
 				}
 			}
 		}
@@ -260,18 +281,19 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	public boolean hasSpaceForItemInInputSlots(ItemStack stack){
+		if(isEmptyStack(stack)) return false;
 		ItemStack item = stack.copy();
 		for(int slot = 0; slot < numberOfInputSlots(); slot++){
 			ItemStack dest = getInputSlot(slot);
-			if(dest == null) return true;
+			if(isEmptyStack(dest)) return true;
 			int stackLimit = Math.min(dest.getMaxStackSize(), this.getInventoryStackLimit());
-			if(dest.stackSize >= stackLimit) continue;
-			int combinedStackSize = item.stackSize + dest.stackSize;
+			if(dest.getCount() >= stackLimit) continue;
+			int combinedStackSize = item.getCount() + dest.getCount();
 			if(ItemStack.areItemsEqual(item, dest) ){
 				if(combinedStackSize <= stackLimit){
 					return true;
-				} else if (item.stackSize <= stackLimit) {
-					item.stackSize -= stackLimit - dest.stackSize;
+				} else if (item.getCount() <= stackLimit) {
+					item.shrink(stackLimit - dest.getCount());
 				}
 			}
 		}
@@ -298,24 +320,24 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	public ItemStack insertItemToInputSlots(ItemStack itemStack){
-        if(itemStack == null) return null;
+        if(isEmptyStack(itemStack)) return null;
         if(itemStack.getItem() == null) return null;
 		itemStack = itemStack.copy();
 		for(int slot = 0; slot < numberOfInputSlots(); slot++){
 			ItemStack slotContent = this.getInputSlot(slot);
-			if(slotContent == null){
+			if(isEmptyStack(slotContent)){
 				// empty slot
 				this.setInputSlot(slot,itemStack);
 				return null;
 			} else if(ItemStack.areItemsEqual(itemStack, slotContent)){
 				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getInventoryStackLimit());
 				// found slot with same item
-				if(slotContent.stackSize < stackLimit){
+				if(slotContent.getCount() < stackLimit){
 					// increase stack
-					int delta = Math.min(itemStack.stackSize, stackLimit - slotContent.stackSize);
-					slotContent.stackSize += delta;
-					itemStack.stackSize -= delta;
-					if(itemStack.stackSize <= 0) return null; // done
+					int delta = Math.min(itemStack.getCount(), stackLimit - slotContent.getCount());
+					slotContent.grow(delta);
+					itemStack.shrink(delta);
+					if(itemStack.isEmpty()) return null; // done
 				}
 			}
 		}
@@ -336,24 +358,24 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	public ItemStack insertItemToOutputSlots(ItemStack itemStack){
-        if(itemStack == null) return null;
+        if(isEmptyStack(itemStack)) return null;
         if(itemStack.getItem() == null) return null;
 		itemStack = itemStack.copy();
 		for(int slot = 0; slot < numberOfOutputSlots(); slot++){
 			ItemStack slotContent = this.getOutputSlot(slot);
-			if(slotContent == null){
+			if(isEmptyStack(slotContent)){
 				// empty slot
 				this.setOutputSlot(slot,itemStack);
 				return null;
 			} else if(ItemStack.areItemsEqual(itemStack, slotContent)){
 				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getInventoryStackLimit());
 				// found slot with same item
-				if(slotContent.stackSize < stackLimit){
+				if(slotContent.getCount() < stackLimit){
 					// increase stack
-					int delta = Math.min(itemStack.stackSize, stackLimit - slotContent.stackSize);
-					slotContent.stackSize += delta;
-					itemStack.stackSize -= delta;
-					if(itemStack.stackSize <= 0) return null; // done
+					int delta = Math.min(itemStack.getCount(), stackLimit - slotContent.getCount());
+					slotContent.grow(delta);
+					itemStack.shrink(delta);
+					if(itemStack.isEmpty()) return null; // done
 				}
 			}
 		}
@@ -367,10 +389,10 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		int total = 0;
 		for(int i = 0; i < numberOfInputSlots(); i++){
 			ItemStack item = getInputSlot(i);
-			if(item == null){
+			if(isEmptyStack(item)){
 				total += 64;
 			} else {
-				sum += item.stackSize;
+				sum += item.getCount();
 				total += item.getMaxStackSize();
 			}
 		}

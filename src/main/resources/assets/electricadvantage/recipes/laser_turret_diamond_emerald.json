@@ -1,0 +1,33 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uXY",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "gemDiamond"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "gemEmerald"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:laser_turret"
+	},
+	"group": "electric_machines"
+}

@@ -4,6 +4,7 @@ import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.apache.logging.log4j.Level;
 
@@ -44,7 +45,7 @@ public abstract class Villages {
 	}
 
 	private static void insertTrades(int professionID, int careerID, int tradeLevel, EntityVillager.ITradeList... trades) {
-		VillagerRegistry.VillagerProfession profession = VillagerRegistry.instance().getRegistry().getValue(PROFESSION_LIST[professionID]);
+		VillagerRegistry.VillagerProfession profession = ForgeRegistries.VILLAGER_PROFESSIONS.getValue(PROFESSION_LIST[professionID]);
 		if (profession == null) {
 			throw new IllegalStateException("No villager profession registered for " + PROFESSION_LIST[professionID]);
 		}

@@ -1,0 +1,21 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"bbb",
+		"bub",
+		"bbb"
+	],
+	"key": {
+		"b": {
+			"item": "minecraft:brick_block"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_furnace"
+	},
+	"group": "electric_machines"
+}

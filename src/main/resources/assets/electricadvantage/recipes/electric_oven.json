@@ -1,0 +1,33 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uXY",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "paneGlass"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_oven"
+	},
+	"group": "electric_machines"
+}

@@ -1,0 +1,28 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"sss",
+		"ccc"
+	],
+	"key": {
+		"s": {
+			"type": "forge:ore_dict",
+			"ore": "ingotSilicon"
+		},
+		"c": {
+			"type": "forge:ore_dict",
+			"ore": "nuggetTin"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:integrated_circuit",
+		"count": 3
+	},
+	"conditions": [
+		{
+			"type": "electricadvantage:recipe_mode",
+			"mode": "NORMAL"
+		}
+	],
+	"group": "circuits"
+}

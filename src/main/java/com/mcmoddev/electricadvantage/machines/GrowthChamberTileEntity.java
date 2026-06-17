@@ -83,8 +83,8 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 									}
 									crops[slot] = null;
 									ItemStack seed = getInputSlot(slot);
-									seed.stackSize--;
-									if(seed.stackSize <= 0){
+									seed.shrink(1);
+									if(seed.isEmpty()){
 										setInputSlot(slot,null);
 									}
 								}
@@ -187,7 +187,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 
 
 	private VirtualCrop getVirtualCrop(ItemStack inputSlot) {
-		if(inputSlot == null) return null;
+		if(isEmptyStack(inputSlot)) return null;
 		try{
 			return VirtualCrop.createVirtualCrop(inputSlot, getWorld(), getPos());
 		} catch(Exception ex){
@@ -210,16 +210,16 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 		if(oldInventory == null){
 			oldInventory = new ItemStack[newInventory.length];
 			for(int i = 0; i < oldInventory.length; i++){
-				oldInventory[i] = (newInventory[i] == null ? null : newInventory[i].copy());
+				oldInventory[i] = copyStackOrNull(newInventory[i]);
 			}
 			Arrays.fill(changes, true);
 			return changes;
 		}
 		for(int i = 0; i < oldInventory.length; i++){
-			changes[i] = !ItemStack.areItemsEqual(oldInventory[i], newInventory[i]);
+			changes[i] = !areItemsEqualNullable(oldInventory[i], newInventory[i]);
 		}
 		for(int i = 0; i < oldInventory.length; i++){
-			oldInventory[i] = (newInventory[i] == null ? null : newInventory[i].copy());
+			oldInventory[i] = copyStackOrNull(newInventory[i]);
 		}
 		return changes;
 	}

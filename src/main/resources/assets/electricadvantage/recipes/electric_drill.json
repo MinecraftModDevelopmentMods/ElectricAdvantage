@@ -1,0 +1,29 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uX ",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "blockDiamond"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_drill"
+	},
+	"group": "electric_machines"
+}

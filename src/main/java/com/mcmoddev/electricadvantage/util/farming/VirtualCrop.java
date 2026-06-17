@@ -22,7 +22,7 @@ public class VirtualCrop {
 
 	public static void addCustomCrop(ItemStack seed, int numberGrowthStages, Collection<ItemStack> harvest){
 		ItemStack single = seed.copy();
-		single.stackSize = 1;
+		single.setCount(1);
 		customRecipes.put(new ItemRecord(seed), new VirtualCrop(single,numberGrowthStages,harvest));
 	}
 	
@@ -34,7 +34,7 @@ public class VirtualCrop {
 		if(stack == null || stack.getItem() == null) return null;
 		ItemRecord r = new ItemRecord(stack);
 		ItemStack seed = stack.copy();
-		seed.stackSize = 1;
+		seed.setCount(1);
 		Item i = stack.getItem();
 		Block b;
 		if(i instanceof ItemBlock){
@@ -53,7 +53,7 @@ public class VirtualCrop {
 				|| b instanceof net.minecraft.block.BlockLilyPad){
 			// duplicate
 			ItemStack product = seed.copy();
-			product.stackSize = 2;
+			product.setCount(2);
 			return new VirtualCrop(seed,8,Arrays.asList(product));
 		} else if(i instanceof IPlantable){
 			IPlantable plantable = (IPlantable)i;
@@ -142,10 +142,10 @@ public class VirtualCrop {
 		this.numberOfStages = (byte)(numGrowthStages & 0x7F);
 		this.prematureHarvest = Arrays.asList(item);
 		this.harvest = removeInvalidItemStacks(harvest);
-		if(harvest.isEmpty()){
+		if(this.harvest.isEmpty()){
 			ItemStack pity = item.copy();
-			pity.stackSize = 2;
-			harvest.add(pity);
+			pity.setCount(2);
+			this.harvest.add(pity);
 		}
 	}
 	
@@ -186,7 +186,7 @@ public class VirtualCrop {
 		/// CURSE YOU, MASTERCHEF MOD! DON'T YOU KNOW THAT ITEMSTACKS CAN'T HAVE NULL ITEMS?!?!
 		List<ItemStack> valid = new ArrayList<>(items.size());
 		for(ItemStack i : items){
-			if(i.getItem() != null && i.stackSize > 0){
+			if(i.getItem() != null && i.getCount() > 0){
 				valid.add(i);
 			}
 		}

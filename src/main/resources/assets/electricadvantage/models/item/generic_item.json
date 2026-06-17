@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
     "textures": {
-        "layer0": "#item_texture"
+        "layer0": "electricadvantage:items/blank_circuit_board"
     }
 }

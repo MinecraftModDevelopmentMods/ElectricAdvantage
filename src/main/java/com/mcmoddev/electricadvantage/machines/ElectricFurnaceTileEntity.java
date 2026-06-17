@@ -80,8 +80,8 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 		ItemStack input = this.getInputSlot(slot);
 		ItemStack output = FurnaceRecipes.instance().getSmeltingResult(input).copy();
 		this.insertItemToOutputSlots(output);
-		input.stackSize--;
-		if(input.stackSize <= 0){
+		input.shrink(1);
+		if(input.isEmpty()){
 			setInputSlot(slot,null);
 		}
 	}

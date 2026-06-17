@@ -1,6 +1,6 @@
 {
     "parent": "electricadvantage:item/generic_item",
     "textures": {
-        "item_texture": "electricadvantage:items/li_nugget"
+        "layer0": "electricadvantage:items/li_nugget"
     }
 }

@@ -83,8 +83,8 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(input);
 		if(output == null) return;
 		this.insertItemToOutputSlots(output);
-		input.stackSize--;
-		if(input.stackSize <= 0){
+		input.shrink(1);
+		if(input.isEmpty()){
 			setInputSlot(slot,null);
 		}
 	}

@@ -94,20 +94,20 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 			ItemStack[] newInventory = getInventory();
 			oldInventory = new ItemStack[newInventory.length];
 			for(int i = 0; i < oldInventory.length; i++){
-				oldInventory[i] = (newInventory[i] == null ? null : newInventory[i].copy());
+				oldInventory[i] = copyStackOrNull(newInventory[i]);
 			}
 			return true;
 		}
 		ItemStack[] newInventory = getInventory();
 		boolean changed = false;
 		for(int i = 0; i < oldInventory.length; i++){
-			if(!ItemStack.areItemStacksEqual(oldInventory[i], newInventory[i])){
+			if(!areItemStacksEqualNullable(oldInventory[i], newInventory[i])){
 				changed = true;
 				break;
 			}
 		}
 		for(int i = 0; i < oldInventory.length; i++){
-			oldInventory[i] = (newInventory[i] == null ? null : newInventory[i].copy());
+			oldInventory[i] = copyStackOrNull(newInventory[i]);
 		}
 		return changed;
 	}
@@ -115,13 +115,13 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 	private boolean canCraft(){
 		ItemStack referenceItem = super.getOtherSlot(0);
 		// first check if null
-		if(referenceItem == null) return false;
+		if(isEmptyStack(referenceItem)) return false;
 		// then check if it is craftable from our input inventory
 		AtomicReference<ItemStack> output = new AtomicReference<>();
 		ItemStack[] inv = Arrays.copyOf(getInventory(), this.numberOfInputSlots());
 		SerializedInventory result = RecipeDeconstructor.getInstance().attemptToCraft(referenceItem, 
 				SerializedInventory.serialize(inv), output);
-		if(result == null || output.get() == null) return false;
+		if(result == null || isEmptyStack(output.get())) return false;
 		// then check if there is space in the output buffer
 		if(!this.hasSpaceForItemInOutputSlots(output.get())) return false;
 		// finally check if the input buffer can hold the new inventory

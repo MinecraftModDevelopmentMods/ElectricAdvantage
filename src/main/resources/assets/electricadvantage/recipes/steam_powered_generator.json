@@ -1,0 +1,33 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uXY",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "conduitSteam"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "governor"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:steam_powered_generator"
+	},
+	"group": "electric_machines"
+}

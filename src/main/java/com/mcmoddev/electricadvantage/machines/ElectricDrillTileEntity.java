@@ -423,18 +423,18 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 					if(inv.canInsertItem(theirSlot, inventory[mySlot], otherFace)){
 						if(theirItem == null){
 							ItemStack newItem = inventory[mySlot].copy();
-							newItem.stackSize = 1;
+							newItem.setCount(1);
 							inv.setInventorySlotContents(theirSlot, newItem);
-							inventory[mySlot].stackSize--;
-							if(inventory[mySlot].stackSize <= 0) inventory[mySlot] = null;
+							inventory[mySlot].shrink(1);
+							if(inventory[mySlot].isEmpty()) inventory[mySlot] = null;
 							return;
 						} else if(ItemStack.areItemsEqual(theirItem, inventory[mySlot]) 
 								&& ItemStack.areItemStackTagsEqual(theirItem, inventory[mySlot])
-								&& theirItem.stackSize < theirItem.getMaxStackSize()
-								&& theirItem.stackSize < inv.getInventoryStackLimit()){
-							theirItem.stackSize++;
-							inventory[mySlot].stackSize--;
-							if(inventory[mySlot].stackSize <= 0) inventory[mySlot] = null;
+								&& theirItem.getCount() < theirItem.getMaxStackSize()
+								&& theirItem.getCount() < inv.getInventoryStackLimit()){
+							theirItem.grow(1);
+							inventory[mySlot].shrink(1);
+							if(inventory[mySlot].isEmpty()) inventory[mySlot] = null;
 							return;
 						}
 					}

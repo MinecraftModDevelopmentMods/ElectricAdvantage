@@ -1,6 +1,7 @@
 package com.mcmoddev.electricadvantage.machines;
 
 import com.mcmoddev.electricadvantage.ElectricAdvantage;
+import com.mcmoddev.electricadvantage.util.LegacyFluidHandler;
 import com.mcmoddev.electricadvantage.init.Items;
 import com.mcmoddev.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
@@ -8,6 +9,7 @@ import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.fluid.FluidRequest;
 import com.mcmoddev.poweradvantage.init.Fluids;
+import com.mcmoddev.poweradvantage.util.FluidIdHelper;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,7 +19,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
 
-public class PlasticRefineryTileEntity extends ElectricMachineTileEntity implements IFluidHandler{
+public class PlasticRefineryTileEntity extends ElectricMachineTileEntity implements LegacyFluidHandler{
 
 
 	public static final float ENERGY_PER_TICK = 12f;
@@ -32,7 +34,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	public PlasticRefineryTileEntity() {
 		super("tile.electricadvantage.plastic_refinery.name", 
 				0, 1, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{500f,2000f});
-		tank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 2);
+		tank = new FluidTank(Fluid.BUCKET_VOLUME * 2);
 	}
 
 	private boolean wasActive = false;
@@ -76,7 +78,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	private boolean outputIsAvailable(){
 		return this.getOutputSlot(0) == null 
 				|| (this.getOutputSlot(0).getItem().equals(Items.petrolplastic_ingot) 
-						&& this.getOutputSlot(0).stackSize < this.getOutputSlot(0).getMaxStackSize());
+						&& this.getOutputSlot(0).getCount() < this.getOutputSlot(0).getMaxStackSize());
 	}
 	
 	@Override
@@ -138,8 +140,8 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 		dataSyncArray[1] = this.fabTime;
 		dataSyncArray[2] = this.getTank().getFluidAmount();
 		dataSyncArray[3] = (getTank().getFluid() != null && getTank().getFluid().getFluid() != null 
-				? FluidRegistry.getFluidID(getTank().getFluid().getFluid())
-						: FluidRegistry.getFluidID(FluidRegistry.WATER));
+				? FluidIdHelper.getFluidId(getTank().getFluid().getFluid())
+						: FluidIdHelper.getFluidId(FluidRegistry.WATER));
 		
 	}
 
@@ -147,7 +149,8 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	public void onDataFieldUpdate() {
 		this.setEnergy(Float.intBitsToFloat(dataSyncArray[0]), this.getType());
 		this.fabTime = (short)dataSyncArray[1];
-		this.getTank().setFluid(new FluidStack(FluidRegistry.getFluid(dataSyncArray[3]),dataSyncArray[2]));
+		Fluid fluid = FluidIdHelper.getFluid(dataSyncArray[3]);
+		this.getTank().setFluid(fluid == null || dataSyncArray[2] <= 0 ? null : new FluidStack(fluid, dataSyncArray[2]));
 	}
 
 	private boolean isPlasticFluid(Fluid fluid) {

@@ -1,0 +1,28 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"uX ",
+		"pmp"
+	],
+	"key": {
+		"X": {
+			"item": "minecraft:crafting_table"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plateSteel"
+		},
+		"m": {
+			"type": "forge:ore_dict",
+			"ore": "frameSteel"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_fabricator"
+	},
+	"group": "electric_machines"
+}

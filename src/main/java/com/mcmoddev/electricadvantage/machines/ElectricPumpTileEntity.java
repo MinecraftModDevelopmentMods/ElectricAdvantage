@@ -1,11 +1,13 @@
 package com.mcmoddev.electricadvantage.machines;
 
+import com.mcmoddev.electricadvantage.util.LegacyFluidHandler;
 import com.mcmoddev.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PowerRequest;
 import com.mcmoddev.poweradvantage.conduitnetwork.ConduitRegistry;
 import com.mcmoddev.poweradvantage.init.Fluids;
+import com.mcmoddev.poweradvantage.util.FluidIdHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDynamicLiquid;
 import net.minecraft.block.BlockLiquid;
@@ -21,7 +23,7 @@ import net.minecraftforge.fluids.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements IFluidHandler{
+public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements LegacyFluidHandler{
 
 
 	private final FluidTank tank;
@@ -42,7 +44,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 
 	public ElectricPumpTileEntity() {
 		super("tile.electricadvantage.electric_pump.name", 0, 0, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{ENERGY_COST_PUMP + 256 * ENERGY_COST_VERTICAL,1000f});
-		tank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME);
+		tank = new FluidTank(Fluid.BUCKET_VOLUME);
 	}
 	
 
@@ -83,7 +85,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 							IBlockState blockstate = w.getBlockState(fluidSource);
 							Fluid f = getFluid(blockstate);
 							if(f != null && getEnergy() >= cost){
-								this.getTank().fill(new FluidStack(f,FluidContainerRegistry.BUCKET_VOLUME), true);
+								this.getTank().fill(new FluidStack(f, Fluid.BUCKET_VOLUME), true);
 								this.subtractEnergy(cost, Power.ELECTRIC_POWER);
 								w.setBlockToAir(fluidSource);
 								success = true;
@@ -243,14 +245,15 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	public void prepareDataFieldsForSync() {
 		dataSyncArray[0] = Float.floatToRawIntBits(this.getEnergy());
 		dataSyncArray[1] = this.getTank().getFluidAmount();
-		dataSyncArray[2] = (this.getTank().getFluidAmount() > 0 ? FluidRegistry.getFluidID(this.getTank().getFluid().getFluid()) : FluidRegistry.getFluidID(FluidRegistry.WATER));
+		dataSyncArray[2] = (this.getTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(FluidRegistry.WATER));
 		dataSyncArray[3] = this.timeUntilNextPump;
 	}
 
 	@Override
 	public void onDataFieldUpdate() {
 		this.setEnergy(Float.intBitsToFloat(dataSyncArray[0]), Power.ELECTRIC_POWER);
-		this.getTank().setFluid(new FluidStack(FluidRegistry.getFluid(dataSyncArray[2]),dataSyncArray[1]));
+		Fluid fluid = FluidIdHelper.getFluid(dataSyncArray[2]);
+		this.getTank().setFluid(fluid == null || dataSyncArray[1] <= 0 ? null : new FluidStack(fluid, dataSyncArray[1]));
 		this.timeUntilNextPump = (byte)dataSyncArray[3];
 	}
 

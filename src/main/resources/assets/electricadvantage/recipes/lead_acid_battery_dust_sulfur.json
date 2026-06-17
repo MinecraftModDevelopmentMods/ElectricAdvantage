@@ -1,0 +1,29 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"pXp",
+		"pYp",
+		"pZp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "ingotLead"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "dustSulfur"
+		},
+		"Z": {
+			"item": "minecraft:water_bucket"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:lead_acid_battery"
+	},
+	"group": "batteries"
+}

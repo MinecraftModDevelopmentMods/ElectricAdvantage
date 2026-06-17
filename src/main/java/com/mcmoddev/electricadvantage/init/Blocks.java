@@ -12,9 +12,11 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -103,7 +105,12 @@ public abstract class Blocks {
 
 	private static Block addBlock(Block block, String name, String... oreDictNames){
 		block.setUnlocalizedName(ElectricAdvantage.MODID+"."+name);
-		GameRegistry.registerBlock(block, name);
+		ResourceLocation registryName = new ResourceLocation(ElectricAdvantage.MODID, name);
+		block.setRegistryName(registryName);
+		ForgeRegistries.BLOCKS.register(block);
+		ItemBlock itemBlock = new ItemBlock(block);
+		itemBlock.setRegistryName(registryName);
+		ForgeRegistries.ITEMS.register(itemBlock);
 		block.setCreativeTab(com.mcmoddev.poweradvantage.init.ItemGroups.tab_powerAdvantage);
 		allBlocks.put(name, block);
 		for(String oreName : oreDictNames){

@@ -1,0 +1,6 @@
+{
+	"conditions": {
+		"recipe_mode": "com.mcmoddev.electricadvantage.recipe.condition.RecipeModeConditionFactory",
+		"not_recipe_mode": "com.mcmoddev.electricadvantage.recipe.condition.NotRecipeModeConditionFactory"
+	}
+}

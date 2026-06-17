@@ -1,0 +1,37 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"prp",
+		"sss",
+		"ccc"
+	],
+	"key": {
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		},
+		"s": {
+			"type": "forge:ore_dict",
+			"ore": "ingotSilicon"
+		},
+		"r": {
+			"type": "forge:ore_dict",
+			"ore": "dustRedstone"
+		},
+		"c": {
+			"type": "forge:ore_dict",
+			"ore": "nuggetTin"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:integrated_circuit",
+		"count": 3
+	},
+	"conditions": [
+		{
+			"type": "electricadvantage:recipe_mode",
+			"mode": "TECH_PROGRESSION"
+		}
+	],
+	"group": "circuits"
+}

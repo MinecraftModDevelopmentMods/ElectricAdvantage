@@ -1,0 +1,20 @@
+{
+	"type": "forge:ore_shapeless",
+	"ingredients": [
+		{
+			"item": "electricadvantage:blank_circuit_board"
+		},
+		{
+			"type": "forge:ore_dict",
+			"ore": "microchip"
+		},
+		{
+			"type": "forge:ore_dict",
+			"ore": "solder"
+		}
+	],
+	"result": {
+		"item": "electricadvantage:control_circuit"
+	},
+	"group": "circuits"
+}

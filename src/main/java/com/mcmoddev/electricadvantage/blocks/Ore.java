@@ -51,7 +51,7 @@ public class Ore extends Block {
 		if(dropItem == null){
 			baseCount = 1;
 		} else {
-			baseCount = dropItem.stackSize;
+			baseCount = dropItem.getCount();
 		}
 		if(dropRange > 1){
 			return baseCount + prng.nextInt(dropRange);

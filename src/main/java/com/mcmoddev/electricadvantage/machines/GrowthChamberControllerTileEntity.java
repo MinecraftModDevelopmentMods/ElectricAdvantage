@@ -1,5 +1,6 @@
 package com.mcmoddev.electricadvantage.machines;
 
+import com.mcmoddev.electricadvantage.util.LegacyFluidHandler;
 import com.mcmoddev.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
@@ -12,7 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements IFluidHandler{
+public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements LegacyFluidHandler{
 
 
 	static final float ELECTRICITY_PER_UNIT = 8f;
@@ -49,8 +50,8 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 			// server-side logic
 			if(MAX_SOIL - soil > SOIL_PER_BLOCK && isDirt(inventory[0])){
 				soil += SOIL_PER_BLOCK;
-				inventory[0].stackSize--;
-				if(inventory[0].stackSize <= 0){
+				inventory[0].shrink(1);
+				if(inventory[0].isEmpty()){
 					inventory[0] = null;
 				}
 			}

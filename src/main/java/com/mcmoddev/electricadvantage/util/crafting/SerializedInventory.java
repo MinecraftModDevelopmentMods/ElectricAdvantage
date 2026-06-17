@@ -65,7 +65,7 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 			if(!this.containsKey(r)){
 				this.put(r, 1);
 			} else {
-				this.put(r, this.get(r)+item.stackSize);
+				this.put(r, this.get(r)+item.getCount());
 			}
 		}
 	}
@@ -75,9 +75,9 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 			if(item == null) continue;
 			ItemRecord r = new ItemRecord(item);
 			if(!this.containsKey(r)){
-				this.put(r, item.stackSize);
+				this.put(r, item.getCount());
 			} else {
-				this.put(r, this.get(r)+item.stackSize);
+				this.put(r, this.get(r)+item.getCount());
 			}
 		}
 	}
@@ -125,8 +125,8 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 		for(ItemStack i : inventory){
 			if(i == null) continue;
 			ItemStack temp = i.copy();
-			int count = i.stackSize;
-			temp.stackSize = 1;
+			int count = i.getCount();
+			temp.setCount(1);
 			for(int n = 0; n < count; n++){
 				serialized.add(temp.copy());
 			}
@@ -142,12 +142,12 @@ public class SerializedInventory extends HashMap<ItemRecord,Integer>{
 		for(Map.Entry<ItemRecord,Integer> e : serializedInventory.entrySet()){
 			if(e.getKey() == null) continue;
 			ItemStack k = e.getKey().getItem().copy();
-			k.stackSize = e.getValue();
-			while(k.stackSize > k.getMaxStackSize()){
+			k.setCount(e.getValue());
+			while(k.getCount() > k.getMaxStackSize()){
 				ItemStack k2 = k.copy();
-				k2.stackSize = k.getMaxStackSize();
+				k2.setCount(k.getMaxStackSize());
 				output.add(k2);
-				k.stackSize -= k.getMaxStackSize();
+				k.shrink(k.getMaxStackSize());
 			}
 			output.add(k);
 		}

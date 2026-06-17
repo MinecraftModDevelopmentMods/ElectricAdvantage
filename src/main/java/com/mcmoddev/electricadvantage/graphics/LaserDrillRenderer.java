@@ -4,7 +4,7 @@ import com.mcmoddev.electricadvantage.ElectricAdvantage;
 import com.mcmoddev.electricadvantage.machines.ElectricDrillTileEntity;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
@@ -30,7 +30,7 @@ public class LaserDrillRenderer extends TileEntitySpecialRenderer{
 
 	
 	@Override
-	public void renderTileEntityAt(final TileEntity te, final double x, final double y, final double z, final float partialTick, int meta) {
+	public void render(final TileEntity te, final double x, final double y, final double z, final float partialTick, final int destroyStage, final float alpha) {
 		if(te instanceof ElectricDrillTileEntity){
 			// partialTick is guaranteed to range from 0 to 1
 			GlStateManager.pushMatrix();
@@ -49,7 +49,7 @@ public class LaserDrillRenderer extends TileEntitySpecialRenderer{
 			this.bindTexture(texture);
 			final Tessellator tessellator = Tessellator.getInstance();
 
-			final VertexBuffer worldRenderer = tessellator.getBuffer();
+			final BufferBuilder worldRenderer = tessellator.getBuffer();
 
 
 			final float laserU0 = 0;

@@ -1,0 +1,29 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"pXp",
+		"pYp",
+		"pZp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "ingotIron"
+		},
+		"Y": {
+			"item": "minecraft:gunpowder"
+		},
+		"Z": {
+			"type": "forge:ore_dict",
+			"ore": "ingotZinc"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:alkaline_battery"
+	},
+	"group": "batteries"
+}

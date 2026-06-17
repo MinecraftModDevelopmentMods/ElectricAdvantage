@@ -1,0 +1,36 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"ggg",
+		"sss",
+		"wuw"
+	],
+	"key": {
+		"g": {
+			"type": "forge:ore_dict",
+			"ore": "paneGlass"
+		},
+		"s": {
+			"type": "forge:ore_dict",
+			"ore": "ingotSilicon"
+		},
+		"w": {
+			"type": "forge:ore_dict",
+			"ore": "wire"
+		},
+		"u": {
+			"type": "forge:ore_dict",
+			"ore": "PSU"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:photovoltaic_generator"
+	},
+	"conditions": [
+		{
+			"type": "electricadvantage:not_recipe_mode",
+			"mode": "APOCALYPTIC"
+		}
+	],
+	"group": "electric_machines"
+}

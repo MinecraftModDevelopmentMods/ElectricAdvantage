@@ -1,80 +1,100 @@
 buildscript {
     repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        maven { url = 'https://maven.minecraftforge.net/' }
         maven {
             name = 'gradle'
             url 'https://plugins.gradle.org/m2/'
         }
-        maven {
-            name = "sonatype"
-            url = 'https://oss.sonatype.org/content/groups/public'
-        }
+        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT"
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.11"
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.11'
     }
 }
 
-apply plugin: "net.minecraftforge.gradle.forge"
-apply plugin: "com.matthewprenger.cursegradle"
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+def enableCurseGradle = project.hasProperty('enableCurseGradle')
+if (enableCurseGradle) {
+    apply plugin: 'com.matthewprenger.cursegradle'
+}
 
 def mod_file = getModFile()
-version = getVersion("VERSION", mod_file)
-group= "com.mcmoddev.electricadvantage"
-archivesBaseName = "ElectricAdvantage_1.10.2"
-sourceCompatibility = targetCompatibility = "1.8"
+def mc_version = '1.12.2'
+def forge_version = '14.23.5.2859'
 
-// ElectricAdvantage is compiled against the sibling PowerAdvantage deobf jar because
-// the old public Maven artifacts are no longer available. Build it with
-// `gradlew.bat deobfJar` from the PowerAdvantage project when this file is missing.
-def powerAdvantageProjectDir = file("../../PowerAdvantage")
-def powerAdvantageDeobfJarName = "PowerAdvantage-1.10.2-2.4.1-deobf.jar"
+ext {
+    short_version = getVersion('VERSION', mod_file)
+}
+
+version = "${mc_version}-${short_version}"
+if (System.getenv().BUILD_NUMBER) {
+    version += ".${System.getenv().BUILD_NUMBER}"
+}
+group = 'com.mcmoddev.electricadvantage'
+archivesBaseName = 'ElectricAdvantage_1.10.2'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+sourceSets {
+    main {
+        // Forge's dev mod discovery uses the compiled classes output as the
+        // mod container, so keep processed resources beside classes for
+        // runClient/runServer instead of only under build/resources.
+        output.resourcesDir = output.classesDir
+    }
+}
+
+// ElectricAdvantage compiles against the sibling PowerAdvantage deobf jar so
+// local development does not depend on the lost legacy Maven artifacts. Build
+// it from PA112/PowerAdvantage with `gradlew.bat deobfJar` if this file is missing.
+def powerAdvantageProjectDir = file('../../PowerAdvantage')
+def powerAdvantageMinecraftVersion = mc_version
+def powerAdvantageModFile = new File(powerAdvantageProjectDir, 'src/main/java/com/mcmoddev/poweradvantage/PowerAdvantage.java')
+def powerAdvantageVersion = getVersion('VERSION', powerAdvantageModFile.path)
+def powerAdvantageDeobfJarName = "PowerAdvantage-${powerAdvantageMinecraftVersion}-${powerAdvantageVersion}-deobf.jar"
 def powerAdvantageDeobfJar = new File(powerAdvantageProjectDir, "build/libs/${powerAdvantageDeobfJarName}")
 if (!powerAdvantageDeobfJar.exists()) {
     throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. Run gradlew.bat deobfJar in ${powerAdvantageProjectDir} first.")
 }
 
 minecraft {
-    version = "1.10.2-12.18.3.2185"
-    runDir = "run"
-    mappings = "stable_29"
+    mappings channel: 'snapshot', version: '20171003-1.12'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
 }
 
 repositories {
-    maven { // Mantle, TCon, JEI
-        name "DVS1 Maven FS"
-        url "http://dvs1.progwml6.com/files/maven"
-    }
-    maven { // CCL, CCC, NEI
-        name "Chickenbones Repo"
-        url "http://chickenbones.net/maven/"
-    }
-    maven { // CoFH
-    	name "Covers Maven"
-    	url "http://maven.covers1624.net"
-    }
-    maven {
-	    name "SpongePowered"
-        url 'https://repo.spongepowered.org/maven/'
-    }
+    mavenCentral()
 }
 
 dependencies {
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     compile files(powerAdvantageDeobfJar)
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    inputs.property 'version', short_version
+    inputs.property 'mcversion', mc_version
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+        expand 'version': short_version, 'mcversion': mc_version
     }
 
     from(sourceSets.main.resources.srcDirs) {
@@ -82,14 +102,39 @@ processResources {
     }
 }
 
+jar {
+    manifest {
+        attributes([
+            'Specification-Title': project.archivesBaseName,
+            'Specification-Vendor': 'MinecraftModDevelopmentMods',
+            'Specification-Version': '1',
+            'Implementation-Title': project.archivesBaseName,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'MinecraftModDevelopmentMods',
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
 task deobfJar(type: Jar) {
-    classifier = "deobf"
+    classifier = 'deobf'
     from sourceSets.main.output
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc"
-    from javadoc.getDestinationDir()
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+javadoc {
+    failOnError = false
 }
 
 artifacts {
@@ -98,58 +143,81 @@ artifacts {
     archives javadocJar
 }
 
-curseforge {
-    apiKey = ""
-    project {
-        id = "240985"
-        changelog = file("CHANGELOG.txt")
-        releaseType = "release"
-        mainArtifact(jar) {
-            displayName = "Electric Advantage $project.version"
-            relations {
-                requiredLibrary "power-advantage"
-                requiredLibrary "base-metals"
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            from components.java
+            artifact sourceJar {
+                classifier 'sources'
+            }
+            artifact deobfJar {
+                classifier 'deobf'
+            }
+            artifact javadocJar {
+                classifier 'javadoc'
             }
         }
-        addArtifact sourceJar
-        addArtifact deobfJar
-        addArtifact javadocJar
+    }
+}
+
+if (enableCurseGradle) {
+    curseforge {
+        apiKey = ''
+        project {
+            id = '240985'
+            changelog = file('CHANGELOG.txt')
+            releaseType = 'release'
+            addGameVersion(mc_version)
+            mainArtifact(jar) {
+                displayName = "$project.description $short_version"
+                relations {
+                    requiredLibrary 'power-advantage'
+                    requiredLibrary 'base-metals'
+                }
+            }
+            addArtifact sourceJar
+            addArtifact deobfJar
+            addArtifact javadocJar
+        }
     }
 }
 
 String getModFile() {
-    String path = "";
-    FileTree tree = fileTree(dir: "src/main/java")
+    String path = ''
+    FileTree tree = fileTree(dir: 'src/main/java')
     tree.include '**/*.java'
     tree.visit { element ->
         if (element.file.isFile()) {
             element.file.eachLine { String s ->
-                s = s.trim();
-                if (s.startsWith("@Mod")) {
+                s = s.trim()
+                if (s.startsWith('@Mod(')) {
                     path = "src/main/java/$element.relativePath"
                 }
             }
         }
     }
-    return path;
+    return path
 }
 
 String getVersion(String type, String mod_file) {
-    String major = "0";
-    String revision = "0";
-    String patch = "0";
-    String prefix = "public static final String $type = \"";
+    String major = '0'
+    String revision = '0'
+    String patch = '0'
+    String prefix = "public static final String $type = \""
     File file = file(mod_file)
     file.eachLine { String s ->
-        s = s.trim();
+        s = s.trim()
         if (s.startsWith(prefix)) {
-            s = s.substring(prefix.length(), s.length() - 2);
-            String[] pts = s.split("\\.");
+            s = s.substring(prefix.length(), s.length() - 2)
+            String[] pts = s.split("\\.")
 
-            major = pts[0];
-            revision = pts[1];
-            patch = pts[2];
+            major = pts[0]
+            revision = pts[1]
+            patch = pts[2]
         }
     }
-    return "$major.$revision.$patch";
+    return "$major.$revision.$patch"
 }

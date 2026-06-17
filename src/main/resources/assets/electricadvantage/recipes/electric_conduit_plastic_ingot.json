@@ -1,0 +1,23 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"xxx",
+		"ccc",
+		"xxx"
+	],
+	"key": {
+		"x": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		},
+		"c": {
+			"type": "forge:ore_dict",
+			"ore": "ingotCopper"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:electric_conduit",
+		"count": 6
+	},
+	"group": "wires"
+}

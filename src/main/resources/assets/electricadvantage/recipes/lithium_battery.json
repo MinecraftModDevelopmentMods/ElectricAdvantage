@@ -1,0 +1,30 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"pXp",
+		"pYp",
+		"pZp"
+	],
+	"key": {
+		"X": {
+			"type": "forge:ore_dict",
+			"ore": "ingotLithium"
+		},
+		"Y": {
+			"type": "forge:ore_dict",
+			"ore": "dustRedstone"
+		},
+		"Z": {
+			"type": "forge:ore_dict",
+			"ore": "dustCarbon"
+		},
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "plastic"
+		}
+	},
+	"result": {
+		"item": "electricadvantage:lithium_battery"
+	},
+	"group": "batteries"
+}
