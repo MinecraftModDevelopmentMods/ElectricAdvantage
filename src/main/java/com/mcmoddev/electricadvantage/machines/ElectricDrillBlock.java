@@ -43,7 +43,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
 		super(Material.PISTON);
 		this.type = Power.ELECTRIC_POWER;
 		types[0] = this.type;
-		super.setHardness(0.75f);
+		this.setPowerAdvantageHardness(0.75f);
 		this.setDefaultState(getDefaultState().withProperty(ACTIVE, false).withProperty(FACING, EnumFacing.DOWN));
 	}
 
