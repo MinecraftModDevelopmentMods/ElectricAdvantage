@@ -1,155 +1,768 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = 'gradle'
-            url 'https://plugins.gradle.org/m2/'
-        }
-        maven {
-            name = "sonatype"
-            url = 'https://oss.sonatype.org/content/groups/public'
-        }
-    }
-    dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT"
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.11"
-    }
+import groovy.json.JsonSlurper
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.util.jar.Manifest
+import java.util.zip.ZipFile
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.renamer' version '1.1.5'
+    id 'net.minecraftforge.gradle' version '7.0.34'
 }
 
-apply plugin: "net.minecraftforge.gradle.forge"
-apply plugin: "com.matthewprenger.cursegradle"
+group = project.mod_group
+version = project.mod_version
+base.archivesName = 'ElectricAdvantage'
 
-def mod_file = getModFile()
-version = getVersion("VERSION", mod_file)
-group= "com.mcmoddev.electricadvantage"
-archivesBaseName = "ElectricAdvantage_1.10.2"
-sourceCompatibility = targetCompatibility = "1.8"
+def versionParts = project.mod_version.toString().tokenize('.')
+if (versionParts.size() != 4 || !versionParts.every { it ==~ /\d+/ }) {
+    throw new GradleException("mod_version must use Major.Minor.Bug.Target numeric form: ${project.mod_version}")
+}
+def minecraftVersionParts = project.minecraft_version.toString().tokenize('.')
+if (minecraftVersionParts.size() < 2 || minecraftVersionParts.size() > 3
+        || !minecraftVersionParts.every { it ==~ /\d+/ }) {
+    throw new GradleException("minecraft_version must use major.minor or major.minor.patch numeric form: "
+            + project.minecraft_version)
+}
+def minecraftPatch = minecraftVersionParts.size() == 3 ? minecraftVersionParts[2] : '0'
+def expectedTargetVersion = "${minecraftVersionParts[0]}" \
+        + "${minecraftVersionParts[1].padLeft(2, '0')}" \
+        + "${minecraftPatch.padLeft(2, '0')}" \
+        + project.loader_code
+if (versionParts[3] != expectedTargetVersion) {
+    throw new GradleException("mod_version target ${versionParts[3]} does not match "
+            + "Minecraft ${project.minecraft_version} ${project.loader_name} target ${expectedTargetVersion}")
+}
 
-// ElectricAdvantage is compiled against the sibling PowerAdvantage deobf jar because
-// the old public Maven artifacts are no longer available. Build it with
-// `gradlew.bat deobfJar` from the PowerAdvantage project when this file is missing.
-def powerAdvantageProjectDir = file("../../PowerAdvantage")
-def powerAdvantageDeobfJarName = "PowerAdvantage-1.10.2-2.4.1-deobf.jar"
-def powerAdvantageDeobfJar = new File(powerAdvantageProjectDir, "build/libs/${powerAdvantageDeobfJarName}")
-if (!powerAdvantageDeobfJar.exists()) {
-    throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. Run gradlew.bat deobfJar in ${powerAdvantageProjectDir} first.")
+ext.functional_version = versionParts[0..2].join('.')
+ext.display_version = project.mod_version
+ext.release_tag = project.mod_version
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xmaxerrs', '1000'])
+}
+
+tasks.withType(Javadoc).configureEach {
+    failOnError = false
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addBooleanOption('notimestamp', true)
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+def archiveTextSuffixes = [
+        '.cfg', '.css', '.html', '.info', '.java', '.js', '.json', '.lang',
+        '.mcmeta', '.md', '.properties', '.txt', '.xml'
+]
+def archiveTextPatterns = archiveTextSuffixes.collect { "**/*${it}".toString() }
+archiveTextPatterns.addAll(['**/element-list', '**/package-list'])
+def normalizeArchiveLineEndings = { details ->
+    details.filter(FixCrLfFilter,
+            eol: FixCrLfFilter.CrLf.newInstance('lf'),
+            eof: FixCrLfFilter.AddAsisRemove.newInstance('asis'))
 }
 
 minecraft {
-    version = "1.10.2-12.18.3.2185"
-    runDir = "run"
-    mappings = "stable_29"
+    mappings channel: project.mapping_channel, version: project.mapping_version
+    String configuredRunDirectory = providers.gradleProperty('electricAdvantageRunDirectory')
+            .getOrElse('run')
+    runs {
+        configureEach {
+            workingDir.convention layout.projectDirectory.dir(configuredRunDirectory)
+            systemProperty 'forge.logging.console.level', 'debug'
+        }
+        register('client')
+        register('server') {
+            args '--nogui'
+        }
+    }
+}
+
+// Forge 1.10 requires a single development-mod classpath root. ForgeGradle 7
+// splits classes and resources, so merge only the launch output.
+def forge10DevelopmentOutput = layout.buildDirectory.dir('forge10-development/main')
+def syncForge10DevelopmentResources = tasks.register('syncForge10DevelopmentResources', Sync) {
+    group = 'ide'
+    description = 'Merges classes and processed resources for Forge 1.10 Gradle launches.'
+    dependsOn tasks.named('classes')
+    from tasks.named('compileJava', JavaCompile).flatMap { it.destinationDirectory }
+    from sourceSets.main.output.resourcesDir
+    into forge10DevelopmentOutput
+}
+tasks.configureEach {
+    if (name == 'runClient' || name == 'runServer') {
+        dependsOn syncForge10DevelopmentResources
+        doFirst {
+            Set<File> splitMainOutputs = [
+                    tasks.named('compileJava', JavaCompile).get().destinationDirectory.get().asFile,
+                    sourceSets.main.output.resourcesDir
+            ] as Set<File>
+            classpath = files(forge10DevelopmentOutput, classpath.filter {
+                !splitMainOutputs.contains(it)
+            })
+        }
+    }
 }
 
 repositories {
-    maven { // Mantle, TCon, JEI
-        name "DVS1 Maven FS"
-        url "http://dvs1.progwml6.com/files/maven"
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Sponge'
+                url = 'https://repo.spongepowered.org/repository/maven-public'
+            }
+        }
+        filter { includeGroupAndSubgroups('org.spongepowered') }
     }
-    maven { // CCL, CCC, NEI
-        name "Chickenbones Repo"
-        url "http://chickenbones.net/maven/"
-    }
-    maven { // CoFH
-    	name "Covers Maven"
-    	url "http://maven.covers1624.net"
-    }
+    mavenCentral()
     maven {
-	    name "SpongePowered"
-        url 'https://repo.spongepowered.org/maven/'
+        name = 'MinecraftLibraries'
+        url = 'https://libraries.minecraft.net/'
     }
+}
+
+// ElectricAdvantage needs the full PowerAdvantage implementation in development,
+// but the retired MMD Maven cannot provide a dependable deobfuscated artifact.
+// Local builds use the sibling FG7 output; CI supplies the same pinned jar via
+// -PpowerAdvantageDeobfJar after building the audited upstream commit.
+def defaultPowerAdvantageDeobfJar = file("../../PowerAdvantage/build/libs-dev/" \
+        + "PowerAdvantage-${project.poweradvantage_version}-deobf.jar")
+def powerAdvantageDeobfJar = providers.gradleProperty('powerAdvantageDeobfJar')
+        .map { file(it) }
+        .getOrElse(defaultPowerAdvantageDeobfJar)
+if (!powerAdvantageDeobfJar.isFile()) {
+    throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. "
+            + "Run gradlew.bat deobfJar in ../../PowerAdvantage first, or pass "
+            + "-PpowerAdvantageDeobfJar=<path>.")
 }
 
 dependencies {
-    compile files(powerAdvantageDeobfJar)
+    implementation minecraft.dependency(
+            "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}")
+    // Mavenizer's legacy metadata omits this compile-time Minecraft library.
+    compileOnly 'org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209'
+
+    // PowerAdvantage is required at runtime but remains a separate mod jar.
+    compileOnly files(powerAdvantageDeobfJar)
+    runtimeOnly files(powerAdvantageDeobfJar)
 }
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+tasks.named('processResources', ProcessResources) {
+    filteringCharset = 'UTF-8'
+    inputs.property('version', project.version)
+    inputs.property('mcversion', project.minecraft_version)
+    filesMatching('mcmod.info') {
+        expand version: project.version, mcversion: project.minecraft_version
     }
+    filesMatching(archiveTextPatterns, normalizeArchiveLineEndings)
+}
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+def prepareEclipseResources = tasks.register('prepareEclipseResources') {
+    group = 'ide'
+    description = 'Copies Gradle-processed resources into Eclipse production output.'
+    dependsOn tasks.named('processResources')
+    doLast {
+        project.copy {
+            from(layout.buildDirectory.dir('resources/main'))
+            into(layout.projectDirectory.dir('bin/main'))
+        }
     }
 }
 
-task deobfJar(type: Jar) {
-    classifier = "deobf"
-    from sourceSets.main.output
+tasks.named('jar', Jar) {
+    archiveClassifier = 'deobf'
+    destinationDirectory = layout.buildDirectory.dir('libs-dev')
+    exclude 'fernflower_abstract_parameter_names.txt'
+    manifest {
+        attributes([
+                'Maven-Artifact'        : "${project.group}:${base.archivesName.get()}:${project.version}",
+                'Specification-Title'   : project.mod_id,
+                'Specification-Vendor'  : project.mod_authors,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : base.archivesName.get(),
+                'Implementation-Version': project.version,
+                'Implementation-Vendor' : project.mod_authors,
+                'Built-On-Java'         : project.java_version,
+                'Built-On'              : "${project.minecraft_version}-${project.forge_version}"
+        ])
+    }
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc"
-    from javadoc.getDestinationDir()
+def renamedJar = renamer.classes(tasks.named('jar', Jar)) {
+    map.from minecraft.dependency.toSrgFile
+    archiveClassifier = 'renamed'
+    output.set(layout.buildDirectory.file(
+            "intermediates/renamed/${base.archivesName.get()}-${project.version}.jar"))
 }
 
-artifacts {
-    archives deobfJar
-    archives sourceJar
-    archives javadocJar
+def releaseJar = tasks.register('releaseJar', Jar) {
+    dependsOn renamedJar
+    archiveClassifier = null
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    from({ zipTree(renamedJar.get().output.get().asFile) }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'fernflower_abstract_parameter_names.txt'
+    }
+    manifest {
+        attributes([
+                'Maven-Artifact'        : "${project.group}:${base.archivesName.get()}:${project.version}",
+                'Specification-Title'   : project.mod_id,
+                'Specification-Vendor'  : project.mod_authors,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : base.archivesName.get(),
+                'Implementation-Version': project.version,
+                'Implementation-Vendor' : project.mod_authors,
+                'Built-On-Java'         : project.java_version,
+                'Built-On'              : "${project.minecraft_version}-${project.forge_version}"
+        ])
+    }
 }
 
-curseforge {
-    apiKey = ""
-    project {
-        id = "240985"
-        changelog = file("CHANGELOG.txt")
-        releaseType = "release"
-        mainArtifact(jar) {
-            displayName = "Electric Advantage $project.version"
-            relations {
-                requiredLibrary "power-advantage"
-                requiredLibrary "base-metals"
+tasks.register('deobfJar') {
+    group = 'build'
+    description = 'Builds the deobfuscated development jar under build/libs-dev.'
+    dependsOn tasks.named('jar')
+}
+
+tasks.named('sourcesJar', Jar) {
+    filteringCharset = 'UTF-8'
+    includeEmptyDirs = false
+    archiveClassifier = 'sources'
+    filesMatching(archiveTextPatterns, normalizeArchiveLineEndings)
+    manifest {
+        attributes([
+                'Maven-Artifact'        : "${project.group}:${base.archivesName.get()}:${project.version}:sources",
+                'Implementation-Title'  : "${base.archivesName.get()}-sources",
+                'Implementation-Version': project.version
+        ])
+    }
+}
+
+tasks.named('javadocJar', Jar) {
+    filteringCharset = 'UTF-8'
+    archiveClassifier = 'javadoc'
+    filesMatching(archiveTextPatterns, normalizeArchiveLineEndings)
+    manifest {
+        attributes([
+                'Maven-Artifact'        : "${project.group}:${base.archivesName.get()}:${project.version}:javadoc",
+                'Implementation-Title'  : "${base.archivesName.get()}-javadoc",
+                'Implementation-Version': project.version
+        ])
+    }
+}
+
+['apiElements', 'runtimeElements'].each { configurationName ->
+    configurations.named(configurationName) { artifacts.clear() }
+    artifacts { add(configurationName, releaseJar) }
+}
+
+tasks.named('assemble') {
+    dependsOn releaseJar
+    dependsOn tasks.named('sourcesJar')
+    dependsOn tasks.named('javadocJar')
+}
+
+def expectedReleaseFiles = providers.provider {
+    def prefix = "${base.archivesName.get()}-${project.version}"
+    ["${prefix}.jar", "${prefix}-sources.jar", "${prefix}-javadoc.jar"]
+}
+def preparedReleaseDir = providers.gradleProperty('preparedReleaseDir')
+
+tasks.register('verifyReleaseConfiguration') {
+    group = 'verification'
+    description = 'Validates release identity, target metadata, and dependency policy.'
+    doLast {
+        if (project.mod_version != '2.2.1.110021') {
+            throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
+        }
+        if (project.minecraft_version != '1.10.2'
+                || project.forge_version != '12.18.3.2511'
+                || project.mapping_channel != 'stable'
+                || project.mapping_version != '29-1.10.2') {
+            throw new GradleException('Unexpected Minecraft, Forge, or mappings target')
+        }
+        if (project.loader_name != 'forge' || project.loader_code != '1'
+                || project.java_version != '8'
+                || project.java_toolchain_version != '8.0.502+7'
+                || project.gradle_java_version != '17') {
+            throw new GradleException('Unexpected release dispatcher target metadata')
+        }
+        if (project.mod_id != 'electricadvantage'
+                || project.group.toString() != 'com.mcmoddev.electricadvantage'
+                || base.archivesName.get() != 'ElectricAdvantage'
+                || project.mod_license != 'GPL-3.0-only'
+                || project.curseforge_project_id != '240985') {
+            throw new GradleException('Unexpected Forge, Maven, archive, or CurseForge identity')
+        }
+        if (project.cf_requirements != 'power-advantage,base-metals'
+                || project.cf_optionals != ''
+                || project.cf_versions != '1.10.2') {
+            throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
+        }
+        if (project.poweradvantage_version != '2.4.1.110021'
+                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/PowerAdvantage'
+                || project.poweradvantage_source_ref != '6958ed2dfdd745ebc1f614a32072765af061fe8e'
+                || project.poweradvantage_deobf_sha256 != '2C2B688152C62A48A458ED15918D994BE0F9C371EA77C195D92D2EC5531E7CB5') {
+            throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
+        }
+        ['.github/workflows/ci.yml', '.github/workflows/codeql-analysis.yml'].each { workflowPath ->
+            String workflow = file(workflowPath).getText('UTF-8')
+            if (!workflow.contains('repository: ' + project.poweradvantage_source_repository)
+                    || !workflow.contains('ref: ' + project.poweradvantage_source_ref)) {
+                throw new GradleException("${workflowPath} does not build the pinned PowerAdvantage source")
             }
         }
-        addArtifact sourceJar
-        addArtifact deobfJar
-        addArtifact javadocJar
+        String mainSource = file(
+                'src/main/java/com/mcmoddev/electricadvantage/ElectricAdvantage.java').getText('UTF-8')
+        if (!mainSource.contains('MODID = "electricadvantage"')
+                || !mainSource.contains('VERSION = "2.2.1.110021"')
+                || !mainSource.contains('dependencies = "required-after:poweradvantage;after:basemetals"')) {
+            throw new GradleException('ElectricAdvantage source identity or dependency policy changed')
+        }
+        def metadata = new JsonSlurper().parse(file('src/main/resources/mcmod.info'))
+        def mod = metadata instanceof List ? metadata.first() : metadata
+        if (mod.modid != 'electricadvantage') {
+            throw new GradleException('Source mcmod.info does not use the stable electricadvantage mod id')
+        }
     }
 }
 
-String getModFile() {
-    String path = "";
-    FileTree tree = fileTree(dir: "src/main/java")
-    tree.include '**/*.java'
-    tree.visit { element ->
-        if (element.file.isFile()) {
-            element.file.eachLine { String s ->
-                s = s.trim();
-                if (s.startsWith("@Mod")) {
-                    path = "src/main/java/$element.relativePath"
+tasks.register('verifyReleaseDependencies') {
+    group = 'verification'
+    description = 'Resolves Forge and audits the exact required PowerAdvantage development jar.'
+    dependsOn tasks.named('verifyReleaseConfiguration')
+    doLast {
+        String actualHash = MessageDigest.getInstance('SHA-256')
+                .digest(powerAdvantageDeobfJar.bytes).encodeHex().toString().toUpperCase()
+        if (actualHash != project.poweradvantage_deobf_sha256) {
+            throw new GradleException("PowerAdvantage SHA-256 is ${actualHash}, expected "
+                    + project.poweradvantage_deobf_sha256)
+        }
+        new ZipFile(powerAdvantageDeobfJar).withCloseable { zip ->
+            ['cyano/poweradvantage/api/PoweredEntity.class',
+             'cyano/poweradvantage/api/GUIBlock.class',
+             'com/mcmoddev/poweradvantage/conduitnetwork/ConduitRegistry.class',
+             'com/mcmoddev/poweradvantage/init/Fluids.class'].each { required ->
+                if (zip.getEntry(required) == null) {
+                    throw new GradleException("PowerAdvantage dependency is missing ${required}")
+                }
+            }
+            def manifest = new Manifest(zip.getInputStream(zip.getEntry('META-INF/MANIFEST.MF'))).mainAttributes
+            if (manifest.getValue('Implementation-Version') != project.poweradvantage_version) {
+                throw new GradleException('PowerAdvantage dependency manifest has the wrong version')
+            }
+        }
+
+        Set<File> compileFiles = configurations.compileClasspath.files.collect { it.canonicalFile } as Set<File>
+        if (!compileFiles.contains(powerAdvantageDeobfJar.canonicalFile)) {
+            throw new GradleException('PowerAdvantage is missing from compileClasspath')
+        }
+        Set<File> runtimeFiles = configurations.runtimeClasspath.files.collect { it.canonicalFile } as Set<File>
+        if (!runtimeFiles.contains(powerAdvantageDeobfJar.canonicalFile)) {
+            throw new GradleException('PowerAdvantage is missing from runtimeClasspath')
+        }
+        List<String> forbiddenRuntimeMods = runtimeFiles.collect { it.name.toLowerCase(Locale.ROOT) }
+                .findAll { name ->
+                    name.contains('basemetals') || name.contains('orespawn')
+                }
+        if (!forbiddenRuntimeMods.isEmpty()) {
+            throw new GradleException("BaseMetals or OreSpawn leaked onto runtimeClasspath: ${forbiddenRuntimeMods}")
+        }
+    }
+}
+
+tasks.register('verifyReleaseArtifacts') {
+    group = 'verification'
+    description = 'Audits the exact three distributable jars and release-critical contents.'
+    dependsOn tasks.named('verifyReleaseDependencies')
+    dependsOn tasks.named('assemble')
+    doLast {
+        File libs = layout.buildDirectory.dir('libs').get().asFile
+        List<File> jars = (libs.listFiles() ?: [] as File[])
+                .findAll { it.name.endsWith('.jar') }.sort { it.name }
+        List<String> expected = expectedReleaseFiles.get().sort()
+        if (jars.collect { it.name } != expected) {
+            throw new GradleException("Expected exactly ${expected}, found ${jars.collect { it.name }}")
+        }
+        jars.each { candidate ->
+            if (candidate.length() == 0L) {
+                throw new GradleException("Empty release artifact: ${candidate.name}")
+            }
+            new ZipFile(candidate).withCloseable { candidateZip ->
+                candidateZip.entries().findAll { entry ->
+                    !entry.isDirectory()
+                            && (archiveTextSuffixes.any { entry.name.endsWith(it) }
+                            || entry.name.endsWith('/element-list')
+                            || entry.name.endsWith('/package-list'))
+                }.each { entry ->
+                    boolean containsCarriageReturn = candidateZip.getInputStream(entry).withCloseable { input ->
+                        input.bytes.any { value -> value == 13 }
+                    }
+                    if (containsCarriageReturn) {
+                        throw new GradleException(
+                                "${candidate.name}!/${entry.name} does not use canonical LF line endings")
+                    }
+                }
+            }
+        }
+
+        File mainJar = new File(libs, expectedReleaseFiles.get()[0])
+        new ZipFile(mainJar).withCloseable { zip ->
+            List<String> names = zip.entries().collect { it.name }
+            ['mcmod.info', 'pack.mcmeta',
+             'com/mcmoddev/electricadvantage/ElectricAdvantage.class',
+             'com/mcmoddev/electricadvantage/machines/ElectricDrillTileEntity.class',
+             'assets/electricadvantage/lang/en_US.lang'].each { required ->
+                if (!names.contains(required)) {
+                    throw new GradleException("Release jar is missing ${required}")
+                }
+            }
+            ['agent-notes/', '.codex/', 'src/test/', 'fernflower_abstract_parameter_names.txt',
+             'cyano/poweradvantage/',
+             'com/mcmoddev/poweradvantage/', 'cyano/basemetals/', 'com/mcmoddev/lib/',
+             'net/minecraft/', 'net/minecraftforge/'].each { forbidden ->
+                if (names.any { it.contains(forbidden) }) {
+                    throw new GradleException("Release jar contains forbidden entry matching ${forbidden}")
+                }
+            }
+            def metadata = new JsonSlurper().parseText(zip.getInputStream(zip.getEntry('mcmod.info'))
+                    .getText(StandardCharsets.UTF_8.name()))
+            def mod = metadata instanceof List ? metadata.first() : metadata
+            if (mod.modid != project.mod_id || mod.version != project.mod_version
+                    || mod.mcversion != project.minecraft_version) {
+                throw new GradleException('Packaged mcmod.info identity, version, or target is incorrect')
+            }
+            def manifest = new Manifest(zip.getInputStream(zip.getEntry('META-INF/MANIFEST.MF'))).mainAttributes
+            if (manifest.getValue('Implementation-Version') != project.mod_version
+                    || manifest.getValue('Built-On-Java') != project.java_version
+                    || manifest.getValue('Implementation-Timestamp') != null
+                    || manifest.getValue('Timestamp') != null) {
+                throw new GradleException('Release manifest identity is incorrect or volatile')
+            }
+            zip.entries().findAll { it.name.endsWith('.class') }.each { entry ->
+                byte[] header = new byte[8]
+                zip.getInputStream(entry).withCloseable { input ->
+                    if (input.read(header) != header.length) {
+                        throw new GradleException("Cannot inspect bytecode header for ${entry.name}")
+                    }
+                }
+                int major = ((header[6] & 0xff) << 8) | (header[7] & 0xff)
+                if (major != 52) {
+                    throw new GradleException("${entry.name} uses Java class major ${major}, expected 52")
+                }
+            }
+        }
+
+        new ZipFile(new File(libs, expectedReleaseFiles.get()[1])).withCloseable { sourceZip ->
+            if (sourceZip.getEntry('com/mcmoddev/electricadvantage/ElectricAdvantage.java') == null
+                    || sourceZip.getEntry('com/mcmoddev/electricadvantage/machines/ElectricDrillTileEntity.java') == null) {
+                throw new GradleException('Sources jar is missing required ElectricAdvantage sources')
+            }
+        }
+        new ZipFile(new File(libs, expectedReleaseFiles.get()[2])).withCloseable { javadocZip ->
+            if (javadocZip.getEntry('index.html') == null) {
+                throw new GradleException('Javadoc jar is missing index.html')
+            }
+        }
+    }
+}
+
+tasks.register('writeReleaseChecksums') {
+    group = 'verification'
+    description = 'Writes SHA-256 checksums for the audited release jars.'
+    dependsOn tasks.named('verifyReleaseArtifacts')
+    def outputFile = layout.buildDirectory.file('release/SHA256SUMS')
+    outputs.file(outputFile)
+    doLast {
+        File output = outputFile.get().asFile
+        output.parentFile.mkdirs()
+        File libs = layout.buildDirectory.dir('libs').get().asFile
+        String contents = expectedReleaseFiles.get().sort().collect { name ->
+            MessageDigest digest = MessageDigest.getInstance('SHA-256')
+            new File(libs, name).withInputStream { input ->
+                byte[] buffer = new byte[8192]
+                for (int read = input.read(buffer); read >= 0; read = input.read(buffer)) {
+                    if (read > 0) digest.update(buffer, 0, read)
+                }
+            }
+            "${digest.digest().encodeHex().toString().toUpperCase()}  ${name}"
+        }.join('\n') + '\n'
+        output.setText(contents, 'UTF-8')
+    }
+}
+
+tasks.register('verifyPreparedReleaseArtifacts') {
+    group = 'verification'
+    description = 'Audits an immutable release bundle before Maven publication.'
+    doLast {
+        if (!preparedReleaseDir.isPresent()) {
+            throw new GradleException('preparedReleaseDir is required for prepared artifact publication')
+        }
+        File prepared = file(preparedReleaseDir.get())
+        List<String> expected = expectedReleaseFiles.get().sort()
+        List<File> jars = (prepared.listFiles() ?: [] as File[])
+                .findAll { it.name.endsWith('.jar') }.sort { it.name }
+        if (!prepared.isDirectory() || jars.collect { it.name } != expected
+                || jars.any { it.length() == 0L }) {
+            throw new GradleException("Prepared release must contain exactly the non-empty jars ${expected}")
+        }
+        File checksums = new File(prepared, 'SHA256SUMS')
+        File changelog = new File(prepared, 'CHANGELOG.txt')
+        if (!checksums.isFile() || !changelog.isFile()) {
+            throw new GradleException('Prepared release is missing SHA256SUMS or CHANGELOG.txt')
+        }
+        List<String> actualChecksums = jars.collect { candidate ->
+            MessageDigest digest = MessageDigest.getInstance('SHA-256')
+            candidate.withInputStream { input ->
+                byte[] buffer = new byte[8192]
+                for (int read = input.read(buffer); read >= 0; read = input.read(buffer)) {
+                    if (read > 0) digest.update(buffer, 0, read)
+                }
+            }
+            "${digest.digest().encodeHex().toString().toUpperCase()}  ${candidate.name}"
+        }.sort()
+        List<String> declaredChecksums = checksums.readLines('UTF-8')
+                .findAll { !it.trim().isEmpty() }.sort()
+        if (actualChecksums != declaredChecksums) {
+            throw new GradleException('Prepared release checksums do not match the immutable jars')
+        }
+    }
+}
+
+def mavenUploadUrl = providers.environmentVariable('MAVEN_UPLOAD_URL')
+        .orElse('https://invalid.invalid/missing-maven-upload-url')
+def mavenUploadUsername = providers.environmentVariable('MAVEN_UPLOAD_USERNAME')
+def mavenUploadPassword = providers.environmentVariable('MAVEN_UPLOAD_PASSWORD')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = project.group.toString()
+            artifactId = base.archivesName.get()
+            version = project.version.toString()
+            if (preparedReleaseDir.isPresent()) {
+                File prepared = file(preparedReleaseDir.get())
+                artifact(new File(prepared, expectedReleaseFiles.get()[0]))
+                artifact(new File(prepared, expectedReleaseFiles.get()[1])) { classifier = 'sources' }
+                artifact(new File(prepared, expectedReleaseFiles.get()[2])) { classifier = 'javadoc' }
+            } else {
+                artifact(releaseJar)
+                artifact(tasks.named('sourcesJar'))
+                artifact(tasks.named('javadocJar'))
+            }
+            pom {
+                name = 'Electric Advantage'
+                description = project.mod_description
+                url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
+                    url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
                 }
             }
         }
     }
-    return path;
-}
-
-String getVersion(String type, String mod_file) {
-    String major = "0";
-    String revision = "0";
-    String patch = "0";
-    String prefix = "public static final String $type = \"";
-    File file = file(mod_file)
-    file.eachLine { String s ->
-        s = s.trim();
-        if (s.startsWith(prefix)) {
-            s = s.substring(prefix.length(), s.length() - 2);
-            String[] pts = s.split("\\.");
-
-            major = pts[0];
-            revision = pts[1];
-            patch = pts[2];
+    repositories {
+        maven {
+            name = 'release'
+            url = uri(mavenUploadUrl.get())
+            credentials {
+                username = mavenUploadUsername.orNull ?: ''
+                password = mavenUploadPassword.orNull ?: ''
+            }
         }
     }
-    return "$major.$revision.$patch";
+}
+
+tasks.register('validateMavenReleaseCredentials') {
+    group = 'publishing'
+    description = 'Prevents Maven publication from using a local or incomplete destination.'
+    doLast {
+        if (!providers.environmentVariable('MAVEN_UPLOAD_URL').isPresent()
+                || !mavenUploadUsername.isPresent() || !mavenUploadPassword.isPresent()) {
+            throw new GradleException(
+                    'MAVEN_UPLOAD_URL, MAVEN_UPLOAD_USERNAME, and MAVEN_UPLOAD_PASSWORD are required')
+        }
+        if (providers.environmentVariable('MAVEN_UPLOAD_URL').get().startsWith('file:')) {
+            throw new GradleException('Maven release publication must use a remote repository')
+        }
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    dependsOn tasks.named('validateMavenReleaseCredentials')
+    dependsOn preparedReleaseDir.isPresent()
+            ? tasks.named('verifyPreparedReleaseArtifacts')
+            : tasks.named('verifyReleaseArtifacts')
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+def obsoleteForgeGradle2EclipseLaunches = [
+        'ElectricAdvantage_Client.launch': 'GradleStart',
+        'ElectricAdvantage_Server.launch': 'GradleStartServer'
+]
+
+eclipse {
+    project {
+        buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
+        natures 'org.eclipse.buildship.core.gradleprojectnature'
+    }
+    classpath {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+    synchronizationTasks 'isolateEclipseProductionRuns'
+}
+
+tasks.register('configureEclipseBuildship') {
+    group = 'ide'
+    description = 'Creates Buildship preferences for ForgeGradle 7 Eclipse imports.'
+    doLast {
+        File preferencesFile = file('.settings/org.eclipse.buildship.core.prefs')
+        Properties preferences = new Properties()
+        [
+                'eclipse.preferences.version'    : '1',
+                'connection.gradle.distribution': 'GRADLE_DISTRIBUTION(WRAPPER)',
+                'connection.gradle.user.home'   : gradle.gradleUserHomeDir.canonicalPath,
+                'connection.project.dir'        : '',
+                'gradle.user.home'               : gradle.gradleUserHomeDir.canonicalPath,
+                'override.workspace.settings'   : 'true'
+        ].each { key, value -> preferences.setProperty(key, value) }
+        preferencesFile.parentFile.mkdirs()
+        preferencesFile.withOutputStream {
+            preferences.store(it,
+                    'Generated by configureEclipseBuildship; keep Eclipse and command-line caches aligned.')
+        }
+    }
+}
+
+tasks.register('isolateEclipseProductionRuns') {
+    group = 'ide'
+    description = 'Normalizes ForgeGradle Eclipse launches for production-only execution.'
+    dependsOn tasks.named('genEclipseRuns')
+    dependsOn tasks.named('configureEclipseBuildship')
+    dependsOn prepareEclipseResources
+    doLast {
+        obsoleteForgeGradle2EclipseLaunches.each { String name, String mainClass ->
+            File launch = file(name)
+            if (launch.isFile()) {
+                String contents = launch.getText('UTF-8')
+                String obsoleteMainType =
+                        "org.eclipse.jdt.launching.MAIN_TYPE\" value=\"${mainClass}\""
+                if (contents.contains(obsoleteMainType) && !launch.delete()) {
+                    throw new GradleException("Could not remove obsolete ForgeGradle 2 launch ${name}")
+                }
+            }
+        }
+        ['runClient.launch', 'runServer.launch'].each { name ->
+            File launch = file(name)
+            if (!launch.isFile()) {
+                throw new GradleException("ForgeGradle did not generate ${name}")
+            }
+            String contents = launch.getText('UTF-8')
+            if (!contents.contains('org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE')) {
+                String marker = '</launchConfiguration>'
+                String attribute =
+                        '  <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>'
+                contents = contents.replace(marker, attribute + '\n' + marker)
+            }
+            ['--cache', '--metadata', '--to-srg', '--to-obf'].each { option ->
+                String prefix = option + ' '
+                int valueStart = contents.indexOf(prefix)
+                if (valueStart < 0) {
+                    throw new GradleException("${name} is missing Slime Launcher argument ${option}")
+                }
+                valueStart += prefix.length()
+                int valueEnd = contents.indexOf(' --', valueStart)
+                if (valueEnd < 0) {
+                    throw new GradleException("${name} has malformed Slime Launcher argument ${option}")
+                }
+                String value = contents.substring(valueStart, valueEnd)
+                if (value.find(/\s/) != null && !value.startsWith('&quot;')) {
+                    contents = (contents.substring(0, valueStart)
+                            + '&quot;' + value + '&quot;' + contents.substring(valueEnd))
+                }
+            }
+            launch.setText(contents.replace('\r\n', '\n'), 'UTF-8')
+        }
+    }
+}
+
+tasks.register('verifyEclipseProductionClasspath') {
+    group = 'verification'
+    description = 'Verifies the generated Eclipse project and production launches.'
+    dependsOn tasks.named('eclipse')
+    dependsOn tasks.named('isolateEclipseProductionRuns')
+    doLast {
+        File preferencesFile = file('.settings/org.eclipse.buildship.core.prefs')
+        Properties preferences = new Properties()
+        preferencesFile.withInputStream { preferences.load(it) }
+        if (preferences.getProperty('connection.gradle.distribution') != 'GRADLE_DISTRIBUTION(WRAPPER)'
+                || file(preferences.getProperty('connection.gradle.user.home', '')).canonicalFile
+                != gradle.gradleUserHomeDir.canonicalFile) {
+            throw new GradleException('Eclipse Buildship does not use this wrapper and Gradle home')
+        }
+        String projectMetadata = file('.project').getText('UTF-8')
+        if (!projectMetadata.contains('org.eclipse.buildship.core.gradleprojectnature')
+                || !projectMetadata.contains('org.eclipse.buildship.core.gradleprojectbuilder')) {
+            throw new GradleException('Eclipse project metadata is missing its Buildship nature or builder')
+        }
+        File eclipseModMetadata = file('bin/main/mcmod.info')
+        def eclipseMetadata = new JsonSlurper().parseText(eclipseModMetadata.getText('UTF-8'))
+        def eclipseMod = eclipseMetadata instanceof List ? eclipseMetadata.first() : eclipseMetadata
+        if (eclipseMod.modid != project.mod_id || eclipseMod.version != project.mod_version
+                || eclipseMod.mcversion != project.minecraft_version) {
+            throw new GradleException('Eclipse output contains incorrect mod metadata')
+        }
+        ['runClient.launch', 'runServer.launch'].each { name ->
+            String contents = file(name).getText('UTF-8').replace('\\', '/')
+            if (!contents.contains('org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE')
+                    || !contents.contains('value="true"')
+                    || contents.contains('src/test') || contents.contains('bin/test')) {
+                throw new GradleException("${name} does not isolate production code")
+            }
+            if (!contents.contains('PROJECT_ATTR" value="ElectricAdvantage"')) {
+                throw new GradleException("${name} targets the wrong Eclipse project")
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyReleaseConfiguration')
 }
