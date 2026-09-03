@@ -43,7 +43,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
 		super(Material.PISTON);
 		this.type = Power.ELECTRIC_POWER;
 		types[0] = this.type;
-		super.setHardness(0.75f);
+		this.setPowerAdvantageHardness(0.75f);
 		this.setDefaultState(getDefaultState().withProperty(ACTIVE, false).withProperty(FACING, EnumFacing.DOWN));
 	}
 
@@ -172,9 +172,6 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
 	@Override
 	public IBlockState getStateFromMeta(final int metaValue) {
 		EnumFacing enumFacing = metaToFacing(metaValue);
-		if (enumFacing.getAxis() == EnumFacing.Axis.Y) {
-			enumFacing = EnumFacing.NORTH;
-		}
 		return this.getDefaultState().withProperty( FACING, enumFacing)
 				.withProperty(ACTIVE, (metaValue & 0x8) != 0);
 	}
