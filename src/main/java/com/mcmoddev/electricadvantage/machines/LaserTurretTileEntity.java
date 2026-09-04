@@ -489,7 +489,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	public SPacketUpdateTileEntity getUpdatePacket(){
 		NBTTagCompound nbtTag = new NBTTagCompound();
 		writeRenderSync(nbtTag);
-		return new SPacketUpdateTileEntity(this.pos, 0, nbtTag);
+		return new SPacketUpdateTileEntity(this.getPos(), 0, nbtTag);
 	}
 
 	@Override
