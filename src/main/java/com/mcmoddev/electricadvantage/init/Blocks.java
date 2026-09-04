@@ -69,7 +69,7 @@ public abstract class Blocks {
 		electric_track = addBlock(new ElectricScaffoldBlock(),"electric_track");
 		laser_turret = (GUIBlock)addBlock(new LaserTurretBlock(false),"laser_turret");
 		laser_turret_evil = (GUIBlock)addBlock(new LaserTurretBlock(true),"laser_turret_evil");
-		laser_turret_evil.setUnlocalizedName(ElectricAdvantage.MODID+".laser_turret");
+		laser_turret_evil.setTranslationKey(ElectricAdvantage.MODID+".laser_turret");
 		laser_turret_evil.setCreativeTab(null);
 		led_bar = addBlock(new LEDBlock(),"led_bar");
 
@@ -104,7 +104,7 @@ public abstract class Blocks {
 	
 
 	private static Block addBlock(Block block, String name, String... oreDictNames){
-		block.setUnlocalizedName(ElectricAdvantage.MODID+"."+name);
+		block.setTranslationKey(ElectricAdvantage.MODID+"."+name);
 		ResourceLocation registryName = new ResourceLocation(ElectricAdvantage.MODID, name);
 		block.setRegistryName(registryName);
 		ForgeRegistries.BLOCKS.register(block);

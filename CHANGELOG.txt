@@ -1,0 +1,9 @@
+Electric Advantage 2.2.1.112021
+
+- Upgrade the Minecraft 1.12.2 build to ForgeGradle 7 and Gradle 9.6.1.
+- Build reproducible Java 8 release, sources, Javadoc, and development jars.
+- Add dependency, artifact, identity, model, repository, and Eclipse audits.
+- Build against a pinned Power Advantage development jar without embedding it.
+- Keep Base Metals integration reflection-based while retaining its distribution dependency.
+- Preserve vertical Electric Drill orientation when chunks and worlds reload.
+- Preserve Electric Advantage registry, tile entity, entity, asset, configuration, and saved-world identities.

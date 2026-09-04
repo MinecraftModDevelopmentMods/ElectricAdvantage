@@ -239,7 +239,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		final World w = getWorld();
 		final Entity e = w.getEntityByID(targetID);
 		if(e != null){
-			dir = e.getPositionVector().addVector(0, 0.5*e.height, 0).subtract(origin).normalize();
+			dir = e.getPositionVector().add(0, 0.5*e.height, 0).subtract(origin).normalize();
 		} else {
 			dir = (new Vec3d(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
 		}
@@ -283,14 +283,14 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		World w = getWorld();
 		Entity e = w.getEntityByID(targetID);
 		if(e != null){
-			dir = e.getPositionVector().addVector(0, 0.5*e.height, 0).subtract(this.getOpticPosition()).normalize();
+			dir = e.getPositionVector().add(0, 0.5*e.height, 0).subtract(this.getOpticPosition()).normalize();
 		} else {
 			dir = (new Vec3d(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
 		}
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
 	private Vec3d followRayToSolidBlock(Vec3d origin, Vec3d dir, double maxRange){
-		Vec3d max = origin.add(dir).addVector(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
+		Vec3d max = origin.add(dir).add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
 		RayTraceResult impact = getWorld().rayTraceBlocks(origin, max, true, true, false);
 		if(impact != null && impact.typeOfHit == RayTraceResult.Type.BLOCK){
 			final Vec3d impactSite;
@@ -380,7 +380,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	public boolean canSeeEntity(Entity e){
 		if(e == null) return false;
 		Vec3d offsetOrigin = getOpticPosition().add(e.getPositionVector().subtract(getOpticPosition()).normalize());
-		RayTraceResult collision = getWorld().rayTraceBlocks(offsetOrigin, e.getPositionVector().addVector(0, e.height*0.5, 0), true, true, false);
+		RayTraceResult collision = getWorld().rayTraceBlocks(offsetOrigin, e.getPositionVector().add(0, e.height*0.5, 0), true, true, false);
 		if(collision != null && collision.typeOfHit == RayTraceResult.Type.BLOCK){
 			return false;
 		}
@@ -402,7 +402,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	private void lookAt(Entity e) {
-		Vec3d pos = e.getPositionVector().addVector(0, e.height*0.5, 0);
+		Vec3d pos = e.getPositionVector().add(0, e.height*0.5, 0);
 		targetPosition(pos);
 	}
 	
@@ -511,7 +511,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		if(targetLocked){
 			if(targetID != Integer.MIN_VALUE && getWorld().getEntityByID(targetID) != null){
 				Entity e = getWorld().getEntityByID(targetID);
-				Vec3d pos = e.getPositionVector().addVector(0, e.height*0.5, 0);
+				Vec3d pos = e.getPositionVector().add(0, e.height*0.5, 0);
 				NBTTagCompound target = new NBTTagCompound();
 				target.setInteger("id", this.targetID);
 				target.setFloat("yaw", rotTargetYaw);

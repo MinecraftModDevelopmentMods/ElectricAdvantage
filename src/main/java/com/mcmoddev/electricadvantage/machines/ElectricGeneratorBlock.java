@@ -44,7 +44,7 @@ public abstract class ElectricGeneratorBlock extends cyano.poweradvantage.api.si
 	 */
 	@Override
 	public IBlockState getStateFromMeta(final int metaValue) {
-		EnumFacing enumFacing = EnumFacing.getFront(metaValue & 0x7);
+		EnumFacing enumFacing = EnumFacing.byIndex(metaValue & 0x7);
 		if (enumFacing.getAxis() == EnumFacing.Axis.Y) {
 			enumFacing = EnumFacing.NORTH;
 		}

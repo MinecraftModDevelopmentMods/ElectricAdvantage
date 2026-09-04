@@ -77,7 +77,7 @@ public abstract class Items {
 		return n;
 	}
 	private static Item addItem(String unlocalizedName, Item i){
-		i.setUnlocalizedName(ElectricAdvantage.MODID+"."+unlocalizedName);
+		i.setTranslationKey(ElectricAdvantage.MODID+"."+unlocalizedName);
 		i.setRegistryName(new ResourceLocation(ElectricAdvantage.MODID, unlocalizedName));
 		ForgeRegistries.ITEMS.register(i);
 		i.setCreativeTab(com.mcmoddev.poweradvantage.init.ItemGroups.tab_powerAdvantage);

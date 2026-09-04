@@ -1,2 +1,30 @@
 # ElectricAdvantage
-Add the power of electricity to your Minecraft game with this Power Advantage add-on mod
+
+Electric Advantage adds electric machines, generators, automation, and infrastructure to Power Advantage for Minecraft 1.12.2.
+
+## Building Minecraft 1.12.2
+
+The `master-1.12.2` build uses ForgeGradle 7.0.34 and Gradle 9.6.1. Run Gradle with Java 17; Gradle resolves the Java 8 toolchain used for compilation.
+
+First build the pinned sibling PowerAdvantage development jar:
+
+```text
+cd ..\..\PowerAdvantage
+gradlew.bat deobfJar
+```
+
+Then build and audit ElectricAdvantage:
+
+```text
+gradlew.bat clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
+```
+
+Release jars are written to `build/libs`. The deobfuscated development jar is written to `build/libs-dev` by `deobfJar` or `build`.
+
+For Eclipse, import this repository as an existing Gradle project and run:
+
+```text
+gradlew.bat cleanEclipse verifyEclipseProductionClasspath
+```
+
+Power Advantage is required at compile time and runtime but is never bundled. Base Metals remains a required distribution dependency while its integrations stay reflection-based and absent from the compile classpath.

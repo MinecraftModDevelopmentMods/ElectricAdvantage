@@ -43,7 +43,7 @@ public class ElectricScaffoldBlock extends cyano.poweradvantage.api.simple.Block
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public BlockRenderLayer getBlockLayer() {
+	public BlockRenderLayer getRenderLayer() {
 		return BlockRenderLayer.CUTOUT;
 	}
 
