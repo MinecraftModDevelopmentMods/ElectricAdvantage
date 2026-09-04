@@ -12,9 +12,9 @@ public class ItemRecord{
 		if(item.getItemDamage() == OreDictionary.WILDCARD_VALUE
 				|| item.getItem().isDamageable()
 				|| item.getItemDamage() == 0){
-			hashCode = item.getUnlocalizedName().hashCode();
+			hashCode = item.getTranslationKey().hashCode();
 		} else {
-			hashCode = item.getUnlocalizedName().hashCode() * 57 * item.getItemDamage();
+			hashCode = item.getTranslationKey().hashCode() * 57 * item.getItemDamage();
 		}
 	}
 	
