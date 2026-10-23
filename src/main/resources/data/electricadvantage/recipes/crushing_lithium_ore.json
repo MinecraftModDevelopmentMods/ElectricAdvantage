@@ -1,0 +1,20 @@
+{
+  "type": "basemetals:crushing",
+  "ingredient": {
+    "tag": "forge:ores/lithium"
+  },
+  "result": {
+    "item": "electricadvantage:li_powder",
+    "count": 2
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "basemetals"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ores/lithium"
+    }
+  ]
+}

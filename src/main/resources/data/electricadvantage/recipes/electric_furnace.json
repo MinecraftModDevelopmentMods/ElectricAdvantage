@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "bbb",
+    "bub",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bricks"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:electric_furnace"
+  },
+  "group": "electricadvantage:electric_furnace",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    }
+  ]
+}

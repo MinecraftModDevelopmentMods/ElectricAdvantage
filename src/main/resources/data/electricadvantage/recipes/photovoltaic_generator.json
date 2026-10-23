@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ggg",
+    "sss",
+    "wuw"
+  ],
+  "key": {
+    "g": {
+      "tag": "forge:glass_panes"
+    },
+    "s": {
+      "tag": "forge:ingots/silicon"
+    },
+    "w": {
+      "tag": "forge:wires"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:photovoltaic_generator"
+  },
+  "conditions": [
+    {
+      "type": "electricadvantage:not_recipe_mode",
+      "mode": "APOCALYPTIC"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:glass_panes"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/silicon"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:wires"
+    }
+  ],
+  "group": "electricadvantage:photovoltaic_generator"
+}

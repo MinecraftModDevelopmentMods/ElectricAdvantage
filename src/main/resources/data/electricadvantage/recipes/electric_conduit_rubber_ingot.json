@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "xxx",
+    "ccc",
+    "xxx"
+  ],
+  "key": {
+    "x": {
+      "tag": "forge:rubber"
+    },
+    "c": {
+      "tag": "forge:ingots/copper"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:electric_conduit",
+    "count": 6
+  },
+  "group": "electricadvantage:electric_conduit",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/copper"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:rubber"
+    }
+  ]
+}

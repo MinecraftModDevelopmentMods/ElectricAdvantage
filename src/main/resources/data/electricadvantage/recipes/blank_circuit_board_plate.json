@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:plastic"
+    },
+    {
+      "tag": "forge:plates/copper"
+    }
+  ],
+  "result": {
+    "item": "electricadvantage:blank_circuit_board",
+    "count": 2
+  },
+  "group": "electricadvantage:blank_circuit_board",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plastic"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plates/copper"
+    }
+  ]
+}

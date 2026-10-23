@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:ingots/lithium"
+    }
+  ],
+  "result": {
+    "item": "electricadvantage:li_nugget",
+    "count": 9
+  },
+  "group": "electricadvantage:li_nugget",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/lithium"
+    }
+  ]
+}

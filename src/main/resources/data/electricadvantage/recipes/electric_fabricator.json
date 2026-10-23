@@ -1,0 +1,39 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "uX ",
+    "pmp"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:crafting_table"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    },
+    "p": {
+      "tag": "forge:plates/steel"
+    },
+    "m": {
+      "tag": "forge:frames/steel"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:electric_fabricator"
+  },
+  "group": "electricadvantage:electric_fabricator",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:frames/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plates/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    }
+  ]
+}

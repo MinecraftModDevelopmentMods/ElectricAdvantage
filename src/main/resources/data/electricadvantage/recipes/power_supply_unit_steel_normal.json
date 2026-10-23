@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "wcw",
+    " s "
+  ],
+  "key": {
+    "w": {
+      "tag": "forge:wires"
+    },
+    "c": {
+      "tag": "forge:circuit_boards"
+    },
+    "s": {
+      "tag": "forge:ingots/steel"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:psu"
+  },
+  "conditions": [
+    {
+      "type": "electricadvantage:recipe_mode",
+      "mode": "NORMAL"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:circuit_boards"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:wires"
+    }
+  ],
+  "group": "electricadvantage:psu"
+}

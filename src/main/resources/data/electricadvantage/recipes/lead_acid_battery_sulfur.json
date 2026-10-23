@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "pXp",
+    "pYp",
+    "pZp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:ingots/lead"
+    },
+    "Y": {
+      "tag": "forge:sulfur"
+    },
+    "Z": {
+      "item": "minecraft:water_bucket"
+    },
+    "p": {
+      "tag": "forge:plastic"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:lead_acid_battery"
+  },
+  "group": "electricadvantage:lead_acid_battery",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/lead"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plastic"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:sulfur"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "uXY",
+    "pmp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:glass_panes"
+    },
+    "Y": {
+      "tag": "forge:power_supply_units"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    },
+    "p": {
+      "tag": "forge:plates/steel"
+    },
+    "m": {
+      "tag": "forge:frames/steel"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:electric_oven"
+  },
+  "group": "electricadvantage:electric_oven",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:frames/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:glass_panes"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plates/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    }
+  ]
+}

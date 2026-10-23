@@ -1,0 +1,43 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "uX ",
+    "pmp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:storage_blocks/diamond"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    },
+    "p": {
+      "tag": "forge:plates/steel"
+    },
+    "m": {
+      "tag": "forge:frames/steel"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:electric_drill"
+  },
+  "group": "electricadvantage:electric_drill",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:frames/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plates/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:storage_blocks/diamond"
+    }
+  ]
+}

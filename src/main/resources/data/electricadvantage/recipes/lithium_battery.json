@@ -1,0 +1,44 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "pXp",
+    "pYp",
+    "pZp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:ingots/lithium"
+    },
+    "Y": {
+      "tag": "forge:dusts/redstone"
+    },
+    "Z": {
+      "tag": "forge:dusts/carbon"
+    },
+    "p": {
+      "tag": "forge:plastic"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:lithium_battery"
+  },
+  "group": "electricadvantage:lithium_battery",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:dusts/carbon"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:dusts/redstone"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/lithium"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plastic"
+    }
+  ]
+}

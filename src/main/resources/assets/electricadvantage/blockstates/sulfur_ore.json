@@ -1,5 +1,5 @@
 {
     "variants": {
-        "normal": { "model": "electricadvantage:sulfur_ore" }
+        "": { "model": "electricadvantage:block/sulfur_ore" }
     }
 }

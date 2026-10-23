@@ -1,0 +1,20 @@
+{
+  "type": "basemetals:crushing",
+  "ingredient": {
+    "item": "electricadvantage:psu"
+  },
+  "result": {
+    "item": "electricadvantage:control_circuit",
+    "count": 1
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "basemetals"
+    },
+    {
+      "type": "electricadvantage:recipe_mode",
+      "mode": "APOCALYPTIC"
+    }
+  ]
+}

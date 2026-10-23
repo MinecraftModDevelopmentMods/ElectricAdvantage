@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "electricadvantage:silicon_mix"
+  },
+  "result": "electricadvantage:silicon_ingot",
+  "experience": 0.5,
+  "cookingtime": 200,
+  "conditions": [],
+  "group": "electricadvantage:silicon_ingot"
+}
