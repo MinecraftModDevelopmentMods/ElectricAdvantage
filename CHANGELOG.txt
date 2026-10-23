@@ -1,3 +1,9 @@
+Electric Advantage 2.2.5.110021
+
+- Retain unfinished drill progress when rebuilding the mining target after a world or chunk reload.
+- Clear stale deferred target data when loading an untargeted tile; clamp restored progress to current target hardness.
+- Preserve registry identities, saved target coordinates, inventories, energy and the existing progress NBT key.
+
 Electric Advantage 2.2.4.110021
 
 - Move the implementation namespace to zone.moddev.mc.electricadvantage while preserving runtime identities.
