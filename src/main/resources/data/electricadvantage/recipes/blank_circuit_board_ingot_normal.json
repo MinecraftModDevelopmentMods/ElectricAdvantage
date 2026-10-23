@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:plastic"
+    },
+    {
+      "tag": "forge:ingots/copper"
+    }
+  ],
+  "result": {
+    "item": "electricadvantage:blank_circuit_board",
+    "count": 2
+  },
+  "conditions": [
+    {
+      "type": "electricadvantage:recipe_mode",
+      "mode": "NORMAL"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/copper"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plastic"
+    }
+  ],
+  "group": "electricadvantage:blank_circuit_board"
+}

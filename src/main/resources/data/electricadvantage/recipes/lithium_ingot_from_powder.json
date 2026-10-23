@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "electricadvantage:li_powder"
+  },
+  "result": "electricadvantage:li_ingot",
+  "experience": 0.5,
+  "cookingtime": 200,
+  "conditions": [],
+  "group": "electricadvantage:li_ingot"
+}

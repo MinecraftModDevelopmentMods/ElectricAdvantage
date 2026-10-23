@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ggg",
+    "xxx",
+    "ccc"
+  ],
+  "key": {
+    "g": {
+      "tag": "forge:glass_panes"
+    },
+    "x": {
+      "tag": "forge:microchips"
+    },
+    "c": {
+      "tag": "forge:wires"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:led_bar",
+    "count": 3
+  },
+  "group": "electricadvantage:led_bar",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:glass_panes"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:microchips"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:wires"
+    }
+  ]
+}

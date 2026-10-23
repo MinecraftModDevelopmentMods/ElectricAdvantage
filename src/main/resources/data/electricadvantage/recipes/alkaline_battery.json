@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "pXp",
+    "pYp",
+    "pZp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:ingots/iron"
+    },
+    "Y": {
+      "item": "minecraft:gunpowder"
+    },
+    "Z": {
+      "tag": "forge:ingots/zinc"
+    },
+    "p": {
+      "tag": "forge:plastic"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:alkaline_battery"
+  },
+  "group": "electricadvantage:alkaline_battery",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/iron"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:ingots/zinc"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plastic"
+    }
+  ]
+}

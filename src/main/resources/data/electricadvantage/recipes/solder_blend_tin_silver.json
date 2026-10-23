@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:dusts/tin"
+    },
+    {
+      "tag": "forge:dusts/tin"
+    },
+    {
+      "tag": "forge:dusts/silver"
+    }
+  ],
+  "result": {
+    "item": "electricadvantage:solder_mix",
+    "count": 3
+  },
+  "group": "electricadvantage:solder_mix",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:dusts/silver"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:dusts/tin"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "uXY",
+    "pmp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:gems/emerald"
+    },
+    "Y": {
+      "tag": "forge:gems/diamond"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    },
+    "p": {
+      "tag": "forge:plates/steel"
+    },
+    "m": {
+      "tag": "forge:frames/steel"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:laser_turret"
+  },
+  "group": "electricadvantage:laser_turret",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:frames/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:gems/diamond"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:gems/emerald"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plates/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    }
+  ]
+}

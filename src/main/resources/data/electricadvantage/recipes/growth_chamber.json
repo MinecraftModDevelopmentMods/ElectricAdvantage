@@ -1,0 +1,46 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "uXY",
+    "pmp"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:flower_pot"
+    },
+    "Y": {
+      "tag": "forge:microchips"
+    },
+    "u": {
+      "tag": "forge:power_supply_units"
+    },
+    "p": {
+      "tag": "forge:plates/steel"
+    },
+    "m": {
+      "tag": "forge:frames/steel"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:growth_chamber"
+  },
+  "group": "electricadvantage:growth_chamber",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:frames/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:microchips"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plates/steel"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:power_supply_units"
+    }
+  ]
+}

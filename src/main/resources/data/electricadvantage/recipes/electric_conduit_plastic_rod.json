@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "xx",
+    "cc"
+  ],
+  "key": {
+    "x": {
+      "tag": "forge:plastic"
+    },
+    "c": {
+      "tag": "forge:rods/copper"
+    }
+  },
+  "result": {
+    "item": "electricadvantage:electric_conduit"
+  },
+  "group": "electricadvantage:electric_conduit",
+  "conditions": [
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:plastic"
+    },
+    {
+      "type": "poweradvantage:tag_not_empty",
+      "tag": "forge:rods/copper"
+    }
+  ]
+}

@@ -1,3 +1,37 @@
+Electric Advantage 2.2.5.113021
+
+- Keep development archives identical in existing workspaces and fresh CI checkouts.
+- Separate different electronics and machines into distinct recipe-book cells while keeping same-output alternatives together.
+- Populate wire and carbon tags, point circuit-board ingredients at finished control circuits, and retain configured rubber and Normal solder compatibility.
+- Restore lithium, silicon and solder smelting, mineral crushing and Apocalyptic parts recycling.
+- Add lithium nugget/ingot conversion and smelting recipe-book discoveries.
+- Restore legacy electric-parts chest loot through Power Advantage's native fallback when Additional Loot Tables is absent.
+- Verify material-to-machine progression from raw resources in every recipe mode, with live processing, resource reload and full-restart checks.
+- Add ingredient-triggered recipe-book discoveries for every crafting variant, retaining tagged ingredient compatibility and recipe-mode restrictions.
+- Prevent Eclipse builds from replacing processed mod metadata with unresolved source templates.
+- Fix literal 1.13 blockstate model paths and replace removed normal selectors, preserving every orientation and registry identity.
+- Add modern language aliases alongside legacy GUI keys and audit native client resources in the combined Advantage launch.
+- Point generated Eclipse mod discovery at bin/main and audit it, preventing launches that omit Electric Advantage.
+- Make tile-type registration generic inference explicit for Eclipse's compiler.
+- Retain a loaded hydroturbine's pending generator coordinate when saved before its first tick, preserving the same entity across restart.
+- Charge track movement energy to the moved drill rather than the removed tile.
+- Fix drill output into empty vanilla rear inventories and mark both inventories dirty after transfer.
+- Preserve unfinished drill progress across chunk reloads and full restarts; reset it when a saved target state has changed.
+- Keep legacy progress and target-coordinate NBT readable, with optional target-state snapshots for new saves.
+
+- Preserve saved LED energy when upgrading 1.12 worlds or chained 1.10-to-1.12 worlds that use the legacy electricadvantage:l_e_d tile ID.
+
+- Port Electric Advantage to Minecraft 1.13.2, Forge 25.0.223, and the zone.moddev.mc implementation namespace.
+- Register legacy block-state, tile, item, and hydroturbine migrations with Power Advantage for direct 1.10 and 1.12 upgrades.
+- Preserve all six Electric Drill facings, active state, energy, inventory, movement, output, and helper state.
+- Replace Ore Dictionary recipes with Forge tags, including sulfur/sulphur and lithium compatibility aliases.
+- Guard tagged recipes so reduced mod sets cannot drop required material ingredients.
+- Register conditional OreSpawn 4 sulfur and lithium providers while preserving user-owned world profiles.
+- Import retained OreSpawn 1.x lithium and sulfur settings through Power Advantage's non-destructive OreSpawn 4 provider bridge.
+- Use Base Metals data-driven crushing recipes without embedding Base Metals.
+- Preserve fluid-machine, battery, growth chamber, laser turret, and hydroelectric state across restart.
+- Add reproducible 1.13 release artifacts, dependency audits, Eclipse metadata, and Advantage Works coverage.
+
 Electric Advantage 2.2.1.112021
 
 - Upgrade the Minecraft 1.12.2 build to ForgeGradle 7 and Gradle 9.6.1.

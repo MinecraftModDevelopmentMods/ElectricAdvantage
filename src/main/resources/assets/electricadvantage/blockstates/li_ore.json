@@ -1,5 +1,5 @@
 {
     "variants": {
-        "normal": { "model": "electricadvantage:li_ore" }
+        "": { "model": "electricadvantage:block/li_ore" }
     }
 }
