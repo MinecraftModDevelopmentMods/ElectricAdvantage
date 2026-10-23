@@ -69,7 +69,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	public void tickUpdate(boolean isServerWorld) {
 		if(isServerWorld){
 			if(deferred){
-				targetBlock(targetBlockCoord);
+				restoreTargetBlock();
 			}
 			updateFacing();
 			
@@ -192,7 +192,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	private int oldLength = 0;
 	@Override public void powerUpdate(){
 		if(deferred){
-			targetBlock(targetBlockCoord);
+			restoreTargetBlock();
 		}
 		super.powerUpdate();
 		boolean flagSync = progress != oldProgress || oldEnergy != getEnergy();
@@ -362,12 +362,20 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		return a;
 	}
 	
+	private void restoreTargetBlock(){
+		int savedProgress = progress;
+		// Rebuild transient drops and hardness without discarding saved work.
+		targetBlock(targetBlockCoord);
+		progress = Math.max(0, Math.min(savedProgress, progressGoal));
+	}
+
 	private void deferredTargetBlock (BlockPos n){
 		targetBlockCoord = n;
 		deferred = true;
 	}
 	
 	private void untargetBlock(){
+		deferred = false;
 		progress = 0;
 		progressGoal = 0;
 		targetBlockCoord = null;
@@ -467,6 +475,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void loadFrom(NBTTagCompound tagRoot) {
+		untargetBlock();
 		if(tagRoot.hasKey("progress")){
 			progress = tagRoot.getShort("progress");
 		}
@@ -478,7 +487,8 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 			if(getWorld() == null){
 				this.deferredTargetBlock(new BlockPos(x,y,z));
 			} else {
-				this.targetBlock(new BlockPos(x,y,z));
+				this.deferredTargetBlock(new BlockPos(x,y,z));
+				this.restoreTargetBlock();
 			}
 		}
 	}

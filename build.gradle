@@ -182,6 +182,7 @@ dependencies {
     compileOnly files(oreSpawnDeobfJar)
     runtimeOnly files(oreSpawnDeobfJar)
     testImplementation files(oreSpawnDeobfJar)
+    testImplementation files(powerAdvantageDeobfJar)
     testImplementation 'junit:junit:4.13.2'
 }
 
@@ -310,7 +311,7 @@ tasks.register('verifyReleaseConfiguration') {
     group = 'verification'
     description = 'Validates release identity, target metadata, and dependency policy.'
     doLast {
-        if (project.mod_version != '2.2.4.110021') {
+        if (project.mod_version != '2.2.5.110021') {
             throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
         }
         if (project.minecraft_version != '1.10.2'
@@ -361,7 +362,7 @@ tasks.register('verifyReleaseConfiguration') {
         String mainSource = file(
                 'src/main/java/zone/moddev/mc/electricadvantage/ElectricAdvantage.java').getText('UTF-8')
         if (!mainSource.contains('MODID = "electricadvantage"')
-                || !mainSource.contains('VERSION = "2.2.4.110021"')
+                || !mainSource.contains('VERSION = "2.2.5.110021"')
                 || !mainSource.contains('required-after:orespawn@[4.0.6,5.0.0);required-after:poweradvantage@[2.4.3.110021,);after:basemetals')) {
             throw new GradleException('ElectricAdvantage source identity or dependency policy changed')
         }
