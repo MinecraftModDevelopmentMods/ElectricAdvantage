@@ -99,6 +99,8 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound root) {
+		parent = null;
+		parentCoord = null;
 		if(root.hasKey("parentPos")){
 			int[] coords = root.getIntArray("parentPos");
 			if(coords.length >= 3){
@@ -109,9 +111,9 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound root) {
-		if(parent != null){
+		BlockPos p = parent != null ? parent.getPos() : parentCoord;
+		if(p != null){
 			int[] coords = new int[3];
-			BlockPos p = parent.getPos();
 			coords[0] = p.getX();
 			coords[1] = p.getY();
 			coords[2] = p.getZ();
