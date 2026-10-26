@@ -15,9 +15,15 @@ public class BuildWorkflowContractTest {
                 int pin = source.indexOf("java-version: '" + version + "'");
                 assertTrue(workflow + " missing pinned JDK " + version, pin >= 0 && pin < setup);
             }
-            assertTrue(source.contains("installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
-            assertTrue(source.contains("installations.auto-detect=false"));
-            assertTrue(source.contains("installations.auto-download=false"));
+            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
+            assertTrue(source.contains("-Porg.gradle.java.installations.auto-detect=false"));
+            assertTrue(source.contains("-Porg.gradle.java.installations.auto-download=false"));
+            assertFalse(source.contains("-Dorg.gradle.java.installations."));
+            for (String line : source.split("\\R")) {
+                if (line.contains("./gradlew ") && !line.contains("chmod")) {
+                    assertTrue(workflow + ": " + line, line.contains("./gradlew $MMD_GRADLE_TOOLCHAINS "));
+                }
+            }
             assertTrue(source.indexOf("- name: Use pinned build toolchains") < setup);
             assertFalse(source.contains("distribution: microsoft"));
         }
