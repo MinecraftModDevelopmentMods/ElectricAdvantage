@@ -8,11 +8,11 @@ import cyano.poweradvantage.api.PowerRequest;
 import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.fluid.Fluid;
@@ -54,7 +54,6 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	public void tickUpdate(boolean isServerWorld) {
 		if(isServerWorld){
 			// server-side logic
-			net.minecraft.tileentity.TileEntityPiston k;
 			if(!hasRedstoneSignal()){
 				if(timeUntilNextPump > 0) timeUntilNextPump--;
 				if(timeUntilNextPump == 0 && getTank().getFluidAmount() <= 0){
@@ -82,12 +81,12 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 						if(fluidSource != null){
 							float cost = ENERGY_COST_PUMP+ENERGY_COST_VERTICAL*(getPos().getY()-fluidSource.getY());
 							// Found a fluid to suck-up!
-							IBlockState blockstate = w.getBlockState(fluidSource);
+							BlockState blockstate = w.getBlockState(fluidSource);
 							Fluid f = getFluid(blockstate);
 							if(f != null && getEnergy() >= cost){
 								this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
 								this.subtractEnergy(cost, Power.ELECTRIC_POWER);
-								w.setBlockState(fluidSource, net.minecraft.init.Blocks.AIR.getDefaultState(), 3);
+								w.setBlockState(fluidSource, net.minecraft.block.Blocks.AIR.getDefaultState(), 3);
 								success = true;
 							}
 						}
@@ -130,7 +129,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	}
 
 
-	private Fluid getFluid(IBlockState blockstate) {
+	private Fluid getFluid(BlockState blockstate) {
 		return blockstate.getFluidState().isEmpty() ? null : blockstate.getFluidState().getFluid();
 	}
 
@@ -145,7 +144,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 				searchSpace.add(coord);
 				BlockPos next;
 				boolean nomore = true;
-				for(EnumFacing dir : EnumFacing.values()){
+				for(Direction dir : Direction.values()){
 					next = coord.offset(dir);
 					if(!searchSpace.contains(next) && isFluidBlock(next)){
 						coord = next;
@@ -237,7 +236,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	public void prepareDataFieldsForSync() {
 		dataSyncArray[0] = Float.floatToRawIntBits(this.getEnergy());
 		dataSyncArray[1] = this.getTank().getFluidAmount();
-		dataSyncArray[2] = (this.getTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.init.Fluids.WATER));
+		dataSyncArray[2] = (this.getTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
 		dataSyncArray[3] = this.timeUntilNextPump;
 	}
 
@@ -256,20 +255,20 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void saveTo(final NBTTagCompound tagRoot) {
-		NBTTagCompound tankTag = new NBTTagCompound();
+	public void saveTo(final CompoundNBT tagRoot) {
+		CompoundNBT tankTag = new CompoundNBT();
 		this.getTank().writeToNBT(tankTag);
-		tagRoot.setTag("Tank", tankTag);
-		tagRoot.setByte("NextPump", (byte)this.timeUntilNextPump);
+		tagRoot.put("Tank", tankTag);
+		tagRoot.putByte("NextPump", (byte)this.timeUntilNextPump);
 	}
 	/**
 	 * Handles data saving and loading
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void loadFrom(final NBTTagCompound tagRoot) {
+	public void loadFrom(final CompoundNBT tagRoot) {
 		if (tagRoot.contains("Tank", 10)) {
-			NBTTagCompound tankTag = tagRoot.getCompound("Tank");
+			CompoundNBT tankTag = tagRoot.getCompound("Tank");
 			getTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -358,7 +357,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public int fill(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public int fill(Direction face, FluidStack fluid, boolean forReal) {
 		if(fluid == null) return 0;
 		if(getTank().getFluidAmount() <= 0 || getTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getTank().fill(fluid, forReal);
@@ -372,7 +371,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public FluidStack drain(Direction face, FluidStack fluid, boolean forReal) {
 		if(fluid == null) return null;
 		if(getTank().getFluidAmount() > 0 && getTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getTank().drain(fluid.amount,forReal);
@@ -387,7 +386,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, int amount, boolean forReal) {
+	public FluidStack drain(Direction face, int amount, boolean forReal) {
 		if(amount > 0 && getTank().getFluidAmount() > 0 ){
 			return getTank().drain(amount,forReal);
 		} else {
@@ -400,7 +399,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param fluid The fluid being added/removed
 	 */
 	@Override
-	public boolean canFill(EnumFacing face, Fluid fluid) {
+	public boolean canFill(Direction face, Fluid fluid) {
 		if(fluid == null) return false;
 		if(getTank().getFluidAmount() <= 0) return true;
 		return getTank().getFluidAmount() <= getTank().getCapacity() && fluid.equals(getTank().getFluid().getFluid());
@@ -411,7 +410,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param fluid The fluid being added/removed
 	 */
 	@Override
-	public boolean canDrain(EnumFacing face, Fluid fluid) {
+	public boolean canDrain(Direction face, Fluid fluid) {
 		if(fluid == null) return false;
 		return getTank().getFluidAmount() > 0 && fluid.equals(getTank().getFluid().getFluid());
 	}
@@ -422,7 +421,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @return array of FluidTankInfo describing all of the FluidTanks
 	 */
 	@Override
-	public FluidTankInfo[] getTankInfo(EnumFacing face) {
+	public FluidTankInfo[] getTankInfo(Direction face) {
 		FluidTankInfo[] arr = new FluidTankInfo[1];
 		arr[0] = getTank().getInfo();
 		return arr;

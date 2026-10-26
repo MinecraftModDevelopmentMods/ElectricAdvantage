@@ -1,6 +1,7 @@
 package zone.moddev.mc.electricadvantage.gui;
 
 import cyano.poweradvantage.api.simple.SimpleMachineGUI.GUIContainer;
+
 import zone.moddev.mc.poweradvantage.gui.FluidTankGUI;
 import net.minecraft.util.ResourceLocation;
 import cyano.poweradvantage.api.fluid.FluidStack;
@@ -25,7 +26,7 @@ public class GUIHelper {
 	
 	public static void drawIndicatorLight(boolean on,GUIContainer gc, int xOffset, int yOffset){
 		if(on){
-			gc.drawTexturedModalRect(8+xOffset, 8+yOffset, INDICATOR_LED_X, INDICATOR_LED_Y, INDICATOR_LED_W, INDICATOR_LED_H);
+			gc.blit(8+xOffset, 8+yOffset, INDICATOR_LED_X, INDICATOR_LED_Y, INDICATOR_LED_W, INDICATOR_LED_H);
 		}
 	}
 	
@@ -33,7 +34,7 @@ public class GUIHelper {
 		int n = (int)(8 * (progress + 0.0625f) );
 		if(n <= 0) return;
 		int w = 1 + (n * LED_BAR_W8);
-		gc.drawTexturedModalRect(x, y, LED_BAR_X, LED_BAR_Y, w, LED_BAR_H);
+		gc.blit(x, y, LED_BAR_X, LED_BAR_Y, w, LED_BAR_H);
 	}
 	
 

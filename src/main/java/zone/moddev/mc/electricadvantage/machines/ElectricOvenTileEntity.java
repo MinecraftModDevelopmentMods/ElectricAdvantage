@@ -1,10 +1,10 @@
 package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 
@@ -52,7 +52,7 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	public static boolean isFoodItem(ItemStack item){
 		if(item == null) return false;
 		Item i = item.getItem();
-		return (i instanceof net.minecraft.item.ItemFood);
+		return !item.isEmpty() && i.isFood();
 	}
 	
 	public boolean becomesFoodItem(ItemStack item){
@@ -75,12 +75,12 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		tagRoot.setShort("cookTime", progress);
+	protected void saveTo(CompoundNBT tagRoot) {
+		tagRoot.putShort("cookTime", progress);
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		if(tagRoot.contains("cookTime", 99)){
 			progress = tagRoot.getShort("cookTime");
 		}

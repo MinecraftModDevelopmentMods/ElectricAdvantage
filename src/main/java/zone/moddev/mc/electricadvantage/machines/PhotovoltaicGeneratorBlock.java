@@ -2,7 +2,7 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.world.World;
 
 public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
@@ -19,13 +19,13 @@ public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 	
 
 	@Override
-	public boolean isFullCube(IBlockState bs)
+	public boolean isNormalCube(BlockState bs, net.minecraft.world.IBlockReader world, net.minecraft.util.math.BlockPos pos)
 	{
 		return true;
 	}
 	
 	@Override
-	public boolean isOpaqueCube(IBlockState bs)
+	public boolean isSolid(BlockState bs)
 	{
 		return true;
 	}

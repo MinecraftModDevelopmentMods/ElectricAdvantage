@@ -2,13 +2,13 @@ package zone.moddev.mc.electricadvantage.graphics;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricDrillTileEntity;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -57,7 +57,7 @@ public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEnti
 
 
 			float tickRemainder = 1 - partialTick;
-			EnumFacing dir = e.getFacing();
+			Direction dir = e.getFacing();
 
 			float rotY = 0, rotX = 0;
 			switch(dir){

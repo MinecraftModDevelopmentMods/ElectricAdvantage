@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.init;
 import java.util.function.Supplier;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EntityClassification;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
@@ -52,37 +53,41 @@ public final class Entities {
     public static void init() {}
 
     @SubscribeEvent public static void registerTiles(RegistryEvent.Register<TileEntityType<?>> event) {
-        ELECTRIC_FURNACE = tile(event, "electric_furnace", ElectricFurnaceTileEntity::new);
-        ELECTRIC_CRUSHER = tile(event, "electric_crusher", ElectricCrusherTileEntity::new);
-        ELECTRIC_DRILL = tile(event, "electric_drill", ElectricDrillTileEntity::new);
-        ELECTRIC_FABRICATOR = tile(event, "electric_fabricator", ElectricFabricatorTileEntity::new);
-        GROWTH_CHAMBER = tile(event, "growth_chamber", GrowthChamberTileEntity::new);
-        GROWTH_CHAMBER_CONTROLLER = tile(event, "growth_chamber_controller", GrowthChamberControllerTileEntity::new);
-        ELECTRIC_OVEN = tile(event, "electric_oven", ElectricOvenTileEntity::new);
-        LASER_TURRET = tile(event, "laser_turret", LaserTurretTileEntity::new);
-        LED = tile(event, "led", LEDTileEntity::new);
-        HYDROELECTRIC_GENERATOR = tile(event, "hydroelectric_generator", HydroelectricGeneratorTileEntity::new);
-        PHOTOVOLTAIC_GENERATOR = tile(event, "photovoltaic_generator", PhotovoltaicGeneratorTileEntity::new);
-        STEAM_POWERED_ELECTRIC_GENERATOR = tile(event, "steam_powered_electric_generator", SteamPoweredElectricGeneratorTileEntity::new);
-        ELECTRIC_BATTERY_ARRAY = tile(event, "electric_battery_array", ElectricBatteryArrayTileEntity::new);
-        ELECTRIC_PUMP = tile(event, "electric_pump", ElectricPumpTileEntity::new);
-        ELECTRIC_STILL = tile(event, "electric_still", ElectricStillTileEntity::new);
-        PLASTIC_REFINERY = tile(event, "plastic_refinery", PlasticRefineryTileEntity::new);
+        ELECTRIC_FURNACE = tile(event, "electric_furnace", ElectricFurnaceTileEntity::new, Blocks.arc_furnace);
+        ELECTRIC_CRUSHER = tile(event, "electric_crusher", ElectricCrusherTileEntity::new, Blocks.rock_crusher);
+        ELECTRIC_DRILL = tile(event, "electric_drill", ElectricDrillTileEntity::new, Blocks.laser_drill);
+        ELECTRIC_FABRICATOR = tile(event, "electric_fabricator", ElectricFabricatorTileEntity::new, Blocks.fabricator);
+        GROWTH_CHAMBER = tile(event, "growth_chamber", GrowthChamberTileEntity::new, Blocks.growth_chamber);
+        GROWTH_CHAMBER_CONTROLLER = tile(event, "growth_chamber_controller", GrowthChamberControllerTileEntity::new, Blocks.growth_chamber_controller);
+        ELECTRIC_OVEN = tile(event, "electric_oven", ElectricOvenTileEntity::new, Blocks.oven);
+        LASER_TURRET = tile(event, "laser_turret", LaserTurretTileEntity::new, Blocks.laser_turret, Blocks.laser_turret_evil);
+        LED = tile(event, "led", LEDTileEntity::new, Blocks.led_bar);
+        HYDROELECTRIC_GENERATOR = tile(event, "hydroelectric_generator", HydroelectricGeneratorTileEntity::new, Blocks.hydroelectric_generator);
+        PHOTOVOLTAIC_GENERATOR = tile(event, "photovoltaic_generator", PhotovoltaicGeneratorTileEntity::new, Blocks.photovoltaic_generator);
+        STEAM_POWERED_ELECTRIC_GENERATOR = tile(event, "steam_powered_electric_generator", SteamPoweredElectricGeneratorTileEntity::new, Blocks.steam_powered_generator);
+        ELECTRIC_BATTERY_ARRAY = tile(event, "electric_battery_array", ElectricBatteryArrayTileEntity::new, Blocks.battery_array);
+        ELECTRIC_PUMP = tile(event, "electric_pump", ElectricPumpTileEntity::new, Blocks.electric_pump);
+        ELECTRIC_STILL = tile(event, "electric_still", ElectricStillTileEntity::new, Blocks.electric_still);
+        PLASTIC_REFINERY = tile(event, "plastic_refinery", PlasticRefineryTileEntity::new, Blocks.plastic_refinery);
     }
 
     @SubscribeEvent public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        HYDROTURBINE = EntityType.Builder.create(HydroturbineEntity.class,
-                world -> new HydroturbineEntity(HYDROTURBINE, world))
-                .tracker(64, 1, true).build(ElectricAdvantage.MODID + ":hydroturbine");
+        HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>create(
+                HydroturbineEntity::new, EntityClassification.MISC)
+                .size(0.9375F, 0.9375F)
+                .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
+                .build(ElectricAdvantage.MODID + ":hydroturbine");
         HYDROTURBINE.setRegistryName(ElectricAdvantage.MODID, "hydroturbine");
         event.getRegistry().register(HYDROTURBINE);
     }
 
     private static <T extends TileEntity> TileEntityType<T> tile(
-            RegistryEvent.Register<TileEntityType<?>> event, String id, Supplier<? extends T> factory) {
-        TileEntityType<T> type = TileEntityType.Builder.<T>create(factory).build(null);
+            RegistryEvent.Register<TileEntityType<?>> event, String id, Supplier<? extends T> factory,
+            net.minecraft.block.Block... blocks) {
+        TileEntityType<T> type = TileEntityType.Builder.<T>create(factory, blocks).build(null);
         type.setRegistryName(ElectricAdvantage.MODID, id);
         event.getRegistry().register(type);
         return type;
     }
+
 }

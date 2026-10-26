@@ -4,7 +4,7 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -42,13 +42,6 @@ public class LEDTileEntity extends TileEntitySimplePowerMachine {
 	
 
 	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
-	{
-		// used to allow change in blockstate without interrupting the TileEntity or the GUI
-		return (oldState.getBlock() != newState.getBlock());
-	}
-
-	@Override
 	public void tickUpdate(boolean arg0) {
 		// do nothing
 	}
@@ -57,7 +50,7 @@ public class LEDTileEntity extends TileEntitySimplePowerMachine {
 	public void powerUpdate(){
 		super.powerUpdate();
 		boolean on = getEnergy(Power.ELECTRIC_POWER) > 0;
-		IBlockState bs = getWorld().getBlockState(getPos());
+		BlockState bs = getWorld().getBlockState(getPos());
 		if(on){
 			this.subtractEnergy(ENERGY_COST, Power.ELECTRIC_POWER);
 		}

@@ -2,13 +2,13 @@ package zone.moddev.mc.electricadvantage.util.farming;
 
 import zone.moddev.mc.electricadvantage.util.crafting.ItemRecord;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockStem;
+import net.minecraft.block.StemBlock;
 import net.minecraft.state.IProperty;
 import net.minecraft.state.IntegerProperty;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Items;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
@@ -39,37 +39,38 @@ public class VirtualCrop {
 		seed.setCount(1);
 		Item i = stack.getItem();
 		Block b;
-		if(i instanceof ItemBlock){
-			b = ((ItemBlock)i).getBlock();
+		if(i instanceof BlockItem){
+			b = ((BlockItem)i).getBlock();
 		} else {
 			b = null;
 		}
 		if(customRecipes.get(r) != null){
 			return customRecipes.get(r).copy();
-		} else if(i == Item.getItemFromBlock(net.minecraft.init.Blocks.SUGAR_CANE)
-				|| b instanceof net.minecraft.block.BlockMushroom
-				|| b instanceof net.minecraft.block.BlockCactus
-				|| b instanceof net.minecraft.block.BlockBush
-				|| b instanceof net.minecraft.block.BlockGrass
-				|| b instanceof net.minecraft.block.BlockVine
-				|| b instanceof net.minecraft.block.BlockLilyPad){
+		} else if(i == net.minecraft.block.Blocks.SUGAR_CANE.asItem()
+				|| b instanceof net.minecraft.block.MushroomBlock
+				|| b instanceof net.minecraft.block.CactusBlock
+				|| (b instanceof net.minecraft.block.BushBlock
+						&& !(b instanceof net.minecraft.block.CropsBlock) && !(b instanceof StemBlock))
+				|| b instanceof net.minecraft.block.GrassBlock
+				|| b instanceof net.minecraft.block.VineBlock
+				|| b instanceof net.minecraft.block.LilyPadBlock){
 			// duplicate
 			ItemStack product = seed.copy();
 			product.setCount(2);
 			return new VirtualCrop(seed,8,Arrays.asList(product));
-		} else if(i instanceof IPlantable){
-			IPlantable plantable = (IPlantable)i;
-			IBlockState startingState = plantable.getPlant(w, pos);
+		} else if(i instanceof IPlantable || b instanceof IPlantable){
+			IPlantable plantable = i instanceof IPlantable ? (IPlantable)i : (IPlantable)b;
+			BlockState startingState = plantable.getPlant(w, pos);
 			Block block = startingState.getBlock();
 			int numStages = getNumberOfGrowthStages(startingState);
-			if(block instanceof BlockStem){
-				Block product = getBlockFieldByReflection(block);
+			if(block instanceof StemBlock){
+				Block product = ((StemBlock)block).getCrop();
 				if(product == null) {
 					return null;
 				}
 				return new VirtualCrop(seed,numStages,Arrays.asList(new ItemStack(product)));
 			} else {
-				IBlockState agedState = ageToMax(startingState);
+				BlockState agedState = ageToMax(startingState);
 				return new VirtualCrop(getDrops(startingState, w, pos),
 						getNumberOfGrowthStages(startingState),
 						getDrops(agedState, w, pos));
@@ -84,7 +85,7 @@ public class VirtualCrop {
 	}
 	
 
-	private static int getNumberOfGrowthStages(IBlockState startingState) {
+	private static int getNumberOfGrowthStages(BlockState startingState) {
 		for(IProperty<?> property : startingState.getProperties()){
 			if(property instanceof IntegerProperty){
 				IntegerProperty prop = (IntegerProperty)property;
@@ -97,7 +98,7 @@ public class VirtualCrop {
 	}
 	
 
-	private static IBlockState ageToMax(IBlockState startingState) {
+	private static BlockState ageToMax(BlockState startingState) {
 		for(IProperty<?> property : startingState.getProperties()){
 			if(property instanceof IntegerProperty){
 				IntegerProperty prop = (IntegerProperty)property;
@@ -113,32 +114,11 @@ public class VirtualCrop {
 		return startingState;
 	}
 
-	private static List<ItemStack> getDrops(IBlockState state, World world, BlockPos pos) {
-		NonNullList<ItemStack> drops = NonNullList.create();
-		state.getBlock().getDrops(state, drops, world, pos, 0);
-		return drops;
+	private static List<ItemStack> getDrops(BlockState state, World world, BlockPos pos) {
+		if (!(world instanceof net.minecraft.world.server.ServerWorld)) return Collections.emptyList();
+		return Block.getDrops(state, (net.minecraft.world.server.ServerWorld) world, pos, null);
 	}
 	
-	private static Block getBlockFieldByReflection(Object target) {
-		Class type = Block.class;
-		Field[] fields = target.getClass().getDeclaredFields();
-		try {
-			for (Field f : fields){
-				if(type.isAssignableFrom(f.getType())){
-					// found a block member variable, I hope it is the right one!
-					f.setAccessible(true);
-					Object got;
-					got = f.get(target);
-					return (Block)got;
-				}
-			}
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			return null;
-		}
-		// no block member variables found
-		return null;
-	}
-
 	private final byte numberOfStages;
 	private byte stage = 0;
 	private final List<ItemStack> harvest;

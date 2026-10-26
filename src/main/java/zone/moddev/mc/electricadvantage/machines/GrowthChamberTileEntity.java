@@ -5,10 +5,10 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.electricadvantage.util.farming.VirtualCrop;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +21,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 	private final int[] progression = new int[GROWTH_AREA];
 	private final int[] progressionMax = new int[GROWTH_AREA];
 	private final VirtualCrop[] crops = new VirtualCrop[GROWTH_AREA];
+	private byte[] pendingGrowth;
 	
 	public GrowthChamberTileEntity() {
 		super(zone.moddev.mc.electricadvantage.init.Entities.GROWTH_CHAMBER, "tile.electricadvantage.growth_chamber.name",Power.GROWTHCHAMBER_POWER, ENERGY_PER_TICK*64, GROWTH_AREA, 6, 0);
@@ -30,6 +31,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 	@Override
 	public void tickUpdate(boolean isServer) {
 		if(isServer){
+			restorePendingCrops();
 			boolean[] recalculate = inventoryChanged();
 			boolean active = false;
 			boolean flagSync = false;
@@ -70,8 +72,8 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 									for(ItemStack i : harvest){
 										ItemStack remainder = this.insertItemToOutputSlots(i);
 										if(remainder != null){
-											getWorld().spawnEntity(
-													new EntityItem(
+											getWorld().addEntity(
+													new ItemEntity(
 															getWorld(),
 															2*(getWorld().rand.nextDouble()-0.5),
 															2*(getWorld().rand.nextDouble()-0.5),
@@ -156,33 +158,48 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		byte[] growthStages = new byte[GROWTH_AREA];
+	protected void saveTo(CompoundNBT tagRoot) {
+		byte[] growthStages = pendingGrowth == null ? new byte[GROWTH_AREA]
+				: Arrays.copyOf(pendingGrowth, GROWTH_AREA);
 		for(int i = 0; i < growthStages.length; i++){
 			if(crops[i] != null)
 				growthStages[i] = crops[i].getCurrentGrowth();
 		}
-		tagRoot.setByteArray("growth", growthStages);
-		tagRoot.setIntArray("prog", progression);
+		tagRoot.putByteArray("growth", growthStages);
+		tagRoot.putIntArray("prog", progression);
 	}
 
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
-		if(tagRoot.contains("growth", 99)){
-			byte[] growthStages = tagRoot.getByteArray("growth");
-			for(int i = 0; i < growthStages.length && i < GROWTH_AREA; i++){
-				if(crops[i] == null){
-					crops[i] = getVirtualCrop(this.getInputSlot(i));
-				}
-				if(crops[i] != null){
-					crops[i].setCurrentGrowth(growthStages[i]);
-				}
+	protected void loadFrom(CompoundNBT tagRoot) {
+		Arrays.fill(crops, null);
+		Arrays.fill(progression, 0);
+		Arrays.fill(progressionMax, 0);
+		oldInventory = null;
+		pendingGrowth = tagRoot.contains("growth", 7)
+				? Arrays.copyOf(tagRoot.getByteArray("growth"), GROWTH_AREA) : null;
+		if(tagRoot.contains("prog", 11)){
+			int[] saved = tagRoot.getIntArray("prog");
+			System.arraycopy(saved, 0, progression, 0, Math.min(saved.length, progression.length));
+		}
+	}
+
+	private void restorePendingCrops() {
+		if (pendingGrowth == null) return;
+		for (int i = 0; i < GROWTH_AREA; i++) {
+			crops[i] = getVirtualCrop(getInputSlot(i));
+			if (crops[i] != null) {
+				crops[i].setCurrentGrowth(pendingGrowth[i]);
+				progressionMax[i] = crops[i].getMaxGrowth() * TICKS_PER_GROWTH;
+			} else {
+				progression[i] = 0;
 			}
 		}
-		if(tagRoot.contains("prog", 99)){
-			System.arraycopy(tagRoot.getIntArray("prog"), 0, progression, 0, progression.length);
-		}
+		// Seed the comparison cache so the first tick does not discard restored work.
+		ItemStack[] inventory = getInventory();
+		oldInventory = new ItemStack[inventory.length];
+		for (int i = 0; i < inventory.length; i++) oldInventory[i] = copyStackOrNull(inventory[i]);
+		pendingGrowth = null;
 	}
 
 

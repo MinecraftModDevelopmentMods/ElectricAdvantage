@@ -2,15 +2,16 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
@@ -37,21 +38,21 @@ public class LaserTurretBlock extends ElectricMachineBlock {
 
 
 	@Override
-	public VoxelShape getShape(IBlockState state, IBlockReader world, BlockPos pos) {
+	public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
 		return SHAPE;
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(IBlockState state, IBlockReader world, BlockPos pos) {
+	public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
 		return SHAPE;
 	}
 
 	@Override
-	public void onBlockPlacedBy(World w, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+	public void onBlockPlacedBy(World w, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		super.onBlockPlacedBy(w, pos, state, placer, stack);
 		TileEntity te = w.getTileEntity(pos);
-		if(placer instanceof EntityPlayer && te instanceof LaserTurretTileEntity){
-			((LaserTurretTileEntity)te).setOwner((EntityPlayer)placer);
+		if(placer instanceof PlayerEntity && te instanceof LaserTurretTileEntity){
+			((LaserTurretTileEntity)te).setOwner((PlayerEntity)placer);
 		}
 	}
 

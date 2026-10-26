@@ -2,11 +2,11 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.compat.BaseMetalsCompat;
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagShort;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.ShortNBT;
 
 import java.util.Arrays;
 
@@ -100,19 +100,19 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		NBTTagList times = new NBTTagList();
+	protected void saveTo(CompoundNBT tagRoot) {
+		ListNBT times = new ListNBT();
 		for(int i = 0; i < numberOfInputSlots(); i++){
-			times.add(new NBTTagShort(smashTime[i]));
+			times.add(new ShortNBT(smashTime[i]));
 		}
-		tagRoot.setTag("smashTime", times);
+		tagRoot.put("smashTime", times);
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
-		NBTTagList times = tagRoot.getList("smashTime", 2);
+	protected void loadFrom(CompoundNBT tagRoot) {
+		ListNBT times = tagRoot.getList("smashTime", 2);
 		for(int i = 0; i < numberOfInputSlots() && i < times.size(); i++){
-			smashTime[i] = ((NBTTagShort)times.get(i)).getShort();
+			smashTime[i] = ((ShortNBT)times.get(i)).getShort();
 		}
 	}
 

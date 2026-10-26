@@ -4,22 +4,23 @@ import zone.moddev.mc.electricadvantage.init.Blocks;
 import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.poweradvantage.util.InventoryWrapper;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -41,7 +42,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	private int progressGoal = 0;
 	private BlockPos targetBlockCoord = null;
 	private Block[] targetBlocks = null;
-	private NBTTagList savedTargetStates = null;
+	private ListNBT savedTargetStates = null;
 	private List<ItemStack> targetBlockItems = null;
 	private int laserLength = 0;
 
@@ -89,12 +90,12 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 						progress++;
 						if(progress >= progressGoal){
 							// Mined it!
-							playSoundEffect(targetBlockCoord.getX()+0.5, targetBlockCoord.getY()+0.5, targetBlockCoord.getZ()+0.5, targetBlocks[0].getSoundType().getPlaceSound(), 0.5f, 1f);
+							playSoundEffect(targetBlockCoord.getX()+0.5, targetBlockCoord.getY()+0.5, targetBlockCoord.getZ()+0.5, getWorld().getBlockState(targetBlockCoord).getSoundType().getPlaceSound(), 0.5f, 1f);
 							playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_SAND_BREAK, 0.5f, 1f);
 							BlockPos[] targets = this.getArea(targetBlockCoord);
 							for(int i = 0; i < targets.length; i++)
 								if(canMine(targets[i])){
-									getWorld().setBlockState(targets[i], net.minecraft.init.Blocks.AIR.getDefaultState(), 3);
+									getWorld().setBlockState(targets[i], net.minecraft.block.Blocks.AIR.getDefaultState(), 3);
 								}
 							for(ItemStack item : targetBlockItems){
 								addItem(item);
@@ -131,8 +132,8 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		return super.insertItemToOutputSlots(in);
 	}
 
-	private EnumFacing trackDirection(){
-		for(EnumFacing dir : EnumFacing.values()){
+	private Direction trackDirection(){
+		for(Direction dir : Direction.values()){
 			if(getWorld().getBlockState(getPos().offset(dir)).getBlock() == Blocks.electric_track){
 				return dir;
 			}
@@ -142,7 +143,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	private boolean followTrack(){
 		if(this.getEnergy() < ENERGY_COST_MOVE) return false;
-		EnumFacing trackDir = trackDirection();
+		Direction trackDir = trackDirection();
 		if(trackDir == null) return false;
 
 		// clone this block into neighboring block
@@ -151,7 +152,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		BlockPos nextPos = getPos().offset(trackDir);
 		w.setBlockState(nextPos, w.getBlockState(getPos()), 2);
 		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getTileEntity(nextPos);
-		NBTTagCompound dataTransfer = new NBTTagCompound();
+		CompoundNBT dataTransfer = new CompoundNBT();
 		this.write(dataTransfer);
 		te.read(dataTransfer);
 		te.setPos(nextPos);
@@ -205,7 +206,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		boolean redstone = hasRedstoneSignal();
 
 
-		EnumFacing f = getFacing();
+		Direction f = getFacing();
 		BlockPos n = getPos().offset(f);
 
 		// manage drill bits and find next block
@@ -288,7 +289,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 			BlockPos pos = getPos();
 			AxisAlignedBB beamArea = new AxisAlignedBB(targetBlockCoord.getX(),targetBlockCoord.getY(),targetBlockCoord.getZ(),
 					pos.getX()+1,pos.getY()+1,pos.getZ()+1);
-			List<EntityLivingBase> victims = getWorld().getEntitiesWithinAABB(EntityLivingBase.class, beamArea);
+			List<LivingEntity> victims = getWorld().getEntitiesWithinAABB(LivingEntity.class, beamArea);
 			for(Entity e : victims){
 				e.setFire(3);
 				e.attackEntityFrom(Power.laser_damage, 2f);
@@ -317,15 +318,14 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		targetBlockCoord = pos;
 		progressGoal = 0;
 		targetBlocks = new Block[targets.length];
-		savedTargetStates = new NBTTagList();
+		savedTargetStates = new ListNBT();
 		targetBlockItems = new ArrayList<>(targets.length);
 		for(int i = 0; i < targets.length; i++){
 			targetBlocks[i] = getWorld().getBlockState(targets[i]).getBlock();
 			savedTargetStates.add(NBTUtil.writeBlockState(getWorld().getBlockState(targets[i])));
 			progressGoal += this.getBlockStrength(targets[i]);
-			net.minecraft.util.NonNullList<ItemStack> drops = net.minecraft.util.NonNullList.create();
-			targetBlocks[i].getDrops(getWorld().getBlockState(targets[i]), drops, getWorld(), targets[i], 0);
-			targetBlockItems.addAll(drops);
+			targetBlockItems.addAll(Block.getDrops(getWorld().getBlockState(targets[i]),
+					(ServerWorld) getWorld(), targets[i], getWorld().getTileEntity(targets[i])));
 		}
 		deferred = false;
 	}
@@ -404,14 +404,14 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		targetBlockItems = null;
 	}
 
-	private EnumFacing facingCache = null;
-	public EnumFacing getFacing(){
+	private Direction facingCache = null;
+	public Direction getFacing(){
 		if(facingCache == null) updateFacing();
 		return facingCache;
 	}
 	private void updateFacing(){
-		final EnumFacing old = facingCache;
-		facingCache = (EnumFacing)getWorld().getBlockState(getPos()).get(ElectricDrillBlock.FACING);
+		final Direction old = facingCache;
+		facingCache = (Direction)getWorld().getBlockState(getPos()).get(ElectricDrillBlock.FACING);
 		if(old != null && old != facingCache){
 			untargetBlock();
 			this.sync();
@@ -420,7 +420,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 
 	private boolean canMine(BlockPos coord){
-		IBlockState bs  = getWorld().getBlockState(coord);
+		BlockState bs  = getWorld().getBlockState(coord);
 		Block b = bs.getBlock();
 		// indestructable blocks have negative hardness
 		return !(b.getBlockHardness(bs, getWorld(), coord) < 0);
@@ -430,14 +430,14 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		if(getWorld().isAirBlock(coord)){
 			return 0;
 		}
-		IBlockState bs  = getWorld().getBlockState(coord);
+		BlockState bs  = getWorld().getBlockState(coord);
 		Block block = bs.getBlock();
 		return (int)(Math.max(MINING_TIME_FACTOR * block.getBlockHardness(bs, getWorld(), coord),0.5f * MINING_TIME_FACTOR));
 	}
 
 
 
-	private void inventoryTransfer(BlockPos adj, EnumFacing otherFace) {
+	private void inventoryTransfer(BlockPos adj, Direction otherFace) {
 		ItemStack[] inventory = this.getInventory();
 		TileEntity te = getWorld().getTileEntity(adj);
 		if(te instanceof IInventory ){
@@ -489,18 +489,18 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		tagRoot.setShort("progress",(short)progress);
+	protected void saveTo(CompoundNBT tagRoot) {
+		tagRoot.putShort("progress",(short)progress);
 		if(targetBlockCoord != null){
-			tagRoot.setInt("targetX", targetBlockCoord.getX());
-			tagRoot.setInt("targetY", targetBlockCoord.getY());
-			tagRoot.setInt("targetZ", targetBlockCoord.getZ());
-			if(savedTargetStates != null) tagRoot.setTag("TargetStates", savedTargetStates.copy());
+			tagRoot.putInt("targetX", targetBlockCoord.getX());
+			tagRoot.putInt("targetY", targetBlockCoord.getY());
+			tagRoot.putInt("targetZ", targetBlockCoord.getZ());
+			if(savedTargetStates != null) tagRoot.put("TargetStates", savedTargetStates.copy());
 		}
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		untargetBlock();
 		if(tagRoot.contains("progress", 99)){
 			progress = tagRoot.getShort("progress");
@@ -527,19 +527,11 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void setActiveState(boolean active){
-		IBlockState oldState = getWorld().getBlockState(getPos());
+		BlockState oldState = getWorld().getBlockState(getPos());
 		if(oldState.getBlock() instanceof ElectricDrillBlock
 				&& (Boolean)oldState.get(ElectricDrillBlock.ACTIVE) != active ){
-			final TileEntity save = this;
-			final World w = getWorld();
-			final BlockPos pos = this.getPos();
-			IBlockState newState = oldState.with(ElectricDrillBlock.ACTIVE, active);
-			w.setBlockState(pos, newState,3);
-			if(save != null){
-				w.removeTileEntity(pos);
-				save.validate();
-				w.setTileEntity(pos, save);
-			}
+			BlockState newState = oldState.with(ElectricDrillBlock.ACTIVE, active);
+			getWorld().setBlockState(getPos(), newState, 3);
 		}
 	}
 	@Override

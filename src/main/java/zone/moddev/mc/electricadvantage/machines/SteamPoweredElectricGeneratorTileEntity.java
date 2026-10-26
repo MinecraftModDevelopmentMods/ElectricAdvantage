@@ -4,10 +4,10 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PowerRequest;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 import static zone.moddev.mc.electricadvantage.machines.SteamPoweredElectricGeneratorBlock.STEAM_POWER;
 
@@ -156,7 +156,7 @@ public boolean isPowerSink(ConduitType pt){
 	 * @return true if this conduit can flow the given energy type through the given face, false 
 	 * otherwise
 	 */
-	public boolean canAcceptType(ConduitType type, EnumFacing blockFace){
+	public boolean canAcceptType(ConduitType type, Direction blockFace){
 		return ConduitType.areSameType(getEnergyType(), type) || ConduitType.areSameType(STEAM_POWER, type);
 	}
 	/**
@@ -171,12 +171,12 @@ public boolean isPowerSink(ConduitType pt){
 	///// end multi-type overrides /////
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		tagRoot.setFloat("steam", steam);
+	protected void saveTo(CompoundNBT tagRoot) {
+		tagRoot.putFloat("steam", steam);
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		steam = tagRoot.getFloat("steam");
 	}
 	

@@ -2,13 +2,13 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketCustomSound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -64,36 +64,21 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	protected void setActive(boolean active){
-		IBlockState old = getWorld().getBlockState(getPos());
+		BlockState old = getWorld().getBlockState(getPos());
 		if(old.getBlock() instanceof ElectricGeneratorBlock 
 				&& (Boolean)old.get(ElectricGeneratorBlock.ACTIVE) != active){
-			final TileEntity save = this;
-			final World w = getWorld();
-			final BlockPos pos = this.getPos();
-			w.setBlockState(pos, old.with(ElectricGeneratorBlock.ACTIVE, active),3);
-			if(save != null){
-				w.removeTileEntity(pos);
-				save.validate();
-				w.setTileEntity(pos, save);
-			}
+			getWorld().setBlockState(getPos(), old.with(ElectricGeneratorBlock.ACTIVE, active), 3);
 		}
-	}
-
-	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
-	{
-		// used to allow change in blockstate without interrupting the TileEntity or the GUI
-		return (oldState.getBlock() != newSate.getBlock());
 	}
 
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
 		if(getWorld().isRemote) return;
 		final double range = 16;
-		List<EntityPlayerMP> players = getWorld().getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(
+		List<ServerPlayerEntity> players = getWorld().getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(
 				x - range, y - range, z - range,
 				x + range, y + range, z + range));
-		for(EntityPlayerMP player : players){
-			player.connection.sendPacket(new SPacketCustomSound(sound.getRegistryName(), SoundCategory.BLOCKS,
+		for(ServerPlayerEntity player : players){
+			player.connection.sendPacket(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
 					new net.minecraft.util.math.Vec3d(x, y, z), volume, pitch));
 		}
 	}
@@ -135,7 +120,7 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public boolean canInsertItem(final int slot, final ItemStack srcItem, final EnumFacing side) {
+	public boolean canInsertItem(final int slot, final ItemStack srcItem, final Direction side) {
 		return isValidInputItem(srcItem) && isInArray(slot,inputSlots);
 	}
 
@@ -183,20 +168,20 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public NBTTagCompound write(NBTTagCompound tagRoot){
+	public CompoundNBT write(CompoundNBT tagRoot){
 		super.write(tagRoot);
 		saveTo(tagRoot);
 		return tagRoot;
 	}
 	
 	@Override
-	public void read(NBTTagCompound tagRoot){
+	public void read(CompoundNBT tagRoot){
 		super.read(tagRoot);
 		loadFrom(tagRoot);
 	}
 	
-	protected abstract void saveTo(NBTTagCompound tagRoot);
-	protected abstract void loadFrom(NBTTagCompound tagRoot);
+	protected abstract void saveTo(CompoundNBT tagRoot);
+	protected abstract void loadFrom(CompoundNBT tagRoot);
 
 	@Override public int getInventoryStackLimit(){return 64;}
 }

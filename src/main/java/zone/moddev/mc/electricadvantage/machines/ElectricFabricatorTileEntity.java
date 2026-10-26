@@ -2,9 +2,9 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.util.crafting.RecipeDeconstructor;
 import zone.moddev.mc.electricadvantage.util.crafting.SerializedInventory;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.Arrays;
 import java.util.List;
@@ -160,13 +160,13 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		tagRoot.setShort("progress", (short)progress);
-		tagRoot.setByte("FSM", (byte)state.ordinal());
+	protected void saveTo(CompoundNBT tagRoot) {
+		tagRoot.putShort("progress", (short)progress);
+		tagRoot.putByte("FSM", (byte)state.ordinal());
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		if(tagRoot.contains("progress", 99)){
 			this.progress = tagRoot.getShort("progress");
 		}

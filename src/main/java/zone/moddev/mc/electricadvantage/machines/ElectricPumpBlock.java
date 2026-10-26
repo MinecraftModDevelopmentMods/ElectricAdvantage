@@ -6,7 +6,7 @@ import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 import zone.moddev.mc.poweradvantage.init.Fluids;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
@@ -24,7 +24,7 @@ public class ElectricPumpBlock extends ElectricMachineBlock{
 	 * This method is called whenever the block is placed into the world
 	 */
 	@Override
-	public void onReplaced(IBlockState state, World w, BlockPos coord, IBlockState newState, boolean isMoving) {
+	public void onReplaced(BlockState state, World w, BlockPos coord, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) destroyPipe(w, coord);
 		super.onReplaced(state, w, coord, newState, isMoving);
 	}
@@ -43,7 +43,7 @@ public class ElectricPumpBlock extends ElectricMachineBlock{
 		// destroy connected drill bits
 		BlockPos c = coord.down();
 		while(c.getY() > 0 && w.getBlockState(c).getBlock() == Blocks.pump_pipe_electric){
-			w.setBlockState(c, net.minecraft.init.Blocks.AIR.getDefaultState());
+			w.setBlockState(c, net.minecraft.block.Blocks.AIR.getDefaultState());
 			c = c.down();
 		}
 	}

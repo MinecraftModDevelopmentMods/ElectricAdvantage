@@ -4,8 +4,8 @@ import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricMachineTileEntity;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI;
 import zone.moddev.mc.poweradvantage.math.Integer2D;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -16,7 +16,7 @@ public class OvenGUI extends SimpleMachineGUI{
 				Integer2D.fromCoordinates(27,67, 133,67));
 		super.specialSlots.put(1, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){
 			@Override
-			public ItemStack onTake(EntityPlayer player, ItemStack stack)
+			public ItemStack onTake(PlayerEntity player, ItemStack stack)
 			{
 				stack.onCrafting(player.getEntityWorld(), player, stack.getCount());
 				return super.onTake(player, stack);
@@ -36,8 +36,8 @@ public class OvenGUI extends SimpleMachineGUI{
 	 * @param guiContainer This is the instance of GUIContainer that is drawing 
 	 * the GUI. You need to use it to draw on the screen. For example:<br>
 	   <pre>
-guiContainer.mc.renderEngine.bindTexture(arrowTexture);
-guiContainer.drawTexturedModalRect(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, textureOffsetY, width, height)
+guiContainer.getMinecraft().getTextureManager().bindTexture(arrowTexture);
+guiContainer.blit(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, textureOffsetY, width, height)
 	   </pre>
 	 * @param x This is the x coordinate (in pixels) from the top-left corner of 
 	 * the GUI

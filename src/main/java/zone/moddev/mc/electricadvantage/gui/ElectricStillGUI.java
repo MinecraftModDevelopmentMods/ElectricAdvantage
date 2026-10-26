@@ -24,8 +24,8 @@ public class ElectricStillGUI extends SimpleMachineGUI{
 	 * @param guiContainer This is the instance of GUIContainer that is drawing 
 	 * the GUI. You need to use it to draw on the screen. For example:<br>
 	   <pre>
-guiContainer.mc.renderEngine.bindTexture(arrowTexture);
-guiContainer.drawTexturedModalRect(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, textureOffsetY, width, height)
+guiContainer.getMinecraft().getTextureManager().bindTexture(arrowTexture);
+guiContainer.blit(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, textureOffsetY, width, height)
 	   </pre>
 	 * @param x This is the x coordinate (in pixels) from the top-left corner of 
 	 * the GUI

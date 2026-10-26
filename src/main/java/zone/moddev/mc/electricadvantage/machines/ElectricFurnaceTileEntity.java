@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagShort;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.ShortNBT;
 
 public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 
@@ -96,19 +96,19 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		NBTTagList burnTimes = new NBTTagList();
+	protected void saveTo(CompoundNBT tagRoot) {
+		ListNBT burnTimes = new ListNBT();
 		for(int i = 0; i < numberOfInputSlots(); i++){
-			burnTimes.add(new NBTTagShort(burnTime[i]));
+			burnTimes.add(new ShortNBT(burnTime[i]));
 		}
-		tagRoot.setTag("cookTime", burnTimes);
+		tagRoot.put("cookTime", burnTimes);
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
-		NBTTagList burnTimes = tagRoot.getList("cookTime", 2);
+	protected void loadFrom(CompoundNBT tagRoot) {
+		ListNBT burnTimes = tagRoot.getList("cookTime", 2);
 		for(int i = 0; i < numberOfInputSlots() && i < burnTimes.size(); i++){
-			burnTime[i] = ((NBTTagShort)burnTimes.get(i)).getShort();
+			burnTime[i] = ((ShortNBT)burnTimes.get(i)).getShort();
 		}
 	}
 

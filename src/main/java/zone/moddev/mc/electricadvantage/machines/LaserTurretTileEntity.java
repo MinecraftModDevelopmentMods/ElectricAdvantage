@@ -4,17 +4,17 @@ import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.init.Power;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.EntityClassification;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.scoreboard.Team;
-import net.minecraft.util.ITickable;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.*;
@@ -26,7 +26,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LaserTurretTileEntity extends ElectricMachineTileEntity implements ITickable{
+public class LaserTurretTileEntity extends ElectricMachineTileEntity implements ITickableTileEntity{
 
 	private final SoundEvent LASER_SOUND;
 
@@ -152,13 +152,13 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 					double x = this.getOpticPosition().x;
 					double y = this.getOpticPosition().y;
 					double z = this.getOpticPosition().z;
-					List<Entity> entities = w.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(x-TARGET_RANGE, y-TARGET_RANGE, z-TARGET_RANGE, x+TARGET_RANGE, y+TARGET_RANGE, z+TARGET_RANGE));
+					List<LivingEntity> entities = w.getEntitiesWithinAABB(LivingEntity.class, new AxisAlignedBB(x-TARGET_RANGE, y-TARGET_RANGE, z-TARGET_RANGE, x+TARGET_RANGE, y+TARGET_RANGE, z+TARGET_RANGE));
 					final double maxRangeSquared = TARGET_RANGE * TARGET_RANGE;
 					if(isEvil){
 						for (Entity e : entities) {
 							if (!(
-									e.isCreatureType(EnumCreatureType.MONSTER, false)
-									|| e.isCreatureType(EnumCreatureType.AMBIENT, false)
+									e.getType().getClassification() == EntityClassification.MONSTER
+									|| e.getType().getClassification() == EntityClassification.AMBIENT
 								)
 							) {
 								if (canSeeEntity(e)) {
@@ -170,13 +170,13 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 					} else {
 						for (Entity e : entities) {
 							if (e.getPositionVector().squareDistanceTo(getOpticPosition()) > maxRangeSquared) continue;
-							if (e instanceof EntityPlayer) {
-								if (isEnemy((EntityPlayer) e)) {
+							if (e instanceof PlayerEntity) {
+								if (isEnemy((PlayerEntity) e)) {
 									setTarget(e);
 									break;
 								}
 							}
-							if (e.isCreatureType(EnumCreatureType.MONSTER, false)) {
+							if (e.getType().getClassification() == EntityClassification.MONSTER) {
 								if (canSeeEntity(e)) {
 									setTarget(e);
 									break;
@@ -217,7 +217,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		}
 	}
 	
-	private boolean isEnemy(EntityPlayer player) {
+	private boolean isEnemy(PlayerEntity player) {
 		if(player.isCreative()) return false;
 		if(this.teamIdentity == null || this.teamIdentity.isEmpty()){
 			return false;
@@ -240,14 +240,14 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		final World w = getWorld();
 		final Entity e = w.getEntityByID(targetID);
 		if(e != null){
-			dir = e.getPositionVector().add(0, 0.5*e.height, 0).subtract(origin).normalize();
+			dir = e.getPositionVector().add(0, 0.5*e.getHeight(), 0).subtract(origin).normalize();
 		} else {
 			dir = (new Vec3d(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
 		}
 		final Vec3d terminus = followRayToSolidBlock(origin,dir,ATTACK_RANGE);
 		final double maxDistSqr = origin.squareDistanceTo(terminus);
 		final double maxDist = Math.sqrt(maxDistSqr);
-		List<Entity> potentialVictims = w.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(
+		List<LivingEntity> potentialVictims = w.getEntitiesWithinAABB(LivingEntity.class, new AxisAlignedBB(
 				origin.x - maxDist, origin.y - maxDist, origin.z - maxDist,
 				origin.x + maxDist, origin.y + maxDist, origin.z + maxDist));
 		List<Entity> victims = new ArrayList<>();
@@ -264,16 +264,18 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 
 	private void hurtVictim(Entity e){
 		e.setFire(BURN_TIME);
-		if(e instanceof EntityLivingBase){
-			((EntityLivingBase)e).attackEntityFrom(Power.laser_damage, ATTACK_DAMAGE);
+		if(e instanceof LivingEntity){
+			((LivingEntity)e).attackEntityFrom(Power.laser_damage, ATTACK_DAMAGE);
 			BlockPos bp = e.getPosition();
 			if(getWorld().isAirBlock(bp) && !getWorld().isAirBlock(bp.down())){
 				getWorld().setBlockState(bp, Blocks.FIRE.getDefaultState());
 			}
 			if(playerOwner != null && !playerOwner.isEmpty()){
-				EntityPlayer p = getWorld().getPlayerEntityByName(playerOwner);
-				if(p != null){
-					((EntityLivingBase) e).setRevengeTarget(p);
+				for (PlayerEntity player : getWorld().getPlayers()) {
+					if (playerOwner.equals(player.getName().getString())) {
+						((LivingEntity) e).setRevengeTarget(player);
+						break;
+					}
 				}
 			}
 		}
@@ -284,7 +286,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		World w = getWorld();
 		Entity e = w.getEntityByID(targetID);
 		if(e != null){
-			dir = e.getPositionVector().add(0, 0.5*e.height, 0).subtract(this.getOpticPosition()).normalize();
+			dir = e.getPositionVector().add(0, 0.5*e.getHeight(), 0).subtract(this.getOpticPosition()).normalize();
 		} else {
 			dir = (new Vec3d(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
 		}
@@ -292,16 +294,10 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 	private Vec3d followRayToSolidBlock(Vec3d origin, Vec3d dir, double maxRange){
 		Vec3d max = origin.add(dir).add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
-		RayTraceResult impact = getWorld().rayTraceBlocks(origin, max, RayTraceFluidMode.SOURCE_ONLY, true, false);
-		if(impact != null && impact.type == RayTraceResult.Type.BLOCK){
-			final Vec3d impactSite;
-			if(impact.hitVec != null){
-				impactSite = impact.hitVec;
-			} else {
-				BlockPos bp = impact.getBlockPos();
-				impactSite = new Vec3d(bp.getX(), bp.getY(), bp.getZ());
-			}
-			return impactSite;
+		BlockRayTraceResult impact = getWorld().rayTraceBlocks(new RayTraceContext(origin, max,
+				RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.SOURCE_ONLY, null));
+		if(impact.getType() == RayTraceResult.Type.BLOCK){
+			return impact.getHitVec();
 		} else {
 			return max;
 		}
@@ -381,8 +377,10 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	public boolean canSeeEntity(Entity e){
 		if(e == null) return false;
 		Vec3d offsetOrigin = getOpticPosition().add(e.getPositionVector().subtract(getOpticPosition()).normalize());
-		RayTraceResult collision = getWorld().rayTraceBlocks(offsetOrigin, e.getPositionVector().add(0, e.height*0.5, 0), RayTraceFluidMode.SOURCE_ONLY, true, false);
-		if(collision != null && collision.type == RayTraceResult.Type.BLOCK){
+		BlockRayTraceResult collision = getWorld().rayTraceBlocks(new RayTraceContext(offsetOrigin,
+				e.getPositionVector().add(0, e.getHeight()*0.5, 0), RayTraceContext.BlockMode.COLLIDER,
+				RayTraceContext.FluidMode.SOURCE_ONLY, null));
+		if(collision.getType() == RayTraceResult.Type.BLOCK){
 			return false;
 		}
 		return true;
@@ -403,7 +401,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	private void lookAt(Entity e) {
-		Vec3d pos = e.getPositionVector().add(0, e.height*0.5, 0);
+		Vec3d pos = e.getPositionVector().add(0, e.getHeight()*0.5, 0);
 		targetPosition(pos);
 	}
 	
@@ -412,7 +410,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		return opticPosition;
 	}
 	
-	public void setOwner(EntityPlayer owner){
+	public void setOwner(PlayerEntity owner){
 		this.setTeam(owner.getTeam());
 		playerOwner = owner.getName().getString();
 	}
@@ -487,38 +485,38 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	 * Turns the data field NBT into a network packet
 	 */
 	@Override 
-	public SPacketUpdateTileEntity getUpdatePacket(){
-		NBTTagCompound nbtTag = new NBTTagCompound();
+	public SUpdateTileEntityPacket getUpdatePacket(){
+		CompoundNBT nbtTag = new CompoundNBT();
 		writeRenderSync(nbtTag);
-		return new SPacketUpdateTileEntity(this.getPos(), 0, nbtTag);
+		return new SUpdateTileEntityPacket(this.getPos(), 0, nbtTag);
 	}
 
 	@Override
-	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound nbtTag = write(new NBTTagCompound());
+	public CompoundNBT getUpdateTag() {
+		CompoundNBT nbtTag = write(new CompoundNBT());
 		writeRenderSync(nbtTag);
 		return nbtTag;
 	}
 
 	@Override
-	public void handleUpdateTag(NBTTagCompound tag) {
+	public void handleUpdateTag(CompoundNBT tag) {
 		read(tag);
 		readRenderSync(tag);
 	}
 
-	private void writeRenderSync(NBTTagCompound nbtTag) {
-		nbtTag.setFloat("energy", getEnergy());
-		nbtTag.setBoolean("lock", targetLocked);
+	private void writeRenderSync(CompoundNBT nbtTag) {
+		nbtTag.putFloat("energy", getEnergy());
+		nbtTag.putBoolean("lock", targetLocked);
 		if(targetLocked){
 			if(targetID != Integer.MIN_VALUE && getWorld().getEntityByID(targetID) != null){
 				Entity e = getWorld().getEntityByID(targetID);
-				Vec3d pos = e.getPositionVector().add(0, e.height*0.5, 0);
-				NBTTagCompound target = new NBTTagCompound();
-				target.setInt("id", this.targetID);
-				target.setFloat("yaw", rotTargetYaw);
-				target.setFloat("pitch", rotTargetPitch);
-				target.setByte("attack", (byte)laserAttack);
-				nbtTag.setTag("target", target);
+				Vec3d pos = e.getPositionVector().add(0, e.getHeight()*0.5, 0);
+				CompoundNBT target = new CompoundNBT();
+				target.putInt("id", this.targetID);
+				target.putFloat("yaw", rotTargetYaw);
+				target.putFloat("pitch", rotTargetPitch);
+				target.putByte("attack", (byte)laserAttack);
+				nbtTag.put("target", target);
 			}
 		}
 	}
@@ -527,15 +525,15 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	 * Receives the network packet made by <code>getDescriptionPacket()</code>
 	 */
 	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
+	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
 		readRenderSync(packet.getNbtCompound());
 	}
 
-	private void readRenderSync(NBTTagCompound tag) {
+	private void readRenderSync(CompoundNBT tag) {
 		if(tag.contains("lock", 1)){
 			this.targetLocked = tag.getBoolean("lock");
 			if(tag.contains("target", 10)){
-				NBTTagCompound target = tag.getCompound("target");
+				CompoundNBT target = tag.getCompound("target");
 				this.targetID = target.getInt("id");
 				Entity e = getWorld().getEntityByID(targetID);
 				if(e != null){
@@ -559,24 +557,24 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound root) {
-		root.setFloat("pitch", rotPitch);
-		root.setFloat("yaw", rotYaw);
-		root.setBoolean("lock", targetLocked);
+	protected void saveTo(CompoundNBT root) {
+		root.putFloat("pitch", rotPitch);
+		root.putFloat("yaw", rotYaw);
+		root.putBoolean("lock", targetLocked);
 		if(this.teamIdentity == null){
-			root.setString("team", "");
+			root.putString("team", "");
 		} else {
-			root.setString("team", teamIdentity);
+			root.putString("team", teamIdentity);
 		}
 		if(this.playerOwner == null){
-			root.setString("player", "");
+			root.putString("player", "");
 		} else {
-			root.setString("player", playerOwner);
+			root.putString("player", playerOwner);
 		}
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound root) {
+	protected void loadFrom(CompoundNBT root) {
 		if(root.contains("pitch", 99)){
 			this.rotPitch = root.getFloat("pitch");
 			this.rotOldPitch = rotPitch;
