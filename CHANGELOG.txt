@@ -2,7 +2,7 @@ Electric Advantage 2.2.7.115021 (local port candidate)
 
 - Target Minecraft 1.15.2, Forge 31.2.57 and snapshot 20200514-1.15.1/MCP 20200515.085601.
 - Retain ForgeGradle 7.0.34, Gradle 9.6.1, Renamer 1.1.5 and Java 8 production bytecode.
-- Pin native Power Advantage 2.4.6.115021, Base Metals 3.0.1.115021 and OreSpawn 4.1.1.115021 source/development artifacts.
+- Pin native Power Advantage 2.4.6.115021, Base Metals 3.0.2.115021 and OreSpawn 4.1.1.115021 source/development artifacts.
 - Provision pinned Java 25 Mavenizer, Java 8 production and Java 17 Gradle toolchains in CI and CodeQL.
 - Use native MatrixStack/buffered entity and tile renderers, retaining the legacy vertex streams, UVs and beam orientation/full-bright behavior.
 - Move the electric track's cutout layer to client setup and use Power's native-properties constructor, retaining shared conduit inheritance, states, events and connectivity without duplicated callbacks.
@@ -10,9 +10,8 @@ Electric Advantage 2.2.7.115021 (local port candidate)
 - Use the native short-NBT factory and renamed skylight predicate without changing saved values or solar-output arithmetic.
 - Preserve registries, migration aliases, entity/tile IDs, fluids, NBT, ore mining levels, loot, recipes and discoveries; no balance changes.
 - Add focused buffered-renderer geometry, UV, normals, light, control and matrix-stack regression tests.
-- Native production/test compilation, all 44 unit tests, full release/dependency/artifact audits and Eclipse verification pass, with no skipped tests; actual ECJ reports zero errors (51 warnings).
-- Resolve the preserved solar-panel solidness regression against pinned Power source b15e2091e9647860bd90284aef6135a311692864; retain the original assertion and add shared scaffold inheritance and non-solid drill/turret contracts.
-- Packaged startup, combined runtime, graphical/manual acceptance and disposable-copy migration remain pending; not published.
+- Preserve solar-panel solidity, shared scaffold inheritance and the non-solid drill/turret properties with focused regression tests.
+- Record the exact build, operating, migration and client results in Power Advantage's shared 1.15 test notes; manual acceptance remains separate. Not published.
 
 Electric Advantage 2.2.6.114041
 

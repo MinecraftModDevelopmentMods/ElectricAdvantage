@@ -1,14 +1,11 @@
 # ElectricAdvantage
 
-**Minecraft 1.15.2 port candidate, version 2.2.7.115021.** Local native compilation,
-all 44 unit tests, full Gradle release-artifact/dependency audits and Eclipse
-verification pass, with no tests skipped. Actual ECJ production compilation reports
-zero errors (51 warnings). Tests include solar-panel solidness, non-solid drill and
-turrets, shared scaffold properties/network inheritance and buffered renderer contracts.
-Packaged startup, combined-mod runtime, graphical acceptance and disposable-copy
-world migration remain pending for this target. Historical
+**Minecraft 1.15.2 port candidate, version 2.2.7.115021.** See the
+[shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
+for exact jars, automated machine and upgrade results, and remaining manual
+checks. This version is not published. Historical
 [1.14 test results](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.14.4/docs/1.14/BROADER-QUALIFICATION.md)
-are not 1.15 qualification evidence. Nothing has been published.
+are not 1.15 qualification evidence.
 
 Electric Advantage adds electric machines, generation, storage, automation, and defence to Power Advantage for Minecraft 1.15.2.
 
@@ -26,8 +23,13 @@ Build the matching 1.15 PowerAdvantage, Base Metals and OreSpawn deobf jars firs
 Dependency versions, checksums and the exact Power source reference belong in
 `gradle.properties`. Release audits reject missing or placeholder pins; do not
 bypass those checks or substitute another target's dependencies. Power Advantage
-`2.4.6.115021` is pinned to source `75d24d2641e8123ff7a7f961d9a1e5a1d5203194`.
-Base Metals `3.0.1.115021` and OreSpawn `4.1.1.115021` also have exact source and SHA-256 pins.
+`2.4.6.115021` is pinned to source `6666099a734eba16561d98c86f3f4bb1b7c742f7`.
+Base Metals `3.0.2.115021` and OreSpawn `4.1.1.115021` also have exact source and SHA-256 pins.
+Base Metals source `ac1781e7cade15045ffe0135077087b4d1722603` and the Power
+source pin above are local-only and unpublished. Publish both exact sources
+upstream before opening a PR or running hosted builds; hosted reproducibility
+and publication readiness are not established.
+
 With the standard sibling layout:
 
 ```text
