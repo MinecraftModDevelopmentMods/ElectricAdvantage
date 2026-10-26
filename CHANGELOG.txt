@@ -15,6 +15,7 @@ Electric Advantage 2.2.6.114041
 
 Electric Advantage 2.2.5.113021
 
+- Keep development archives identical in existing workspaces and fresh CI checkouts.
 - Separate different electronics and machines into distinct recipe-book cells while keeping same-output alternatives together.
 - Populate wire and carbon tags, point circuit-board ingredients at finished control circuits, and retain configured rubber and Normal solder compatibility.
 - Restore lithium, silicon and solder smelting, mineral crushing and Apocalyptic parts recycling.
