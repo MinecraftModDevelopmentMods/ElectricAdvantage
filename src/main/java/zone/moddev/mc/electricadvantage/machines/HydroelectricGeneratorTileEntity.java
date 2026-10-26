@@ -2,7 +2,7 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.entities.HydroturbineEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.AxisAlignedBB;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	private void initialize() {
 		isInitialized = true;
 		if(getPos().getY() > 0){
-			getWorld().spawnEntity(new HydroturbineEntity(getWorld(),this));
+			getWorld().addEntity(new HydroturbineEntity(getWorld(),this));
 		}
 	}
 
@@ -65,12 +65,12 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		tagRoot.setBoolean("initDone", this.isInitialized);
+	protected void saveTo(CompoundNBT tagRoot) {
+		tagRoot.putBoolean("initDone", this.isInitialized);
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		if(tagRoot.contains("initDone", 1)){
 			this.isInitialized = tagRoot.getBoolean("initDone");
 		}

@@ -1,55 +1,45 @@
 package zone.moddev.mc.electricadvantage.init;
 
-import zone.moddev.mc.electricadvantage.ElectricAdvantage;
-
-import net.minecraft.entity.passive.EntityVillager;
+import java.util.List;
+import net.minecraft.entity.merchant.villager.VillagerProfession;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MerchantOffer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.village.VillagerTradesEvent;
 
-public abstract class Villages {
-	// TODO: add machinist villager
-	private static final ResourceLocation[] PROFESSION_LIST = {
-			new ResourceLocation("minecraft:farmer"),
-			new ResourceLocation("minecraft:librarian"),
-			new ResourceLocation("minecraft:priest"),
-			new ResourceLocation("minecraft:smith"),
-			new ResourceLocation("minecraft:butcher")
-	};
+/** Adds the historical librarian offers through the native profession trade event. */
+public final class Villages {
+    private static boolean initialized;
 
-	private static boolean initDone = false;
-	public static void init(){
-		if(initDone) return;
+    private Villages() {}
 
-		Entities.init();
-		try {
-			insertTrades(1, 1, 2, new EntityVillager.ListItemForEmeralds(
-					Items.petrolplastic_ingot, new EntityVillager.PriceInfo(-8, -4)));
-			insertTrades(1, 1, 1, new EntityVillager.ListItemForEmeralds(
-					Item.getItemFromBlock(Blocks.electric_conduit), new EntityVillager.PriceInfo(-6, -3)));
-			insertTrades(1, 1, 1, new EntityVillager.ListItemForEmeralds(
-					Items.solder, new EntityVillager.PriceInfo(-10, -5)));
-			insertTrades(1, 1, 1, new EntityVillager.ListItemForEmeralds(
-					Items.integrated_circuit, new EntityVillager.PriceInfo(-6, -3)));
-			insertTrades(1, 1, 1, new EntityVillager.ListItemForEmeralds(
-					Items.blank_circuit_board, new EntityVillager.PriceInfo(-6, -3)));
-			insertTrades(1, 1, 2, new EntityVillager.ListItemForEmeralds(
-					Items.power_supply_unit, new EntityVillager.PriceInfo(1, 3)));
-		} catch (RuntimeException e) {
-			ElectricAdvantage.LOGGER.error("Failed to add trades to villagers", e);
-		}
+    public static synchronized void init() {
+        if (initialized) return;
+        MinecraftForge.EVENT_BUS.addListener(Villages::addTrades);
+        initialized = true;
+    }
 
-		
-		initDone = true;
-	}
+    public static void addTrades(VillagerTradesEvent event) {
+        if (event.getType() != VillagerProfession.LIBRARIAN) return;
+        List<VillagerTrades.ITrade> novice = event.getTrades().get(1);
+        List<VillagerTrades.ITrade> apprentice = event.getTrades().get(2);
+        novice.add(sell(Blocks.electric_conduit.asItem(), -6, -3));
+        novice.add(sell(Items.solder, -10, -5));
+        novice.add(sell(Items.integrated_circuit, -6, -3));
+        novice.add(sell(Items.blank_circuit_board, -6, -3));
+        apprentice.add(sell(Items.petrolplastic_ingot, -8, -4));
+        apprentice.add(sell(Items.power_supply_unit, 1, 3));
+    }
 
-	private static void insertTrades(int professionID, int careerID, int tradeLevel, EntityVillager.ITradeList... trades) {
-		VillagerRegistry.VillagerProfession profession = ForgeRegistries.VILLAGER_PROFESSIONS.getValue(PROFESSION_LIST[professionID]);
-		if (profession == null) {
-			throw new IllegalStateException("No villager profession registered for " + PROFESSION_LIST[professionID]);
-		}
-		VillagerRegistry.VillagerCareer career = profession.getCareer(careerID - 1);
-		career.addTrade(tradeLevel, trades);
-	}
+    static VillagerTrades.ITrade sell(Item item, int minimumPrice, int maximumPrice) {
+        return (villager, random) -> {
+            int price = minimumPrice + random.nextInt(maximumPrice - minimumPrice + 1);
+            int emeralds = price < 0 ? 1 : price;
+            int count = price < 0 ? -price : 1;
+            return new MerchantOffer(new ItemStack(net.minecraft.item.Items.EMERALD, emeralds),
+                    new ItemStack(item, count), 7, 1, 0.0F);
+        };
+    }
 }

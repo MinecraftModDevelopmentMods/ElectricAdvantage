@@ -2,7 +2,7 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -42,12 +42,12 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
+	protected void saveTo(CompoundNBT tagRoot) {
 		// do nothing
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		// do nothing
 	}
 
@@ -93,7 +93,7 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	
 	public static float getLightIntensityAt(BlockPos pos, World w){
 		float light;
-		if(w.canSeeSky(pos) && w.dimension.hasSkyLight()){
+		if(w.isSkyLightMax(pos) && w.dimension.hasSkyLight()){
 			// outdoor light imposes no penalty
 			light = MathHelper.sin((float)w.getDayTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather

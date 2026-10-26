@@ -6,7 +6,7 @@ import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class ElectricBatteryArrayTileEntity extends ElectricGeneratorTileEntity{
 	
@@ -168,12 +168,12 @@ public class ElectricBatteryArrayTileEntity extends ElectricGeneratorTileEntity{
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
+	protected void saveTo(CompoundNBT tagRoot) {
 		// do nothing (inventory already handled
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		// do nothing (inventory already handled
 	}
 

@@ -19,7 +19,7 @@ public final class RecipeDeconstructor {
     private static final RecipeDeconstructor INSTANCE = new RecipeDeconstructor();
     public static int RECURSION_LIMIT = 5;
 
-    private final Map<ItemRecord, List<IRecipe>> recipeCache = new HashMap<>();
+    private final Map<ItemRecord, List<IRecipe<?>>> recipeCache = new HashMap<>();
     private int cachedRecipeCount = -1;
 
     private RecipeDeconstructor() {}
@@ -34,10 +34,10 @@ public final class RecipeDeconstructor {
     }
 
     private void initializeRecipeCache(World world) {
-        Collection<IRecipe> recipes = world.getRecipeManager().getRecipes();
+        Collection<IRecipe<?>> recipes = world.getRecipeManager().getRecipes();
         if (cachedRecipeCount == recipes.size() && !recipeCache.isEmpty()) return;
         recipeCache.clear();
-        for (IRecipe recipe : recipes) {
+        for (IRecipe<?> recipe : recipes) {
             ItemStack output = recipe.getRecipeOutput();
             if (output == null || output.isEmpty()) continue;
             recipeCache.computeIfAbsent(new ItemRecord(output), ignored -> new ArrayList<>()).add(recipe);
@@ -54,10 +54,10 @@ public final class RecipeDeconstructor {
     private SerializedInventory attemptToCraft(World world, ItemStack target,
             SerializedInventory inventory, AtomicReference<ItemStack> output, int depth) {
         if (depth > RECURSION_LIMIT || target == null || target.isEmpty()) return null;
-        List<IRecipe> recipes = recipeCache.get(new ItemRecord(target));
+        List<IRecipe<?>> recipes = recipeCache.get(new ItemRecord(target));
         if (recipes == null || recipes.isEmpty()) return null;
 
-        for (IRecipe recipe : recipes) {
+        for (IRecipe<?> recipe : recipes) {
             SerializedInventory candidate = inventory.copy();
             boolean failed = false;
             for (Ingredient ingredient : recipe.getIngredients()) {

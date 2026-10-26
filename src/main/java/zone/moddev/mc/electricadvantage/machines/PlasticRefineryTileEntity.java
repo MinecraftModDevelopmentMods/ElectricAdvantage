@@ -10,17 +10,17 @@ import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.fluid.FluidRequest;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.fluid.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.IRegistry;
+import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 
@@ -103,20 +103,20 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	}
 
 	@Override
-	protected void saveTo(NBTTagCompound tagRoot) {
-		tagRoot.setShort("progress", fabTime);
-		NBTTagCompound tankTag = new NBTTagCompound();
+	protected void saveTo(CompoundNBT tagRoot) {
+		tagRoot.putShort("progress", fabTime);
+		CompoundNBT tankTag = new CompoundNBT();
 		this.getTank().writeToNBT(tankTag);
-		tagRoot.setTag("Tank", tankTag);
+		tagRoot.put("Tank", tankTag);
 	}
 
 	@Override
-	protected void loadFrom(NBTTagCompound tagRoot) {
+	protected void loadFrom(CompoundNBT tagRoot) {
 		if(tagRoot.contains("progress", 99)){
 			this.fabTime = tagRoot.getShort("progress");
 		}
 		if (tagRoot.contains("Tank", 10)) {
-			NBTTagCompound tankTag = tagRoot.getCompound("Tank");
+			CompoundNBT tankTag = tagRoot.getCompound("Tank");
 			getTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -144,7 +144,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 		dataSyncArray[2] = this.getTank().getFluidAmount();
 		dataSyncArray[3] = (getTank().getFluid() != null && getTank().getFluid().getFluid() != null
 				? FluidIdHelper.getFluidId(getTank().getFluid().getFluid())
-						: FluidIdHelper.getFluidId(net.minecraft.init.Fluids.WATER));
+						: FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
 
 	}
 
@@ -158,7 +158,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 
 	private boolean isPlasticFluid(Fluid fluid) {
 		if(fluid == null) return false;
-		ResourceLocation id = IRegistry.field_212619_h.getKey(fluid);
+		ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.FLUIDS.getKey(fluid);
 		return id != null && ElectricAdvantage.INSTANCE.PLASTIC_FLUID_MATERIALS.contains(id.toString());
 	}
 
@@ -251,7 +251,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public int fill(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public int fill(Direction face, FluidStack fluid, boolean forReal) {
 		if(fluid == null) return 0;
 		if(isPlasticFluid(fluid.getFluid())){
 			if(getTank().getFluidAmount() <= 0 || getTank().getFluid().getFluid().equals(fluid.getFluid())){
@@ -267,7 +267,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public FluidStack drain(Direction face, FluidStack fluid, boolean forReal) {
 		if(fluid == null) return null;
 		if(getTank().getFluidAmount() > 0 && getTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getTank().drain(fluid.amount,forReal);
@@ -282,7 +282,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, int amount, boolean forReal) {
+	public FluidStack drain(Direction face, int amount, boolean forReal) {
 		if(amount > 0 && getTank().getFluidAmount() > 0 ){
 			return getTank().drain(amount,forReal);
 		} else {
@@ -295,7 +295,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	 * @param fluid The fluid being added/removed
 	 */
 	@Override
-	public boolean canFill(EnumFacing face, Fluid fluid) {
+	public boolean canFill(Direction face, Fluid fluid) {
 		if(isPlasticFluid(fluid)) {
 			if(getTank().getFluidAmount() <= 0) return true;
 			return getTank().getFluidAmount() <= getTank().getCapacity() && fluid.equals(getTank().getFluid().getFluid());
@@ -308,7 +308,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	 * @param fluid The fluid being added/removed
 	 */
 	@Override
-	public boolean canDrain(EnumFacing face, Fluid fluid) {
+	public boolean canDrain(Direction face, Fluid fluid) {
 		if(fluid == null) return false;
 		return getTank().getFluidAmount() > 0 && fluid.equals(getTank().getFluid().getFluid());
 	}
@@ -319,7 +319,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	 * @return array of FluidTankInfo describing all of the FluidTanks
 	 */
 	@Override
-	public FluidTankInfo[] getTankInfo(EnumFacing face) {
+	public FluidTankInfo[] getTankInfo(Direction face) {
 		FluidTankInfo[] arr = new FluidTankInfo[1];
 		arr[0] = getTank().getInfo();
 		return arr;

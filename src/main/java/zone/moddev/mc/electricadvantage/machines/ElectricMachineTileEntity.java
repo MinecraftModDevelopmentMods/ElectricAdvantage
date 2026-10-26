@@ -2,23 +2,23 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketCustomSound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.VanillaRecipeTypes;
+import net.minecraft.item.crafting.IRecipeType;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 import java.util.Arrays;
@@ -104,46 +104,23 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 
 	
 	protected void setActiveState(boolean active){
-		IBlockState oldState = getWorld().getBlockState(getPos());
+		BlockState oldState = getWorld().getBlockState(getPos());
 		if(oldState.getBlock() instanceof ElectricMachineBlock 
 				&& (Boolean)oldState.get(ElectricMachineBlock.ACTIVE) != active ){
-			final TileEntity save = this;
-			final World w = getWorld();
-			final BlockPos pos = this.getPos();
-			IBlockState newState = oldState.with(ElectricMachineBlock.ACTIVE, active);
-			w.setBlockState(pos, newState,3);
-			if(save != null){
-				w.removeTileEntity(pos);
-				save.validate();
-				w.setTileEntity(pos, save);
-			}
+			BlockState newState = oldState.with(ElectricMachineBlock.ACTIVE, active);
+			getWorld().setBlockState(getPos(), newState, 3);
 		}
 	}
 	protected void setPowerState(boolean powered){
-		IBlockState oldState = getWorld().getBlockState(getPos());
+		BlockState oldState = getWorld().getBlockState(getPos());
 		if(oldState.getBlock() instanceof ElectricMachineBlock 
 				&& (Boolean)oldState.get(ElectricMachineBlock.POWERED) != powered ){
-			final TileEntity save = this;
-			final World w = getWorld();
-			final BlockPos pos = this.getPos();
-			IBlockState newState = oldState.with(ElectricMachineBlock.POWERED, powered);
-			w.setBlockState(pos, newState, 3);
-			if(save != null){
-				w.removeTileEntity(pos);
-				save.validate();
-				w.setTileEntity(pos, save);
-			}
+			BlockState newState = oldState.with(ElectricMachineBlock.POWERED, powered);
+			getWorld().setBlockState(getPos(), newState, 3);
 		}
 	}
 
 	
-	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
-	{
-		// used to allow change in blockstate without interrupting the TileEntity or the GUI
-		return (oldState.getBlock() != newState.getBlock());
-	}
-
 	public boolean isActive(){
 		return isPowered() && (!this.hasRedstoneSignal() && (this.getEnergy(Power.ELECTRIC_POWER) > 0 || (Boolean)getWorld().getBlockState(getPos()).get(ElectricMachineBlock.ACTIVE)));
 	}
@@ -240,41 +217,41 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 
 	protected ItemStack getSmeltingResult(ItemStack input) {
 		if (isEmptyStack(input) || getWorld() == null) return ItemStack.EMPTY;
-		InventoryBasic inventory = new InventoryBasic(new TextComponentString("electricadvantage.smelting"), 1);
+		Inventory inventory = new Inventory(1);
 		inventory.setInventorySlotContents(0, input);
-		IRecipe recipe = getWorld().getRecipeManager().getRecipe(inventory, getWorld(), VanillaRecipeTypes.SMELTING);
-		return recipe == null ? ItemStack.EMPTY : recipe.getCraftingResult(inventory);
+		return getWorld().getRecipeManager().getRecipe(IRecipeType.SMELTING, inventory, getWorld())
+				.map(recipe -> recipe.getCraftingResult(inventory)).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override
-	public NBTTagCompound write(NBTTagCompound tagRoot){
+	public CompoundNBT write(CompoundNBT tagRoot){
 		super.write(tagRoot);
 		saveTo(tagRoot);
 		return tagRoot;
 	}
 
 	@Override
-	public NBTTagCompound getUpdateTag() {
-		return write(new NBTTagCompound());
+	public CompoundNBT getUpdateTag() {
+		return write(new CompoundNBT());
 	}
 
 	@Override
-	public void read(NBTTagCompound tagRoot){
+	public void read(CompoundNBT tagRoot){
 		super.read(tagRoot);
 		loadFrom(tagRoot);
 	}
 
-	protected abstract void saveTo(NBTTagCompound tagRoot);
-	protected abstract void loadFrom(NBTTagCompound tagRoot);
+	protected abstract void saveTo(CompoundNBT tagRoot);
+	protected abstract void loadFrom(CompoundNBT tagRoot);
 
 	
 	@Override
-	public int[] getSlotsForFace(EnumFacing side) {
+	public int[] getSlotsForFace(Direction side) {
 		return ioSlots;
 	}
 	
 	@Override
-	public boolean canExtractItem(final int slot, final ItemStack targetItem, final EnumFacing side) {
+	public boolean canExtractItem(final int slot, final ItemStack targetItem, final Direction side) {
 		return isInArray(slot,outputSlots);
 	}
 
@@ -319,7 +296,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	@Override
-	public boolean canInsertItem(final int slot, final ItemStack srcItem, final EnumFacing side) {
+	public boolean canInsertItem(final int slot, final ItemStack srcItem, final Direction side) {
 		return isValidInputItem(srcItem) && isInArray(slot,inputSlots);
 	}
 
@@ -366,11 +343,11 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
 		if(getWorld().isRemote) return;
 		final double range = 16;
-		List<EntityPlayerMP> players = getWorld().getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(
+		List<ServerPlayerEntity> players = getWorld().getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(
 				x - range, y - range, z - range,
 				x + range, y + range, z + range));
-		for(EntityPlayerMP player : players){
-			player.connection.sendPacket(new SPacketCustomSound(sound.getRegistryName(), SoundCategory.BLOCKS,
+		for(ServerPlayerEntity player : players){
+			player.connection.sendPacket(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
 					new net.minecraft.util.math.Vec3d(x, y, z), volume, pitch));
 		}
 	}

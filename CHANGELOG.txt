@@ -1,3 +1,18 @@
+Electric Advantage 2.2.6.114041
+
+- Target Minecraft 1.14.4 and Forge 28.2.26 using native platform classes and Java 8 production bytecode.
+- Adapt machine state callbacks, shapes, smelting lookup, food detection, entity registration and spawn packets.
+- Retain the shared native container API and use blit and the 1.14 GlStateManager for GUI/rendering code.
+- Replace removed villager careers with librarian trade events, preserving offer levels, base quantities and prices.
+- Use native condition serializers without changing recipe-mode IDs or JSON inputs.
+- Use native block-loot lookup for drills and crops, and provide ordinary machine/conduit item-drop tables.
+- Preserve runtime IDs, legacy migration aliases, NBT keys, drill geometry/costs and OreSpawn provider names.
+- Resolve native crop blocks through IPlantable and retain deferred growth/progress NBT before world attachment.
+- Add focused persistence, direction, geometry, recipe-mode, trade and resource regression tests.
+- Native production/test compilation, all 34 unit tests and the development-jar build passed locally; no tests were skipped.
+- Pass combined-mod automated machine, migration, lifecycle and restart checks.
+- Keep coverage limited to the recorded scenarios; back up whole worlds and test upgrades on disposable copies.
+
 Electric Advantage 2.2.5.113021
 
 - Keep development archives identical in existing workspaces and fresh CI checkouts.

@@ -3,9 +3,9 @@ package zone.moddev.mc.electricadvantage.migration;
 import cyano.poweradvantage.api.migration.LegacyMigrationApi;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock;
 import zone.moddev.mc.electricadvantage.machines.ElectricGeneratorBlock;
@@ -65,7 +65,7 @@ public final class ElectricLegacyMigrations {
                 "minecraft:" + ElectricAdvantage.MODID + "." + path, current);
     }
 
-    private static IBlockState decodeState(Block block, int metadata) {
+    private static BlockState decodeState(Block block, int metadata) {
         if (block instanceof ElectricDrillBlock) {
             return block.getDefaultState()
                     .with(ElectricDrillBlock.FACING, legacyDrillFacing(metadata))
@@ -89,8 +89,8 @@ public final class ElectricLegacyMigrations {
         return block.getDefaultState();
     }
 
-    static EnumFacing legacyDrillFacing(int metadata) {
-        return EnumFacing.byIndex(metadata & 0x7);
+    static Direction legacyDrillFacing(int metadata) {
+        return Direction.byIndex(metadata & 0x7);
     }
 
     static boolean legacyDrillActive(int metadata) {

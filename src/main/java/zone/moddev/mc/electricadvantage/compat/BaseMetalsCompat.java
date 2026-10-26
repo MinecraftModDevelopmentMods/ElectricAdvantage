@@ -1,13 +1,13 @@
 package zone.moddev.mc.electricadvantage.compat;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.block.BlockState;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -34,10 +34,10 @@ public final class BaseMetalsCompat {
     public static ItemStack getCrusherRecipeOutput(World world, ItemStack input) {
         if (world == null || input == null || input.isEmpty()) return null;
         if (isLoaded()) {
-            InventoryBasic inventory = new InventoryBasic(new TextComponentString("electric crusher"), 1);
+            Inventory inventory = new Inventory(1);
             inventory.setInventorySlotContents(0, input.copy());
-            for (IRecipe candidate : world.getRecipeManager().getRecipes()) {
-                if (candidate instanceof CrushingRecipe && candidate.matches(inventory, world)) {
+            for (IRecipe<?> candidate : world.getRecipeManager().getRecipes()) {
+                if (candidate instanceof CrushingRecipe && ((CrushingRecipe) candidate).matches(inventory, world)) {
                     return candidate.getRecipeOutput().copy();
                 }
             }
@@ -45,7 +45,7 @@ public final class BaseMetalsCompat {
         return getVanillaCrusherOutput(input);
     }
 
-    public static ItemStack getCrusherRecipeOutput(World world, IBlockState input) {
+    public static ItemStack getCrusherRecipeOutput(World world, BlockState input) {
         return input == null ? null : getCrusherRecipeOutput(world, new ItemStack(input.getBlock()));
     }
 

@@ -7,8 +7,8 @@ import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PoweredEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
@@ -18,7 +18,7 @@ import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockReader;
@@ -33,15 +33,14 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     private final ConduitType[] types = {Power.ELECTRIC_POWER};
 
     public ElectricDrillBlock() {
-        super(Material.PISTON);
-        setPowerAdvantageHardness(0.75f);
+        super(Block.Properties.create(Material.PISTON).hardnessAndResistance(0.75F).variableOpacity());
         setDefaultState(getStateContainer().getBaseState()
                 .with(ACTIVE, false)
-                .with(FACING, EnumFacing.DOWN));
+                .with(FACING, Direction.DOWN));
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder) {
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE, FACING);
     }
 
@@ -51,14 +50,15 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public void onBlockAdded(IBlockState state, World world, BlockPos pos, IBlockState oldState) {
-        super.onBlockAdded(state, world, pos, oldState);
+    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
+        super.onBlockAdded(state, world, pos, oldState, isMoving);
+        if (state.getBlock() == oldState.getBlock()) return;
         ConduitRegistry.getInstance().conduitBlockPlacedEvent(
                 world, world.dimension.getType().getId(), pos, Power.ELECTRIC_POWER);
     }
 
     @Override
-    public void onReplaced(IBlockState state, World world, BlockPos pos, IBlockState newState, boolean isMoving) {
+    public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
             ConduitRegistry.getInstance().conduitBlockRemovedEvent(
                     world, world.dimension.getType().getId(), pos, Power.ELECTRIC_POWER);
@@ -99,13 +99,13 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public IBlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
         return getDefaultState().with(FACING, context.getFace().getOpposite());
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state,
-                                EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state,
+                                LivingEntity placer, ItemStack stack) {
         if (stack.hasDisplayName()) {
             TileEntity tile = world.getTileEntity(pos);
             if (tile instanceof PoweredEntity) {
@@ -115,25 +115,25 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     /** Decodes all six legacy facings; bit 3 is the active flag. */
-    public IBlockState getStateFromLegacyMeta(int meta) {
+    public BlockState getStateFromLegacyMeta(int meta) {
         return getDefaultState()
-                .with(FACING, EnumFacing.byIndex(meta & 0x7))
+                .with(FACING, Direction.byIndex(meta & 0x7))
                 .with(ACTIVE, (meta & 0x8) != 0);
     }
 
-    public int getLegacyMetaFromState(IBlockState state) {
+    public int getLegacyMetaFromState(BlockState state) {
         return state.get(FACING).getIndex() | (state.get(ACTIVE) ? 0x8 : 0);
     }
 
     @Override
-    public int getComparatorInputOverride(IBlockState state, World world, BlockPos pos) {
+    public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
         TileEntity tile = world.getTileEntity(pos);
         return tile instanceof ElectricMachineTileEntity
                 ? ((ElectricMachineTileEntity) tile).getComparatorOutput() : 0;
     }
 
     @Override
-    public boolean hasComparatorInputOverride(IBlockState state) {
+    public boolean hasComparatorInputOverride(BlockState state) {
         return true;
     }
 }

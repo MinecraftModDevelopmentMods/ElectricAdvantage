@@ -10,10 +10,10 @@ import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.registry.still.recipe.DistillationRecipe;
 import zone.moddev.mc.poweradvantage.registry.still.recipe.DistillationRecipeRegistry;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.fluid.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
@@ -152,9 +152,9 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	public void prepareDataFieldsForSync() {
 		dataSyncArray[0] = Float.floatToRawIntBits(this.getEnergy());
 		dataSyncArray[1] = this.getOutputTank().getFluidAmount();
-		dataSyncArray[2] = (this.getOutputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getOutputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.init.Fluids.WATER));
+		dataSyncArray[2] = (this.getOutputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getOutputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
 		dataSyncArray[3] = getInputTank().getFluidAmount();
-		dataSyncArray[4] = (getInputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(getInputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.init.Fluids.WATER));
+		dataSyncArray[4] = (getInputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(getInputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
 	}
 
 	@Override
@@ -171,22 +171,22 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void saveTo(final NBTTagCompound tagRoot) {
-		NBTTagCompound tankTag = new NBTTagCompound();
+	public void saveTo(final CompoundNBT tagRoot) {
+		CompoundNBT tankTag = new CompoundNBT();
 		this.getOutputTank().writeToNBT(tankTag);
-		tagRoot.setTag("TankOut", tankTag);
-		NBTTagCompound tankTag2 = new NBTTagCompound();
+		tagRoot.put("TankOut", tankTag);
+		CompoundNBT tankTag2 = new CompoundNBT();
 		this.getInputTank().writeToNBT(tankTag2);
-		tagRoot.setTag("TankIn", tankTag2);
+		tagRoot.put("TankIn", tankTag2);
 	}
 	/**
 	 * Handles data saving and loading
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void loadFrom(final NBTTagCompound tagRoot) {
+	public void loadFrom(final CompoundNBT tagRoot) {
 		if (tagRoot.contains("TankOut", 10)) {
-			NBTTagCompound tankTag = tagRoot.getCompound("TankOut");
+			CompoundNBT tankTag = tagRoot.getCompound("TankOut");
 			getOutputTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -195,7 +195,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 		}
 
 		if (tagRoot.contains("TankIn", 10)) {
-			NBTTagCompound tankTag = tagRoot.getCompound("TankIn");
+			CompoundNBT tankTag = tagRoot.getCompound("TankIn");
 			getInputTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -321,7 +321,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public int fill(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public int fill(Direction face, FluidStack fluid, boolean forReal) {
 		if(fluid == null) return 0;
 		if(getInputTank().getFluidAmount() <= 0 || getInputTank().getFluid().getFluid().equals(fluid.getFluid())){
 			if(canDistill(fluid)){
@@ -337,7 +337,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, FluidStack fluid, boolean forReal) {
+	public FluidStack drain(Direction face, FluidStack fluid, boolean forReal) {
 		if(fluid == null) return null;
 		if(getOutputTank().getFluidAmount() > 0 && getOutputTank().getFluid().getFluid().equals(fluid.getFluid())){
 			return getOutputTank().drain(fluid.amount,forReal);
@@ -352,7 +352,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param forReal if true, then the fluid in the tank will change
 	 */
 	@Override
-	public FluidStack drain(EnumFacing face, int amount, boolean forReal) {
+	public FluidStack drain(Direction face, int amount, boolean forReal) {
 		if(amount > 0 && getOutputTank().getFluidAmount() > 0 ){
 			return getOutputTank().drain(amount,forReal);
 		} else {
@@ -365,7 +365,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param fluid The fluid being added/removed
 	 */
 	@Override
-	public boolean canFill(EnumFacing face, Fluid fluid) {
+	public boolean canFill(Direction face, Fluid fluid) {
 		if(fluid == null) return false;
 		if(canDistill(fluid) == false) return false;
 		if(getInputTank().getFluidAmount() <= 0) return true;
@@ -377,7 +377,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param fluid The fluid being added/removed
 	 */
 	@Override
-	public boolean canDrain(EnumFacing face, Fluid fluid) {
+	public boolean canDrain(Direction face, Fluid fluid) {
 		if(fluid == null) return false;
 		return getOutputTank().getFluidAmount() > 0 && fluid.equals(getOutputTank().getFluid().getFluid());
 	}
@@ -388,7 +388,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @return array of FluidTankInfo describing all of the FluidTanks
 	 */
 	@Override
-	public FluidTankInfo[] getTankInfo(EnumFacing face) {
+	public FluidTankInfo[] getTankInfo(Direction face) {
 		FluidTankInfo[] arr = new FluidTankInfo[2];
 		arr[0] = getInputTank().getInfo();
 		arr[1] = getOutputTank().getInfo();

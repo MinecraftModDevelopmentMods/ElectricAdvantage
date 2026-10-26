@@ -4,13 +4,13 @@ import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -38,7 +38,7 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
         setDefaultState(getStateContainer().getBaseState()
                 .with(ACTIVE, false)
                 .with(POWERED, false)
-                .with(FACING, EnumFacing.NORTH));
+                .with(FACING, Direction.NORTH));
     }
 
     public ElectricMachineBlock(Material material) {
@@ -46,12 +46,12 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder) {
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE, FACING, POWERED);
     }
 
     /** Decodes the 1.10/1.12 metadata used by world migration fixtures. */
-    public IBlockState getStateFromLegacyMeta(int meta) {
+    public BlockState getStateFromLegacyMeta(int meta) {
         return getDefaultState()
                 .with(FACING, metaToFacing(meta))
                 .with(ACTIVE, (meta & 0x4) != 0)
@@ -59,14 +59,14 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     /** Encodes the legacy metadata layout for migration tests. */
-    public int getLegacyMetaFromState(IBlockState state) {
+    public int getLegacyMetaFromState(BlockState state) {
         int meta = facingToMeta(state.get(FACING));
         if (state.get(ACTIVE)) meta |= 0x4;
         if (state.get(POWERED)) meta |= 0x8;
         return meta;
     }
 
-    private static int facingToMeta(EnumFacing facing) {
+    private static int facingToMeta(Direction facing) {
         switch (facing) {
             case WEST: return 1;
             case SOUTH: return 2;
@@ -75,12 +75,12 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
         }
     }
 
-    private static EnumFacing metaToFacing(int meta) {
+    private static Direction metaToFacing(int meta) {
         switch (meta & 0x3) {
-            case 1: return EnumFacing.WEST;
-            case 2: return EnumFacing.SOUTH;
-            case 3: return EnumFacing.EAST;
-            default: return EnumFacing.NORTH;
+            case 1: return Direction.WEST;
+            case 2: return Direction.SOUTH;
+            case 3: return Direction.EAST;
+            default: return Direction.NORTH;
         }
     }
 
@@ -88,19 +88,19 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     public abstract ElectricMachineTileEntity createNewTileEntity(IBlockReader world);
 
     @Override
-    public int getComparatorInputOverride(IBlockState state, World world, BlockPos pos) {
+    public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
         TileEntity tile = world.getTileEntity(pos);
         return tile instanceof ElectricMachineTileEntity
                 ? ((ElectricMachineTileEntity) tile).getComparatorOutput() : 0;
     }
 
     @Override
-    public boolean hasComparatorInputOverride(IBlockState state) {
+    public boolean hasComparatorInputOverride(BlockState state) {
         return true;
     }
 
     @Override
-    public void onReplaced(IBlockState state, World world, BlockPos pos, IBlockState newState, boolean isMoving) {
+    public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
             TileEntity tile = world.getTileEntity(pos);
             if (tile instanceof IInventory) {

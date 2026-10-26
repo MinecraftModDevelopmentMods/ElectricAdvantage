@@ -3,7 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import cyano.poweradvantage.api.ConduitType;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -28,21 +28,21 @@ public class LEDBlock extends ElectricConduitBlock implements ITileEntityProvide
     }
 
     @Override
-    public int getLightValue(IBlockState state) {
+    public int getLightValue(BlockState state) {
         return state.getBlock() == this && state.get(LIT) ? 15 : 0;
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder) {
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
         builder.add(LIT);
     }
 
-    public IBlockState getStateFromLegacyMeta(int meta) {
+    public BlockState getStateFromLegacyMeta(int meta) {
         return getDefaultState().with(LIT, (meta & 1) != 0);
     }
 
-    public int getLegacyMetaFromState(IBlockState state) {
+    public int getLegacyMetaFromState(BlockState state) {
         return state.get(LIT) ? 1 : 0;
     }
 

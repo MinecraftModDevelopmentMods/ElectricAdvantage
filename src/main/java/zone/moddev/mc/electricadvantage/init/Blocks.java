@@ -6,7 +6,7 @@ import java.util.Map;
 import cyano.poweradvantage.api.GUIBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -115,7 +115,7 @@ public final class Blocks {
             if (!"pump_pipe_electric".equals(entry.getKey()) && !"laser_turret_evil".equals(entry.getKey())) {
                 properties.group(ItemGroups.tab_powerAdvantage);
             }
-            ItemBlock item = new ItemBlock(entry.getValue(), properties);
+            BlockItem item = new BlockItem(entry.getValue(), properties);
             item.setRegistryName(ElectricAdvantage.MODID, entry.getKey());
             event.getRegistry().register(item);
         }

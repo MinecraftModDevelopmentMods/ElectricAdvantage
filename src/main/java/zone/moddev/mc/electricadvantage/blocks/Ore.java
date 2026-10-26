@@ -1,12 +1,18 @@
 package zone.moddev.mc.electricadvantage.blocks;
 
 import java.util.Random;
+import java.util.Collections;
+import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -34,18 +40,19 @@ public class Ore extends Block {
         harvestLevel = pickLevel;
     }
 
-    @Override public ToolType getHarvestTool(IBlockState state) { return ToolType.PICKAXE; }
-    @Override public int getHarvestLevel(IBlockState state) { return harvestLevel; }
+    @Override public ToolType getHarvestTool(BlockState state) { return ToolType.PICKAXE; }
+    @Override public int getHarvestLevel(BlockState state) { return harvestLevel; }
 
     @Override
-    public void getDrops(IBlockState state, NonNullList<ItemStack> drops, World world, BlockPos pos, int fortune) {
-        if (dropItem.isEmpty()) {
-            drops.add(new ItemStack(this));
-            return;
+    public List<ItemStack> getDrops(BlockState state, LootContext.Builder context) {
+        ItemStack tool = context.get(LootParameters.TOOL);
+        if (dropItem.isEmpty() || (tool != null
+                && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, tool) > 0)) {
+            return Collections.singletonList(new ItemStack(this));
         }
-        Random random = world.rand;
+        Random random = context.getWorld().rand;
         ItemStack result = dropItem.copy();
         result.setCount(dropItem.getCount() + (dropRange > 1 ? random.nextInt(dropRange) : 0));
-        drops.add(result);
+        return Collections.singletonList(result);
     }
 }
