@@ -103,7 +103,7 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 	protected void saveTo(CompoundNBT tagRoot) {
 		ListNBT times = new ListNBT();
 		for(int i = 0; i < numberOfInputSlots(); i++){
-			times.add(new ShortNBT(smashTime[i]));
+			times.add(ShortNBT.valueOf(smashTime[i]));
 		}
 		tagRoot.put("smashTime", times);
 	}

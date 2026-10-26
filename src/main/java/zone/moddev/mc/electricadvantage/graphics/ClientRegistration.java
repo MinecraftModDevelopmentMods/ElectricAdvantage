@@ -3,17 +3,19 @@ package zone.moddev.mc.electricadvantage.graphics;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import zone.moddev.mc.electricadvantage.entities.HydroturbineEntity;
-import zone.moddev.mc.electricadvantage.machines.ElectricDrillTileEntity;
-import zone.moddev.mc.electricadvantage.machines.LaserTurretTileEntity;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import zone.moddev.mc.electricadvantage.init.Blocks;
+import zone.moddev.mc.electricadvantage.init.Entities;
 
 /** Client-only renderer registration. */
 public final class ClientRegistration {
     private ClientRegistration() {}
 
     public static void onClientSetup(FMLClientSetupEvent event) {
-        ClientRegistry.bindTileEntitySpecialRenderer(ElectricDrillTileEntity.class, new LaserDrillRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(LaserTurretTileEntity.class, new LaserTurretRenderer());
-        RenderingRegistry.registerEntityRenderingHandler(HydroturbineEntity.class, HydroturbineRenderer::new);
+        RenderTypeLookup.setRenderLayer(Blocks.electric_track, RenderType.getCutout());
+        ClientRegistry.bindTileEntityRenderer(Entities.ELECTRIC_DRILL, LaserDrillRenderer::new);
+        ClientRegistry.bindTileEntityRenderer(Entities.LASER_TURRET, LaserTurretRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(Entities.HYDROTURBINE, HydroturbineRenderer::new);
     }
 }

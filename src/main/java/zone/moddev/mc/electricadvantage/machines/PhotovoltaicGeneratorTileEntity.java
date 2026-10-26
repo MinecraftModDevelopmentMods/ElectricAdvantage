@@ -93,7 +93,7 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	
 	public static float getLightIntensityAt(BlockPos pos, World w){
 		float light;
-		if(w.isSkyLightMax(pos) && w.dimension.hasSkyLight()){
+		if(w.canSeeSky(pos) && w.dimension.hasSkyLight()){
 			// outdoor light imposes no penalty
 			light = MathHelper.sin((float)w.getDayTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather

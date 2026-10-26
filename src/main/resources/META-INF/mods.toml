@@ -30,13 +30,13 @@ side="BOTH"
 [[dependencies.electricadvantage]]
 modId="poweradvantage"
 mandatory=true
-versionRange="[2.4.5.114041,3.0.0)"
+versionRange="[2.4.6.115021,3.0.0)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.electricadvantage]]
 modId="basemetals"
 mandatory=false
-versionRange="[3.0.1.114041,4.0.0)"
+versionRange="[3.0.1.115021,4.0.0)"
 ordering="AFTER"
 side="BOTH"
