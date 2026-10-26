@@ -72,3 +72,4 @@ Electric Advantage 2.2.1.112021
 - Keep Base Metals integration reflection-based while retaining its distribution dependency.
 - Preserve vertical Electric Drill orientation when chunks and worlds reload.
 - Preserve Electric Advantage registry, tile entity, entity, asset, configuration, and saved-world identities.
+- Register recipe conditions after parallel setup to prevent intermittent missing recipes at startup.

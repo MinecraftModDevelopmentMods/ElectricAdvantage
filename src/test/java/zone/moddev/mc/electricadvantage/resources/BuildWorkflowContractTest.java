@@ -39,7 +39,7 @@ public class BuildWorkflowContractTest {
             assertTrue(policy < source.indexOf("repository: MinecraftModDevelopmentMods/PowerAdvantage"));
             assertTrue(source.contains("ref: 5613baf876747ed071cb7ad7e2aff4e0ce4f0a03"));
             assertTrue(source.contains("ref: 1d166d917663d4b4a5a88a86440adc0ae761e393"));
-            assertTrue(source.contains("ref: b15e2091e9647860bd90284aef6135a311692864"));
+            assertTrue(source.contains("ref: 75d24d2641e8123ff7a7f961d9a1e5a1d5203194"));
             assertTrue(source.contains("branches: [master-1.15.2"));
             assertFalse(source.contains("master-1.14.4"));
         }

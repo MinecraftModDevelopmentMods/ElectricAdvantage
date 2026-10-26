@@ -374,8 +374,8 @@ tasks.register('verifyReleaseConfiguration') {
         }
         if (project.poweradvantage_version != '2.4.6.115021'
                 || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/PowerAdvantage'
-                || project.poweradvantage_source_ref != 'b15e2091e9647860bd90284aef6135a311692864'
-                || project.poweradvantage_deobf_sha256 != '2C3ADBCA79859DFA2C14EF8DC9068BF9F202D72FDB1D37B51ED4DE1B5B7E866A') {
+                || project.poweradvantage_source_ref != '75d24d2641e8123ff7a7f961d9a1e5a1d5203194'
+                || project.poweradvantage_deobf_sha256 != 'F5029356CB837E7D782BA59D4C3B961CE0AAA116B739F14DA63F0A13562A2D1F') {
             throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
         }
         if (project.basemetals_version != '3.0.1.115021'

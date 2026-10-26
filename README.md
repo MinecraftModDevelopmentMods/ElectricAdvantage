@@ -26,7 +26,7 @@ Build the matching 1.15 PowerAdvantage, Base Metals and OreSpawn deobf jars firs
 Dependency versions, checksums and the exact Power source reference belong in
 `gradle.properties`. Release audits reject missing or placeholder pins; do not
 bypass those checks or substitute another target's dependencies. Power Advantage
-`2.4.6.115021` is pinned to source `b15e2091e9647860bd90284aef6135a311692864`.
+`2.4.6.115021` is pinned to source `75d24d2641e8123ff7a7f961d9a1e5a1d5203194`.
 Base Metals `3.0.1.115021` and OreSpawn `4.1.1.115021` also have exact source and SHA-256 pins.
 With the standard sibling layout:
 

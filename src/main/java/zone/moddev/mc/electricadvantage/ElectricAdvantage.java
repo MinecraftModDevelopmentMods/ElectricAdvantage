@@ -52,7 +52,6 @@ public final class ElectricAdvantage {
         Entities.init();
         Enchantments.init();
         GUI.init();
-        RecipeConditions.register();
         ElectricLegacyMigrations.register();
 
         migrateLegacyOreSpawnConfiguration();
@@ -96,6 +95,8 @@ public final class ElectricAdvantage {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
+        // CraftingHelper's shared condition map is not safe during parallel loading.
+        net.minecraftforge.fml.DeferredWorkQueue.runLater(RecipeConditions::register);
         ElectricAdvantageConfig.apply();
         Recipes.init();
         TreasureChests.init(FMLPaths.CONFIGDIR.get());
