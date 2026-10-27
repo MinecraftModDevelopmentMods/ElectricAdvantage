@@ -30,6 +30,13 @@ public class BuildWorkflowContractTest {
     }
 
     @Test public void dependencyPolicyPrecedesEveryPinnedCheckout() throws Exception {
+        for (String helper : new String[] {"tools/verify-native-port.js", "tools/verification/Verify-ElectricEcj.ps1"}) {
+            String source = new String(Files.readAllBytes(Paths.get(helper)), StandardCharsets.UTF_8);
+            assertTrue(helper, source.contains("3f1100e6f75b1fb949cc883be7288aa30789876d"));
+            assertTrue(helper, source.contains("1A3E5B9EE45CF932CE963146D016E5270BD587A5D5AA2B9283886FF89EF14FD4"));
+            assertFalse(helper, source.contains("2116a35a40dd150d79e7dfdcdc891637793178b7"));
+            assertFalse(helper, source.contains("F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A"));
+        }
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int policy = source.indexOf("git config --global core.autocrlf false");

@@ -61,15 +61,15 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
 }
 
 $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Evidence
-    scope = 'Electric D only; fresh ECJ main/test/helper outputs and worldless Java 8 JUnit; no Gradle or Minecraft launch'
+    scope = 'Pinned Electric 1.16.5 candidate; fresh ECJ main/test/helper outputs and worldless Java 8 JUnit; no Gradle or Minecraft launch'
     compiler = $null; toolchains = $null; libraries = @(); sources = @(); gradleInventory = @()
     compilations = [ordered]@{}; junit = $null }
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     if ($properties.mod_id -ne 'electricadvantage' -or $properties.mod_version -ne '2.2.8.116051' -or
-        $properties.poweradvantage_source_ref -ne '2116a35a40dd150d79e7dfdcdc891637793178b7' -or
-        $properties.poweradvantage_deobf_sha256 -ne 'F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A') {
-        throw 'This verifier is pinned to the Electric 1.16.5 bootstrap-D candidate'
+        $properties.poweradvantage_source_ref -ne '3f1100e6f75b1fb949cc883be7288aa30789876d' -or
+        $properties.poweradvantage_deobf_sha256 -ne '1A3E5B9EE45CF932CE963146D016E5270BD587A5D5AA2B9283886FF89EF14FD4') {
+        throw 'This verifier requires the pinned Electric 1.16.5 candidate'
     }
     $report.compiler = Get-Pin $Compiler
     if ($report.compiler.sha256 -ne 'D0D43F8E2D7003E5EFED612E2CBB5F01870043397D8F1BBE536FD9128F4FCBF7') { throw 'ECJ compiler pin mismatch' }
@@ -114,7 +114,7 @@ try {
         $expected += [int]$inventory.testsuite.tests
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 17 -or $expected -ne 47 -or $sources.test.Count -ne 17 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric D source/test inventory' }
+    if ($classes.Count -ne 17 -or $expected -ne 47 -or $sources.test.Count -ne 17 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.16.5 source/test inventory' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
     $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
     $helperSource = Join-Path $PSScriptRoot 'AuditedJUnit.java'
