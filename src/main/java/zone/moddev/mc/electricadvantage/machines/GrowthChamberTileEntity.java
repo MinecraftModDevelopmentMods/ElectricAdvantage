@@ -68,16 +68,16 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 								List<ItemStack> harvest = crops[slot].getHarvest();
 								if(harvest != null && (!harvest.isEmpty()) 
 										&& this.hasSpaceForItemInOutputSlots(harvest.get(0))){
-									playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_GRASS_BREAK, 0.35f, 1f);
+									playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.GRASS_BREAK, 0.35f, 1f);
 									for(ItemStack i : harvest){
 										ItemStack remainder = this.insertItemToOutputSlots(i);
 										if(remainder != null){
-											getWorld().addEntity(
+											getLevel().addFreshEntity(
 													new ItemEntity(
-															getWorld(),
-															2*(getWorld().rand.nextDouble()-0.5),
-															2*(getWorld().rand.nextDouble()-0.5),
-															2*(getWorld().rand.nextDouble()-0.5),
+															getLevel(),
+															2*(getLevel().random.nextDouble()-0.5),
+															2*(getLevel().random.nextDouble()-0.5),
+															2*(getLevel().random.nextDouble()-0.5),
 															remainder
 													)
 											);
@@ -206,7 +206,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 	private VirtualCrop getVirtualCrop(ItemStack inputSlot) {
 		if(isEmptyStack(inputSlot)) return null;
 		try{
-			return VirtualCrop.createVirtualCrop(inputSlot, getWorld(), getPos());
+			return VirtualCrop.createVirtualCrop(inputSlot, getLevel(), getBlockPos());
 		} catch(Exception ex){
 			ElectricAdvantage.LOGGER.error("Error occurred while trying to make a virtual crop for {}", inputSlot, ex);
 			return null;

@@ -37,11 +37,15 @@ public class BuildWorkflowContractTest {
             assertTrue(policy < source.indexOf("repository: MinecraftModDevelopmentMods/OreSpawn"));
             assertTrue(policy < source.indexOf("repository: MinecraftModDevelopmentMods/BaseMetals"));
             assertTrue(policy < source.indexOf("repository: MinecraftModDevelopmentMods/PowerAdvantage"));
-            assertTrue(source.contains("ref: 5613baf876747ed071cb7ad7e2aff4e0ce4f0a03"));
-            assertTrue(source.contains("ref: ac1781e7cade15045ffe0135077087b4d1722603"));
-            assertTrue(source.contains("BaseMetals-3.0.2.115021-deobf.jar"));
-            assertTrue(source.contains("ref: 6666099a734eba16561d98c86f3f4bb1b7c742f7"));
-            assertTrue(source.contains("branches: [master-1.15.2"));
+            assertTrue(source.contains("ref: a113e5d767169189f0e35ade1e173a12d550b00e"));
+            assertTrue(source.contains("ref: 995f6cc4dd2d5eecc628a42e5c43fa5390c24bca"));
+            assertTrue(source.contains("BaseMetals-3.1.1.116051-deobf.jar"));
+            assertTrue(source.contains("ref: 098d4625abc8a849bd1a11dcf697b3fee0cade7b"));
+            assertTrue(source.contains("78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3"));
+            assertFalse(source.contains("ce90c24c302d0ff3565db2db0c6c94a3b5f21f83"));
+            assertFalse(source.contains("8BBB03DD7E4AF08A7390A161ED5AA94E292BEE56EF60E550B5512E967E0E9174"));
+            assertTrue(source.indexOf("- name: Require final PowerAdvantage pin") < source.indexOf("- name: Check out pinned OreSpawn"));
+            assertTrue(source.contains("branches: [master-1.16.5"));
             assertFalse(source.contains("master-1.14.4"));
         }
     }

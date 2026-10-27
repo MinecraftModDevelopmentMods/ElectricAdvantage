@@ -35,7 +35,7 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 							setInputSlot(0,null);
 						}
 						progress = 0;
-						playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.0f);
+						playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.5f, 1.0f);
 					}
 					active = true;
 				} else {
@@ -52,7 +52,7 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	public static boolean isFoodItem(ItemStack item){
 		if(item == null) return false;
 		Item i = item.getItem();
-		return !item.isEmpty() && i.isFood();
+		return !item.isEmpty() && i.isEdible();
 	}
 	
 	public boolean becomesFoodItem(ItemStack item){

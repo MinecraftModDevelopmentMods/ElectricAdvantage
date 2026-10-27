@@ -10,7 +10,7 @@ public class ElectricBatteryArrayBlock extends ElectricGeneratorBlock {
 	}
 	
 	@Override
-	public ElectricGeneratorTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new ElectricBatteryArrayTileEntity();
 	}
 	@Override

@@ -22,6 +22,6 @@ public final class ItemRecord {
     @Override
     public boolean equals(Object other) {
         return other == this || other instanceof ItemRecord
-                && ItemStack.areItemsEqual(item, ((ItemRecord) other).item);
+                && ItemStack.isSame(item, ((ItemRecord) other).item);
     }
 }

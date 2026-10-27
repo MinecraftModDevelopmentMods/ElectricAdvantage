@@ -21,7 +21,7 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	private final NumberFormat nf;
 	
 	public BatteryItem(float capacity, Item.Properties properties){
-		super(properties.maxStackSize(1));
+		super(properties.stacksTo(1));
 		this.capacity = capacity;
 		nf = NumberFormat.getInstance();
 		nf.setMaximumFractionDigits(0);
@@ -95,15 +95,15 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	}
 
 	@Override
-	public void addInformation(ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag flag){
-		super.addInformation(stack, world, list, flag);
+	public void appendHoverText(ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag flag){
+		super.appendHoverText(stack, world, list, flag);
 		float max = getMaxEnergy(stack);
 		if(max <= 0) return; // not a battery!
 		float e = getEnergy(stack);
 		list.add(new StringTextComponent(nf.format(100 * e / max) + "% ")
-				.appendSibling(new TranslationTextComponent("tooltip.battery.charge")));
+				.append(new TranslationTextComponent("tooltip.battery.charge")));
 		list.add(new StringTextComponent("(" + nf.format(max) + "kJ ")
-				.appendSibling(new TranslationTextComponent("tooltip.battery.capacity"))
-				.appendText(")"));
+				.append(new TranslationTextComponent("tooltip.battery.capacity"))
+				.append(")"));
 	}
 }

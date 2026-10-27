@@ -5,7 +5,7 @@ import zone.moddev.mc.electricadvantage.machines.LaserTurretTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.ResourceLocation;
@@ -57,10 +57,10 @@ public class LaserTurretRenderer extends TileEntityRenderer<LaserTurretTileEntit
 		float pitch = tickRemainder * e.rotOldPitch + partialTick * e.rotPitch;
 		
 
-		matrices.push();
+		matrices.pushPose();
 		matrices.translate(0.5f, 0.75f, 0.5f);
-		matrices.rotate(Vector3f.YP.rotationDegrees(yaw));
-		matrices.rotate(Vector3f.XP.rotationDegrees(pitch));
+		matrices.mulPose(Vector3f.YP.rotationDegrees(yaw));
+		matrices.mulPose(Vector3f.XP.rotationDegrees(pitch));
         BufferedQuads worldRenderer = new BufferedQuads(matrices,
                 buffers.getBuffer(renderType), packedLight, packedOverlay);
 		
@@ -136,7 +136,7 @@ public class LaserTurretRenderer extends TileEntityRenderer<LaserTurretTileEntit
 			
 		}
 
-		matrices.pop();
+		matrices.popPose();
 	}
 
 	

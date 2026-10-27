@@ -8,20 +8,14 @@ import net.minecraft.world.World;
 public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 
 	public PhotovoltaicGeneratorBlock(){
-		super(net.minecraft.block.Block.Properties.create(Material.ROCK)
-				.hardnessAndResistance(0.75F).sound(SoundType.GLASS).variableOpacity());
+		super(net.minecraft.block.Block.Properties.of(Material.STONE)
+				.strength(0.75F).sound(SoundType.GLASS).dynamicShape()
+                .isRedstoneConductor((state, world, pos) -> true));
 	}
 	
 	@Override
-	public ElectricGeneratorTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new PhotovoltaicGeneratorTileEntity();
-	}
-	
-
-	@Override
-	public boolean isNormalCube(BlockState bs, net.minecraft.world.IBlockReader world, net.minecraft.util.math.BlockPos pos)
-	{
-		return true;
 	}
 	
 

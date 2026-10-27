@@ -6,9 +6,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.Direction;
 import net.minecraft.util.registry.Bootstrap;
 import org.junit.BeforeClass;
@@ -26,13 +26,13 @@ public class RendererBufferContractTest {
     private static final int FULL_BRIGHT = 15 << 20 | 15 << 4;
 
     @BeforeClass public static void bootstrapNativeRegistries() {
-        Bootstrap.register();
+        Bootstrap.bootStrap();
     }
 
     @Test public void quadNormalsUseWindingAndTheNativeNormalMatrix() {
         MatrixStack matrices = new MatrixStack();
         matrices.translate(3, 4, 5);
-        matrices.rotate(Vector3f.YP.rotationDegrees(90));
+        matrices.mulPose(Vector3f.YP.rotationDegrees(90));
         RecordingBuffer buffer = new RecordingBuffer();
         BufferedQuads quads = new BufferedQuads(matrices, buffer, 0x123456, 0x789abc);
         quad(quads, false);
@@ -59,18 +59,18 @@ public class RendererBufferContractTest {
             set(ElectricDrillTileEntity.class, drill, "facingCache", direction);
             MatrixStack matrices = new MatrixStack();
             matrices.translate(11, -5, 7);
-            MatrixStack.Entry before = matrices.getLast();
-            Matrix4f matrix = before.getMatrix().copy();
+            MatrixStack.Entry before = matrices.last();
+            Matrix4f matrix = before.pose().copy();
             RecordingBuffer buffer = new RecordingBuffer();
             renderer.render(drill, 0.5F, matrices, buffer, 0, 17);
-            assertSame(before, matrices.getLast());
-            assertEquals(matrix, matrices.getLast().getMatrix());
+            assertSame(before, matrices.last());
+            assertEquals(matrix, matrices.last().pose());
             assertTrue(matrices.clear());
             assertEquals(direction.toString(), 16, buffer.vertices.size());
             assertArrayEquals(new float[] {11.5F, -4.5F, 7.5F},
                     midpoint(buffer.vertices.get(0), buffer.vertices.get(3)), 0.00001F);
-            assertArrayEquals(new float[] {11.5F + direction.getXOffset() * 5,
-                    -4.5F + direction.getYOffset() * 5, 7.5F + direction.getZOffset() * 5},
+            assertArrayEquals(new float[] {11.5F + direction.getStepX() * 5,
+                    -4.5F + direction.getStepY() * 5, 7.5F + direction.getStepZ() * 5},
                     midpoint(buffer.vertices.get(1), buffer.vertices.get(2)), 0.00001F);
             for (Vertex vertex : buffer.vertices) {
                 assertEquals(FULL_BRIGHT, vertex.light);
@@ -83,10 +83,10 @@ public class RendererBufferContractTest {
 
     @Test public void idleDrillDoesNotTouchTheStackOrEmitVertices() {
         MatrixStack matrices = new MatrixStack();
-        MatrixStack.Entry before = matrices.getLast();
+        MatrixStack.Entry before = matrices.last();
         RecordingBuffer buffer = new RecordingBuffer();
         new LaserDrillRenderer(null).render(new ElectricDrillTileEntity(), 0, matrices, buffer, 0, 0);
-        assertSame(before, matrices.getLast());
+        assertSame(before, matrices.last());
         assertTrue(matrices.clear());
         assertTrue(buffer.vertices.isEmpty());
     }
@@ -100,14 +100,14 @@ public class RendererBufferContractTest {
         for (int charge : new int[] {0, 1, 10, 11}) {
             set(LaserTurretTileEntity.class, turret, "laserAttack", charge);
             MatrixStack matrices = new MatrixStack();
-            MatrixStack.Entry before = matrices.getLast();
-            Matrix4f matrix = before.getMatrix().copy();
+            MatrixStack.Entry before = matrices.last();
+            Matrix4f matrix = before.pose().copy();
             RecordingBuffer buffer = new RecordingBuffer();
             renderer.render(turret, 0.5F, matrices, buffer, 0x340012, 23);
             boolean beam = charge == 1 || charge == 10;
             assertEquals(beam ? 40 : 24, buffer.vertices.size());
-            assertSame(before, matrices.getLast());
-            assertEquals(matrix, before.getMatrix());
+            assertSame(before, matrices.last());
+            assertEquals(matrix, before.pose());
             assertTrue(matrices.clear());
             assertArrayEquals(new float[] {0.5F, 0.5F}, buffer.vertices.get(0).uv, 0F);
             assertArrayEquals(new float[] {1, 1}, buffer.vertices.get(2).uv, 0F);
@@ -182,11 +182,11 @@ public class RendererBufferContractTest {
         final List<Vertex> vertices = new ArrayList<>();
         Vertex vertex = new Vertex();
         @Override public IVertexBuilder getBuffer(RenderType type) { return this; }
-        @Override public IVertexBuilder pos(double x, double y, double z) { vertex.position = new float[] {(float) x, (float) y, (float) z}; return this; }
+        @Override public IVertexBuilder vertex(double x, double y, double z) { vertex.position = new float[] {(float) x, (float) y, (float) z}; return this; }
         @Override public IVertexBuilder color(int r, int g, int b, int a) { vertex.color = new int[] {r, g, b, a}; return this; }
-        @Override public IVertexBuilder tex(float u, float v) { vertex.uv = new float[] {u, v}; return this; }
-        @Override public IVertexBuilder overlay(int u, int v) { vertex.overlay = u | v << 16; return this; }
-        @Override public IVertexBuilder lightmap(int u, int v) { vertex.light = u | v << 16; return this; }
+        @Override public IVertexBuilder uv(float u, float v) { vertex.uv = new float[] {u, v}; return this; }
+        @Override public IVertexBuilder overlayCoords(int u, int v) { vertex.overlay = u | v << 16; return this; }
+        @Override public IVertexBuilder uv2(int u, int v) { vertex.light = u | v << 16; return this; }
         @Override public IVertexBuilder normal(float x, float y, float z) { vertex.normal = new float[] {x, y, z}; return this; }
         @Override public void endVertex() { vertices.add(vertex); vertex = new Vertex(); }
     }

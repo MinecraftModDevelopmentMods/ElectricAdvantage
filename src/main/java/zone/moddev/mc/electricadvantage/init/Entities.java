@@ -72,9 +72,9 @@ public final class Entities {
     }
 
     @SubscribeEvent public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>create(
+        HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(
                 HydroturbineEntity::new, EntityClassification.MISC)
-                .size(0.9375F, 0.9375F)
+                .sized(0.9375F, 0.9375F)
                 .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
                 .build(ElectricAdvantage.MODID + ":hydroturbine");
         HYDROTURBINE.setRegistryName(ElectricAdvantage.MODID, "hydroturbine");
@@ -84,7 +84,7 @@ public final class Entities {
     private static <T extends TileEntity> TileEntityType<T> tile(
             RegistryEvent.Register<TileEntityType<?>> event, String id, Supplier<? extends T> factory,
             net.minecraft.block.Block... blocks) {
-        TileEntityType<T> type = TileEntityType.Builder.<T>create(factory, blocks).build(null);
+        TileEntityType<T> type = TileEntityType.Builder.<T>of(factory, blocks).build(null);
         type.setRegistryName(ElectricAdvantage.MODID, id);
         event.getRegistry().register(type);
         return type;

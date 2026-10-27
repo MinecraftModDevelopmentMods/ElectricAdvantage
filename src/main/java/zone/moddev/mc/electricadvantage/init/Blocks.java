@@ -113,7 +113,7 @@ public final class Blocks {
         for (Map.Entry<String, Block> entry : ALL_BLOCKS.entrySet()) {
             Item.Properties properties = new Item.Properties();
             if (!"pump_pipe_electric".equals(entry.getKey()) && !"laser_turret_evil".equals(entry.getKey())) {
-                properties.group(ItemGroups.tab_powerAdvantage);
+                properties.tab(ItemGroups.tab_powerAdvantage);
             }
             BlockItem item = new BlockItem(entry.getValue(), properties);
             item.setRegistryName(ElectricAdvantage.MODID, entry.getKey());

@@ -67,9 +67,9 @@ public final class ElectricLegacyMigrations {
 
     private static BlockState decodeState(Block block, int metadata) {
         if (block instanceof ElectricDrillBlock) {
-            return block.getDefaultState()
-                    .with(ElectricDrillBlock.FACING, legacyDrillFacing(metadata))
-                    .with(ElectricDrillBlock.ACTIVE, legacyDrillActive(metadata));
+            return block.defaultBlockState()
+                    .setValue(ElectricDrillBlock.FACING, legacyDrillFacing(metadata))
+                    .setValue(ElectricDrillBlock.ACTIVE, legacyDrillActive(metadata));
         }
         if (block instanceof LEDBlock) {
             return ((LEDBlock) block).getStateFromLegacyMeta(metadata);
@@ -86,11 +86,11 @@ public final class ElectricLegacyMigrations {
         if (block instanceof BlockSimplePowerMachine) {
             return ((BlockSimplePowerMachine) block).getStateFromMeta(metadata);
         }
-        return block.getDefaultState();
+        return block.defaultBlockState();
     }
 
     static Direction legacyDrillFacing(int metadata) {
-        return Direction.byIndex(metadata & 0x7);
+        return Direction.from3DDataValue(metadata & 0x7);
     }
 
     static boolean legacyDrillActive(int metadata) {

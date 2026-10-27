@@ -63,7 +63,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 					// done
 					getTank().drain(OIL_PER_INGOT, true);
 					this.insertItemToOutputSlots(new ItemStack(Items.petrolplastic_ingot,1));
-					playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_ANVIL_LAND, 0.15f, 1f);
+					playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.ANVIL_LAND, 0.15f, 1f);
 					fabTime = 0;
 					if(wasActive){
 						this.setActiveState(false);
@@ -128,7 +128,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	@Override
 	protected boolean isValidInputItem(ItemStack item) {
 		return item != null && !item.isEmpty()
-				&& ItemTags.getCollection().getOrCreate(new ResourceLocation("forge", "plastics"))
+				&& ItemTags.getAllTags().getTagOrEmpty(new ResourceLocation("forge", "plastics"))
 						.contains(item.getItem());
 	}
 

@@ -3,7 +3,7 @@ package zone.moddev.mc.electricadvantage.util.farming;
 import zone.moddev.mc.electricadvantage.util.crafting.ItemRecord;
 import net.minecraft.block.Block;
 import net.minecraft.block.StemBlock;
-import net.minecraft.state.IProperty;
+import net.minecraft.state.Property;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.Items;
@@ -64,7 +64,7 @@ public class VirtualCrop {
 			Block block = startingState.getBlock();
 			int numStages = getNumberOfGrowthStages(startingState);
 			if(block instanceof StemBlock){
-				Block product = ((StemBlock)block).getCrop();
+				Block product = ((StemBlock)block).getFruit();
 				if(product == null) {
 					return null;
 				}
@@ -86,11 +86,11 @@ public class VirtualCrop {
 	
 
 	private static int getNumberOfGrowthStages(BlockState startingState) {
-		for(IProperty<?> property : startingState.getProperties()){
+		for(Property<?> property : startingState.getProperties()){
 			if(property instanceof IntegerProperty){
 				IntegerProperty prop = (IntegerProperty)property;
 				if("age".equals(prop.getName())){
-					return prop.getAllowedValues().size();
+					return prop.getPossibleValues().size();
 				}
 			}
 		}
@@ -99,15 +99,15 @@ public class VirtualCrop {
 	
 
 	private static BlockState ageToMax(BlockState startingState) {
-		for(IProperty<?> property : startingState.getProperties()){
+		for(Property<?> property : startingState.getProperties()){
 			if(property instanceof IntegerProperty){
 				IntegerProperty prop = (IntegerProperty)property;
 				if("age".equals(prop.getName())){
 					int max = 0;
-					for(Object i : prop.getAllowedValues()){
+					for(Object i : prop.getPossibleValues()){
 						if((Integer)i > max){max = (Integer)i;}
 					}
-					return startingState.with(prop, Integer.valueOf(max));
+					return startingState.setValue(prop, Integer.valueOf(max));
 				}
 			}
 		}

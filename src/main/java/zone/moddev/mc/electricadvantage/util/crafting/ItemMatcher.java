@@ -18,7 +18,7 @@ public final class ItemMatcher {
 
     public ItemMatcher(String legacyName) {
         this.choices = new ArrayList<>();
-        for (Item item : ItemTags.getCollection().getOrCreate(tagId(legacyName)).getAllElements()) {
+        for (Item item : ItemTags.getAllTags().getTagOrEmpty(tagId(legacyName)).getValues()) {
             choices.add(new ItemStack(item));
         }
     }
@@ -52,7 +52,7 @@ public final class ItemMatcher {
     public boolean matches(ItemStack candidate) {
         if (candidate == null || candidate.isEmpty()) return false;
         for (ItemStack choice : choices) {
-            if (ItemStack.areItemsEqual(choice, candidate)) return true;
+            if (ItemStack.isSame(choice, candidate)) return true;
         }
         return false;
     }

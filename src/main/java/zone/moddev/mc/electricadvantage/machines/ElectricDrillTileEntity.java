@@ -90,12 +90,12 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 						progress++;
 						if(progress >= progressGoal){
 							// Mined it!
-							playSoundEffect(targetBlockCoord.getX()+0.5, targetBlockCoord.getY()+0.5, targetBlockCoord.getZ()+0.5, getWorld().getBlockState(targetBlockCoord).getSoundType().getPlaceSound(), 0.5f, 1f);
-							playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_SAND_BREAK, 0.5f, 1f);
+							playSoundEffect(targetBlockCoord.getX()+0.5, targetBlockCoord.getY()+0.5, targetBlockCoord.getZ()+0.5, getLevel().getBlockState(targetBlockCoord).getSoundType().getPlaceSound(), 0.5f, 1f);
+							playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.SAND_BREAK, 0.5f, 1f);
 							BlockPos[] targets = this.getArea(targetBlockCoord);
 							for(int i = 0; i < targets.length; i++)
 								if(canMine(targets[i])){
-									getWorld().setBlockState(targets[i], net.minecraft.block.Blocks.AIR.getDefaultState(), 3);
+									getLevel().setBlock(targets[i], net.minecraft.block.Blocks.AIR.defaultBlockState(), 3);
 								}
 							for(ItemStack item : targetBlockItems){
 								addItem(item);
@@ -134,7 +134,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	private Direction trackDirection(){
 		for(Direction dir : Direction.values()){
-			if(getWorld().getBlockState(getPos().offset(dir)).getBlock() == Blocks.electric_track){
+			if(getLevel().getBlockState(getBlockPos().relative(dir)).getBlock() == Blocks.electric_track){
 				return dir;
 			}
 		}
@@ -148,22 +148,22 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 		// clone this block into neighboring block
 		this.untargetBlock();
-		World w = getWorld();
-		BlockPos nextPos = getPos().offset(trackDir);
-		w.setBlockState(nextPos, w.getBlockState(getPos()), 2);
-		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getTileEntity(nextPos);
+		World w = getLevel();
+		BlockPos nextPos = getBlockPos().relative(trackDir);
+		w.setBlock(nextPos, w.getBlockState(getBlockPos()), 2);
+		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getBlockEntity(nextPos);
 		CompoundNBT dataTransfer = new CompoundNBT();
-		this.write(dataTransfer);
-		te.read(dataTransfer);
-		te.setPos(nextPos);
-		te.validate();
+		this.save(dataTransfer);
+		te.load(w.getBlockState(nextPos), dataTransfer);
+		te.setPosition(nextPos);
+		te.clearRemoved();
 		te.subtractEnergy(ENERGY_COST_MOVE, getEnergyType());
-		te.markDirty();
+		te.setChanged();
 		Arrays.fill(this.getInventory(), null);
 
 		// replace this block with steam pipe
-		w.setBlockState(getPos().offset(getFacing()), zone.moddev.mc.poweradvantage.init.Blocks.steel_frame.getDefaultState());
-		w.setBlockState(getPos(), Blocks.electric_conduit.getDefaultState(), 2);
+		w.setBlockAndUpdate(getBlockPos().relative(getFacing()), zone.moddev.mc.poweradvantage.init.Blocks.steel_frame.defaultBlockState());
+		w.setBlock(getBlockPos(), Blocks.electric_conduit.defaultBlockState(), 2);
 
 
 		return true;
@@ -207,7 +207,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 
 		Direction f = getFacing();
-		BlockPos n = getPos().offset(f);
+		BlockPos n = getBlockPos().relative(f);
 
 		// manage drill bits and find next block
 		if(redstone || this.getEnergy() <= 0){
@@ -225,9 +225,9 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 						break;
 					}
 
-					if(getWorld().isAirBlock(n) || getWorld().getBlockState(n).getMaterial().isReplaceable()){
+					if(getLevel().isEmptyBlock(n) || getLevel().getBlockState(n).getMaterial().isReplaceable()){
 						// this block is not worth mining, replace it
-						n = n.offset(f);
+						n = n.relative(f);
 						if(n.getY() == 0 || n.getY() == 255){
 							hitEnd = true;
 							break;
@@ -248,7 +248,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 					boolean moved = followTrack();
 					if(moved){
 						zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry.getInstance()
-								.conduitBlockRemovedEvent(getWorld(), getWorld().dimension.getType().getId(), getPos(), getEnergyType());
+								.conduitBlockRemovedEvent(getLevel(), getBlockPos(), getEnergyType());
 						return;
 					}
 				}
@@ -257,7 +257,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 				// block revalidation
 				BlockPos[] targets = getArea(targetBlockCoord);
 				for(int i = 0; i < targets.length; i++){
-					if(!getWorld().getBlockState(targets[i]).getBlock().equals(targetBlocks[i])){
+					if(!getLevel().getBlockState(targets[i]).getBlock().equals(targetBlocks[i])){
 						// Block changed! Invalidate!
 						untargetBlock();
 						flagSync = true;
@@ -279,20 +279,20 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 
 		// push inventory to adjacent chest
-		BlockPos adj = getPos().offset(f.getOpposite());
-		if(!redstone && !getWorld().isAirBlock(adj)){
+		BlockPos adj = getBlockPos().relative(f.getOpposite());
+		if(!redstone && !getLevel().isEmptyBlock(adj)){
 			inventoryTransfer(adj,f);
 		}
 
 		// fry any idiots who stand in the laser's path
 		if(isActive() && targetBlocks != null && targetBlockCoord != null){
-			BlockPos pos = getPos();
+			BlockPos pos = getBlockPos();
 			AxisAlignedBB beamArea = new AxisAlignedBB(targetBlockCoord.getX(),targetBlockCoord.getY(),targetBlockCoord.getZ(),
 					pos.getX()+1,pos.getY()+1,pos.getZ()+1);
-			List<LivingEntity> victims = getWorld().getEntitiesWithinAABB(LivingEntity.class, beamArea);
+			List<LivingEntity> victims = getLevel().getEntitiesOfClass(LivingEntity.class, beamArea);
 			for(Entity e : victims){
-				e.setFire(3);
-				e.attackEntityFrom(Power.laser_damage, 2f);
+				e.setSecondsOnFire(3);
+				e.hurt(Power.laser_damage, 2f);
 			}
 		}
 	}
@@ -304,7 +304,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	public void calculateDrillLength(){
 		if(this.isActive() && this.targetBlocks != null && this.targetBlockCoord != null){
-			BlockPos pos = getPos();
+			BlockPos pos = getBlockPos();
 			// distance calculation is taking a short-cut by assuming that 2 out of the 3 XYZ coordinates are identical
 			laserLength = Math.abs((pos.getX() - targetBlockCoord.getX()) + (pos.getY() - targetBlockCoord.getY()) + (pos.getZ() - targetBlockCoord.getZ()));
 		} else {
@@ -321,11 +321,11 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		savedTargetStates = new ListNBT();
 		targetBlockItems = new ArrayList<>(targets.length);
 		for(int i = 0; i < targets.length; i++){
-			targetBlocks[i] = getWorld().getBlockState(targets[i]).getBlock();
-			savedTargetStates.add(NBTUtil.writeBlockState(getWorld().getBlockState(targets[i])));
+			targetBlocks[i] = getLevel().getBlockState(targets[i]).getBlock();
+			savedTargetStates.add(NBTUtil.writeBlockState(getLevel().getBlockState(targets[i])));
 			progressGoal += this.getBlockStrength(targets[i]);
-			targetBlockItems.addAll(Block.getDrops(getWorld().getBlockState(targets[i]),
-					(ServerWorld) getWorld(), targets[i], getWorld().getTileEntity(targets[i])));
+			targetBlockItems.addAll(Block.getDrops(getLevel().getBlockState(targets[i]),
+					(ServerWorld) getLevel(), targets[i], getLevel().getBlockEntity(targets[i])));
 		}
 		deferred = false;
 	}
@@ -339,7 +339,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 				return;
 			}
 			for(int i = 0; i < targets.length; i++){
-				if(!savedTargetStates.getCompound(i).equals(NBTUtil.writeBlockState(getWorld().getBlockState(targets[i])))){
+				if(!savedTargetStates.getCompound(i).equals(NBTUtil.writeBlockState(getLevel().getBlockState(targets[i])))){
 					untargetBlock();
 					return;
 				}
@@ -356,18 +356,18 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		switch(this.getFacing().getAxis()){
 			case X:
 				a[1] = center.north();
-				a[2] = center.down();
+				a[2] = center.below();
 				a[3] = center.south();
-				a[4] = center.up();
+				a[4] = center.above();
 				a[5] = a[2].north();
 				a[6] = a[2].south();
 				a[7] = a[4].north();
 				a[8] = a[4].south();
 				break;
 			case Z:
-				a[1] = center.down();
+				a[1] = center.below();
 				a[2] = center.west();
-				a[3] = center.up();
+				a[3] = center.above();
 				a[4] = center.east();
 				a[5] = a[1].east();
 				a[6] = a[1].west();
@@ -411,7 +411,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	}
 	private void updateFacing(){
 		final Direction old = facingCache;
-		facingCache = (Direction)getWorld().getBlockState(getPos()).get(ElectricDrillBlock.FACING);
+		facingCache = (Direction)getLevel().getBlockState(getBlockPos()).getValue(ElectricDrillBlock.FACING);
 		if(old != null && old != facingCache){
 			untargetBlock();
 			this.sync();
@@ -420,26 +420,26 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 
 	private boolean canMine(BlockPos coord){
-		BlockState bs  = getWorld().getBlockState(coord);
+		BlockState bs  = getLevel().getBlockState(coord);
 		Block b = bs.getBlock();
 		// indestructable blocks have negative hardness
-		return !(b.getBlockHardness(bs, getWorld(), coord) < 0);
+		return !(bs.getDestroySpeed(getLevel(), coord) < 0);
 	}
 
 	private int getBlockStrength(BlockPos coord){
-		if(getWorld().isAirBlock(coord)){
+		if(getLevel().isEmptyBlock(coord)){
 			return 0;
 		}
-		BlockState bs  = getWorld().getBlockState(coord);
+		BlockState bs  = getLevel().getBlockState(coord);
 		Block block = bs.getBlock();
-		return (int)(Math.max(MINING_TIME_FACTOR * block.getBlockHardness(bs, getWorld(), coord),0.5f * MINING_TIME_FACTOR));
+		return (int)(Math.max(MINING_TIME_FACTOR * bs.getDestroySpeed(getLevel(), coord),0.5f * MINING_TIME_FACTOR));
 	}
 
 
 
 	private void inventoryTransfer(BlockPos adj, Direction otherFace) {
 		ItemStack[] inventory = this.getInventory();
-		TileEntity te = getWorld().getTileEntity(adj);
+		TileEntity te = getLevel().getBlockEntity(adj);
 		if(te instanceof IInventory ){
 			ISidedInventory inv = InventoryWrapper.wrap((IInventory)te);
 			int[] accessibleSlots = inv.getSlotsForFace(otherFace);
@@ -448,26 +448,26 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 				if(inventory[mySlot] == null || inventory[mySlot].isEmpty()) continue;
 				for(int i = 0; i < accessibleSlots.length; i++){
 					int theirSlot = accessibleSlots[i];
-					ItemStack theirItem = inv.getStackInSlot(theirSlot);
-					if(inv.canInsertItem(theirSlot, inventory[mySlot], otherFace)){
+					ItemStack theirItem = inv.getItem(theirSlot);
+					if(inv.canPlaceItemThroughFace(theirSlot, inventory[mySlot], otherFace)){
 						if(theirItem == null || theirItem.isEmpty()){
 							ItemStack newItem = inventory[mySlot].copy();
 							newItem.setCount(1);
-							inv.setInventorySlotContents(theirSlot, newItem);
+							inv.setItem(theirSlot, newItem);
 							inventory[mySlot].shrink(1);
 							if(inventory[mySlot].isEmpty()) inventory[mySlot] = null;
-							inv.markDirty();
-							this.markDirty();
+							inv.setChanged();
+							this.setChanged();
 							return;
-						} else if(ItemStack.areItemsEqual(theirItem, inventory[mySlot])
-								&& ItemStack.areItemStackTagsEqual(theirItem, inventory[mySlot])
+						} else if(ItemStack.isSame(theirItem, inventory[mySlot])
+								&& ItemStack.tagMatches(theirItem, inventory[mySlot])
 								&& theirItem.getCount() < theirItem.getMaxStackSize()
-								&& theirItem.getCount() < inv.getInventoryStackLimit()){
+								&& theirItem.getCount() < inv.getMaxStackSize()){
 							theirItem.grow(1);
 							inventory[mySlot].shrink(1);
 							if(inventory[mySlot].isEmpty()) inventory[mySlot] = null;
-							inv.markDirty();
-							this.markDirty();
+							inv.setChanged();
+							this.setChanged();
 							return;
 						}
 					}
@@ -511,7 +511,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 			int z = tagRoot.getInt("targetZ");
 			savedTargetStates = tagRoot.contains("TargetStates", 9) ? tagRoot.getList("TargetStates", 10).copy() : null;
 			// Note: world object for tile entities is set AFTER loading them from NBT
-			if(getWorld() == null){
+			if(getLevel() == null){
 				this.deferredTargetBlock(new BlockPos(x,y,z));
 			} else {
 				this.deferredTargetBlock(new BlockPos(x,y,z));
@@ -527,11 +527,11 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void setActiveState(boolean active){
-		BlockState oldState = getWorld().getBlockState(getPos());
+		BlockState oldState = getLevel().getBlockState(getBlockPos());
 		if(oldState.getBlock() instanceof ElectricDrillBlock
-				&& (Boolean)oldState.get(ElectricDrillBlock.ACTIVE) != active ){
-			BlockState newState = oldState.with(ElectricDrillBlock.ACTIVE, active);
-			getWorld().setBlockState(getPos(), newState, 3);
+				&& (Boolean)oldState.getValue(ElectricDrillBlock.ACTIVE) != active ){
+			BlockState newState = oldState.setValue(ElectricDrillBlock.ACTIVE, active);
+			getLevel().setBlock(getBlockPos(), newState, 3);
 		}
 	}
 	@Override
@@ -541,7 +541,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	public boolean isActive(){
-		return isPowered() && (!this.hasRedstoneSignal() && (this.getEnergy() > 0 || (Boolean)getWorld().getBlockState(getPos()).get(ElectricDrillBlock.ACTIVE)));
+		return isPowered() && (!this.hasRedstoneSignal() && (this.getEnergy() > 0 || (Boolean)getLevel().getBlockState(getBlockPos()).getValue(ElectricDrillBlock.ACTIVE)));
 	}
 
 	// Helps with laser rendering
@@ -549,7 +549,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	@OnlyIn(Dist.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return new AxisAlignedBB(getPos().add(-renderRange, -renderRange, -renderRange), getPos().add(renderRange, renderRange, renderRange));
+		return new AxisAlignedBB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
 		//return super.INFINITE_EXTENT_AABB;
 	}
 }

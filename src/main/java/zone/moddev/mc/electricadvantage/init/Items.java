@@ -61,7 +61,7 @@ public final class Items {
         initialized = true;
     }
 
-    private static Item.Properties properties() { return new Item.Properties().group(ItemGroups.tab_powerAdvantage); }
+    private static Item.Properties properties() { return new Item.Properties().tab(ItemGroups.tab_powerAdvantage); }
     private static Item add(String id, Item item) {
         item.setRegistryName(ElectricAdvantage.MODID, id);
         allItems.put(id, item);

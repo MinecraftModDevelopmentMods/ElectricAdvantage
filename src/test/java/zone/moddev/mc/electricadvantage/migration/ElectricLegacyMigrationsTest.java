@@ -9,7 +9,7 @@ import org.junit.Test;
 public class ElectricLegacyMigrationsTest {
     @Test public void preservesAllSixDrillFacingsAndActiveFlag() {
         for (Direction facing : Direction.values()) {
-            int metadata = facing.getIndex() | 8;
+            int metadata = facing.get3DDataValue() | 8;
             assertEquals(facing, ElectricLegacyMigrations.legacyDrillFacing(metadata));
             assertEquals(true, ElectricLegacyMigrations.legacyDrillActive(metadata));
         }

@@ -1,5 +1,7 @@
 package zone.moddev.mc.electricadvantage.machines;
 
+import net.minecraft.block.BlockState;
+
 import zone.moddev.mc.electricadvantage.util.LegacyFluidHandler;
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
@@ -80,7 +82,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	private static boolean isDirt(ItemStack i){
 		return i != null && !i.isEmpty()
 				&& (i.getItem() == net.minecraft.block.Blocks.DIRT.asItem()
-				|| ItemTags.getCollection().getOrCreate(new ResourceLocation("forge", "dirt")).contains(i.getItem()));
+				|| ItemTags.getAllTags().getTagOrEmpty(new ResourceLocation("forge", "dirt")).contains(i.getItem()));
 	}
 
 	private static float lowest(float... numbers){
@@ -92,7 +94,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	}
 
 	private boolean hasRedstoneSignal() {
-		return getWorld().isBlockPowered(getPos());
+		return getLevel().hasNeighborSignal(getBlockPos());
 	}
 
 
@@ -188,8 +190,8 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public CompoundNBT write(final CompoundNBT tagRoot) {
-		super.write(tagRoot);
+	public CompoundNBT save(final CompoundNBT tagRoot) {
+		super.save(tagRoot);
 		CompoundNBT tankTag = new CompoundNBT();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.put("Tank", tankTag);
@@ -201,8 +203,8 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void read(final CompoundNBT tagRoot) {
-		super.read(tagRoot);
+	public void load(BlockState state, final CompoundNBT tagRoot) {
+		super.load(state, tagRoot);
 		if (tagRoot.contains("Tank", 10)) {
 			CompoundNBT tankTag = tagRoot.getCompound("Tank");
 			getTank().readFromNBT(tankTag);
@@ -217,17 +219,17 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	}
 
 	@Override
-	public boolean canInsertItem(final int slot, final ItemStack srcItem, final Direction side) {
+	public boolean canPlaceItemThroughFace(final int slot, final ItemStack srcItem, final Direction side) {
 		return isDirt(srcItem) && slot == 0;
 	}
 
 	@Override
-	public boolean isItemValidForSlot(final int slot, final ItemStack srcItem) {
+	public boolean canPlaceItem(final int slot, final ItemStack srcItem) {
 		return isDirt(srcItem) && slot == 0;
 	}
 	
 	@Override
-	public boolean canExtractItem(final int slot, final ItemStack targetItem, final Direction side) {
+	public boolean canTakeItemThroughFace(final int slot, final ItemStack targetItem, final Direction side) {
 		return false;
 	}
 	

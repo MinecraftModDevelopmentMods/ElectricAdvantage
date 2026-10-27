@@ -56,7 +56,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 					}
 					this.subtractEnergy(electricityPerDistill, Power.ELECTRIC_POWER);
 					if(timeSinceSound > 200){
-						playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_LAVA_AMBIENT, 0.3f, 1.5f);
+						playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.LAVA_AMBIENT, 0.3f, 1.5f);
 						timeSinceSound = 0;
 					}
 					timeSinceSound++;
@@ -220,13 +220,13 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 			ConduitType type = Fluids.fluidToConduitType(getOutputTank().getFluid().getFluid());
 			float availableAmount = getOutputTank().getFluidAmount();
 			float delta = ConduitRegistry.transmitPowerToConsumers(availableAmount, zone.moddev.mc.poweradvantage.init.Fluids.fluidConduit_general, type,
-					PowerRequest.LAST_PRIORITY, getWorld(), getPos(), this);
+					PowerRequest.LAST_PRIORITY, getLevel(), getBlockPos(), this);
 			if(delta > 0){
 				getOutputTank().drain(Math.max((int)delta,1),true); // no free energy!
 			}
 		}
 
-		redstone = getWorld().isBlockPowered(getPos());
+		redstone = getLevel().hasNeighborSignal(getBlockPos());
 		this.setPowerState(this.isPowered());
 
 		// automatically detect when a sync is needed

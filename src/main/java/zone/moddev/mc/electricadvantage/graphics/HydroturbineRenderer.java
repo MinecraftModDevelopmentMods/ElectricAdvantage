@@ -5,7 +5,7 @@ import zone.moddev.mc.electricadvantage.entities.HydroturbineEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -30,7 +30,7 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 		{
 			final float pixel = 1.0f / 16;
 			HydroturbineEntity e = (HydroturbineEntity)entity;
-			matrices.push();
+			matrices.pushPose();
 			final float topHeight = 0.5f;
 			final float bottomHeight = 0.375f-0.5f;
 			final float radius = pixel;
@@ -40,9 +40,9 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			final float shaftMaxV = 1.0f;
 			
 			matrices.translate(0f, 0.5f, 0f);
-			matrices.rotate(Vector3f.YP.rotationDegrees(e.rotationYaw));
+			matrices.mulPose(Vector3f.YP.rotationDegrees(e.yRot));
             final BufferedQuads worldRenderer = new BufferedQuads(matrices,
-                    buffers.getBuffer(RenderType.getEntitySolid(texture)), packedLight, OverlayTexture.NO_OVERLAY);
+                    buffers.getBuffer(RenderType.entitySolid(texture)), packedLight, OverlayTexture.NO_OVERLAY);
 
 			// render shaft
 			worldRenderer.pos(+radius, bottomHeight, -radius).tex(shaftMinU,shaftMinV).endVertex();
@@ -173,14 +173,14 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			worldRenderer.pos(cos3b*bladeOffset, sin3b*bladeOffset, depthDelta-axelLength).tex(bladeMinU,bladeMinV).endVertex(); // inner, leading
 			
 			
-			matrices.pop();
+			matrices.popPose();
 			super.render(e, entityYaw, partialTick, matrices, buffers, packedLight);
 		}
 	}
 
 
 	@Override
-	public ResourceLocation getEntityTexture(final HydroturbineEntity e) {
+	public ResourceLocation getTextureLocation(final HydroturbineEntity e) {
 		return texture;
 	}
 }

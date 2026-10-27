@@ -4,26 +4,30 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Bootstrap;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
+import org.junit.BeforeClass;
 
 import static org.junit.Assert.assertEquals;
 
 public class ElectricDrillPersistenceTest {
+    @BeforeClass public static void bootstrapNativeRegistries() { Bootstrap.bootStrap(); }
+
     @Test public void retainsLegacyProgressUntilWorldIsAttached() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
-        drill.read(target(94));
+        drill.load(new ElectricDrillBlock().defaultBlockState(), target(94));
         drill.prepareDataFieldsForSync();
         assertEquals(94, drill.getDataFieldArray()[1]);
     }
 
     @Test public void clearsPreviousProgressOnReadingAnUntargetedTile() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
-        drill.read(target(94));
-        drill.read(new CompoundNBT());
+        drill.load(new ElectricDrillBlock().defaultBlockState(), target(94));
+        drill.load(new ElectricDrillBlock().defaultBlockState(), new CompoundNBT());
         drill.prepareDataFieldsForSync();
         assertEquals(0, drill.getDataFieldArray()[1]);
     }
@@ -59,9 +63,9 @@ public class ElectricDrillPersistenceTest {
             assertEquals(center, targets[0]);
             for (BlockPos target : targets) {
                 unique.add(target);
-                assertEquals(0, (target.getX() - center.getX()) * direction.getXOffset()
-                        + (target.getY() - center.getY()) * direction.getYOffset()
-                        + (target.getZ() - center.getZ()) * direction.getZOffset());
+                assertEquals(0, (target.getX() - center.getX()) * direction.getStepX()
+                        + (target.getY() - center.getY()) * direction.getStepY()
+                        + (target.getZ() - center.getZ()) * direction.getStepZ());
             }
             assertEquals(direction.toString(), 9, unique.size());
         }
@@ -69,7 +73,7 @@ public class ElectricDrillPersistenceTest {
 
     @Test public void nativeDataFieldsRetainEnergyAndMiningProgress() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
-        drill.read(target(94));
+        drill.load(new ElectricDrillBlock().defaultBlockState(), target(94));
         drill.setEnergy(416.0F, drill.getEnergyType());
         drill.prepareDataFieldsForSync();
         assertEquals(416.0F, Float.intBitsToFloat(drill.getDataFieldArray()[0]), 0.0F);

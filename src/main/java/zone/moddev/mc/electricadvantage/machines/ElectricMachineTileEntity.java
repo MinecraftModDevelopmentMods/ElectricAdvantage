@@ -78,7 +78,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	public void powerUpdate(){
 		super.powerUpdate();
 		
-		redstone = getWorld().isBlockPowered(getPos());
+		redstone = getLevel().hasNeighborSignal(getBlockPos());
 		
 		this.setPowerState(this.isPowered());
 		
@@ -104,25 +104,25 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 
 	
 	protected void setActiveState(boolean active){
-		BlockState oldState = getWorld().getBlockState(getPos());
+		BlockState oldState = getLevel().getBlockState(getBlockPos());
 		if(oldState.getBlock() instanceof ElectricMachineBlock 
-				&& (Boolean)oldState.get(ElectricMachineBlock.ACTIVE) != active ){
-			BlockState newState = oldState.with(ElectricMachineBlock.ACTIVE, active);
-			getWorld().setBlockState(getPos(), newState, 3);
+				&& (Boolean)oldState.getValue(ElectricMachineBlock.ACTIVE) != active ){
+			BlockState newState = oldState.setValue(ElectricMachineBlock.ACTIVE, active);
+			getLevel().setBlock(getBlockPos(), newState, 3);
 		}
 	}
 	protected void setPowerState(boolean powered){
-		BlockState oldState = getWorld().getBlockState(getPos());
+		BlockState oldState = getLevel().getBlockState(getBlockPos());
 		if(oldState.getBlock() instanceof ElectricMachineBlock 
-				&& (Boolean)oldState.get(ElectricMachineBlock.POWERED) != powered ){
-			BlockState newState = oldState.with(ElectricMachineBlock.POWERED, powered);
-			getWorld().setBlockState(getPos(), newState, 3);
+				&& (Boolean)oldState.getValue(ElectricMachineBlock.POWERED) != powered ){
+			BlockState newState = oldState.setValue(ElectricMachineBlock.POWERED, powered);
+			getLevel().setBlock(getBlockPos(), newState, 3);
 		}
 	}
 
 	
 	public boolean isActive(){
-		return isPowered() && (!this.hasRedstoneSignal() && (this.getEnergy(Power.ELECTRIC_POWER) > 0 || (Boolean)getWorld().getBlockState(getPos()).get(ElectricMachineBlock.ACTIVE)));
+		return isPowered() && (!this.hasRedstoneSignal() && (this.getEnergy(Power.ELECTRIC_POWER) > 0 || (Boolean)getLevel().getBlockState(getBlockPos()).getValue(ElectricMachineBlock.ACTIVE)));
 	}
 	
 	public abstract boolean isPowered();
@@ -204,40 +204,40 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	protected static boolean areItemsEqualNullable(ItemStack left, ItemStack right) {
 		if(isEmptyStack(left)) return isEmptyStack(right);
 		if(isEmptyStack(right)) return false;
-		return ItemStack.areItemsEqual(left, right);
+		return ItemStack.isSame(left, right);
 	}
 
 	protected static boolean areItemStacksEqualNullable(ItemStack left, ItemStack right) {
 		if(isEmptyStack(left)) return isEmptyStack(right);
 		if(isEmptyStack(right)) return false;
-		return ItemStack.areItemStacksEqual(left, right);
+		return ItemStack.matches(left, right);
 	}
 
 	public abstract float[] getProgress();
 
 	protected ItemStack getSmeltingResult(ItemStack input) {
-		if (isEmptyStack(input) || getWorld() == null) return ItemStack.EMPTY;
+		if (isEmptyStack(input) || getLevel() == null) return ItemStack.EMPTY;
 		Inventory inventory = new Inventory(1);
-		inventory.setInventorySlotContents(0, input);
-		return getWorld().getRecipeManager().getRecipe(IRecipeType.SMELTING, inventory, getWorld())
-				.map(recipe -> recipe.getCraftingResult(inventory)).orElse(ItemStack.EMPTY);
+		inventory.setItem(0, input);
+		return getLevel().getRecipeManager().getRecipeFor(IRecipeType.SMELTING, inventory, getLevel())
+				.map(recipe -> recipe.assemble(inventory)).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT tagRoot){
-		super.write(tagRoot);
+	public CompoundNBT save(CompoundNBT tagRoot){
+		super.save(tagRoot);
 		saveTo(tagRoot);
 		return tagRoot;
 	}
 
 	@Override
 	public CompoundNBT getUpdateTag() {
-		return write(new CompoundNBT());
+		return save(new CompoundNBT());
 	}
 
 	@Override
-	public void read(CompoundNBT tagRoot){
-		super.read(tagRoot);
+	public void load(BlockState state, CompoundNBT tagRoot){
+		super.load(state, tagRoot);
 		loadFrom(tagRoot);
 	}
 
@@ -251,7 +251,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	@Override
-	public boolean canExtractItem(final int slot, final ItemStack targetItem, final Direction side) {
+	public boolean canTakeItemThroughFace(final int slot, final ItemStack targetItem, final Direction side) {
 		return isInArray(slot,outputSlots);
 	}
 
@@ -261,10 +261,10 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		for(int slot = 0; slot < numberOfOutputSlots(); slot++){
 			ItemStack dest = getOutputSlot(slot);
 			if(isEmptyStack(dest)) return true;
-			int stackLimit = Math.min(dest.getMaxStackSize(), this.getInventoryStackLimit());
+			int stackLimit = Math.min(dest.getMaxStackSize(), this.getMaxStackSize());
 			if(dest.getCount() >= stackLimit) continue;
 			int combinedStackSize = item.getCount() + dest.getCount();
-			if(ItemStack.areItemsEqual(item, dest) ){
+			if(ItemStack.isSame(item, dest) ){
 				if(combinedStackSize <= stackLimit){
 					return true;
 				} else if (item.getCount() <= stackLimit) {
@@ -281,10 +281,10 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		for(int slot = 0; slot < numberOfInputSlots(); slot++){
 			ItemStack dest = getInputSlot(slot);
 			if(isEmptyStack(dest)) return true;
-			int stackLimit = Math.min(dest.getMaxStackSize(), this.getInventoryStackLimit());
+			int stackLimit = Math.min(dest.getMaxStackSize(), this.getMaxStackSize());
 			if(dest.getCount() >= stackLimit) continue;
 			int combinedStackSize = item.getCount() + dest.getCount();
-			if(ItemStack.areItemsEqual(item, dest) ){
+			if(ItemStack.isSame(item, dest) ){
 				if(combinedStackSize <= stackLimit){
 					return true;
 				} else if (item.getCount() <= stackLimit) {
@@ -296,12 +296,12 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	@Override
-	public boolean canInsertItem(final int slot, final ItemStack srcItem, final Direction side) {
+	public boolean canPlaceItemThroughFace(final int slot, final ItemStack srcItem, final Direction side) {
 		return isValidInputItem(srcItem) && isInArray(slot,inputSlots);
 	}
 
 	@Override
-	public boolean isItemValidForSlot(final int slot, final ItemStack srcItem) {
+	public boolean canPlaceItem(final int slot, final ItemStack srcItem) {
 		return isValidInputItem(srcItem) && isInArray(slot,inputSlots);
 	}
 	
@@ -324,8 +324,8 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 				// empty slot
 				this.setInputSlot(slot,itemStack);
 				return null;
-			} else if(ItemStack.areItemsEqual(itemStack, slotContent)){
-				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getInventoryStackLimit());
+			} else if(ItemStack.isSame(itemStack, slotContent)){
+				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getMaxStackSize());
 				// found slot with same item
 				if(slotContent.getCount() < stackLimit){
 					// increase stack
@@ -341,14 +341,14 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
-		if(getWorld().isRemote) return;
+		if(getLevel().isClientSide) return;
 		final double range = 16;
-		List<ServerPlayerEntity> players = getWorld().getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(
+		List<ServerPlayerEntity> players = getLevel().getEntitiesOfClass(ServerPlayerEntity.class, new AxisAlignedBB(
 				x - range, y - range, z - range,
 				x + range, y + range, z + range));
 		for(ServerPlayerEntity player : players){
-			player.connection.sendPacket(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
-					new net.minecraft.util.math.Vec3d(x, y, z), volume, pitch));
+			player.connection.send(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
+					new net.minecraft.util.math.vector.Vector3d(x, y, z), volume, pitch));
 		}
 	}
 	
@@ -362,8 +362,8 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 				// empty slot
 				this.setOutputSlot(slot,itemStack);
 				return null;
-			} else if(ItemStack.areItemsEqual(itemStack, slotContent)){
-				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getInventoryStackLimit());
+			} else if(ItemStack.isSame(itemStack, slotContent)){
+				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getMaxStackSize());
 				// found slot with same item
 				if(slotContent.getCount() < stackLimit){
 					// increase stack
@@ -417,7 +417,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	public ConduitType getEnergyType() {return Power.ELECTRIC_POWER;}
 
 
-	@Override public int getInventoryStackLimit(){return 64;}
+	@Override public int getMaxStackSize(){return 64;}
 
 
 	@Override

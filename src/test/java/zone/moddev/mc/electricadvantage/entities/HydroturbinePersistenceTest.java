@@ -15,9 +15,9 @@ public class HydroturbinePersistenceTest {
         source.putIntArray("parentPos", new int[] {164, 81, 8});
         for (int pass = 0; pass < 3; pass++) {
             HydroturbineEntity turbine = withoutWorld();
-            turbine.readAdditional(source);
+            turbine.readAdditionalSaveData(source);
             CompoundNBT saved = new CompoundNBT();
-            turbine.writeAdditional(saved);
+            turbine.addAdditionalSaveData(saved);
             assertArrayEquals(new int[] {164, 81, 8}, saved.getIntArray("parentPos"));
             source = saved;
         }
@@ -27,20 +27,20 @@ public class HydroturbinePersistenceTest {
         HydroturbineEntity turbine = withoutWorld();
         CompoundNBT source = new CompoundNBT();
         source.putIntArray("parentPos", new int[] {164, 81, 8});
-        turbine.readAdditional(source);
-        turbine.readAdditional(new CompoundNBT());
+        turbine.readAdditionalSaveData(source);
+        turbine.readAdditionalSaveData(new CompoundNBT());
         CompoundNBT saved = new CompoundNBT();
-        turbine.writeAdditional(saved);
+        turbine.addAdditionalSaveData(saved);
         assertFalse(saved.contains("parentPos", 11));
     }
 
     @Test public void savesAttachedGeneratorUsingTheSameLegacyCoordinateKey() throws Exception {
         HydroturbineEntity turbine = withoutWorld();
         HydroelectricGeneratorTileEntity generator = new HydroelectricGeneratorTileEntity();
-        generator.setPos(new BlockPos(31, 72, -18));
+        generator.setPosition(new BlockPos(31, 72, -18));
         turbine.parent = generator;
         CompoundNBT saved = new CompoundNBT();
-        turbine.writeAdditional(saved);
+        turbine.addAdditionalSaveData(saved);
         assertArrayEquals(new int[] {31, 72, -18}, saved.getIntArray("parentPos"));
     }
 
@@ -48,9 +48,9 @@ public class HydroturbinePersistenceTest {
         HydroturbineEntity turbine = withoutWorld();
         CompoundNBT source = new CompoundNBT();
         source.putIntArray("parentPos", new int[] {31, 72});
-        turbine.readAdditional(source);
+        turbine.readAdditionalSaveData(source);
         CompoundNBT saved = new CompoundNBT();
-        turbine.writeAdditional(saved);
+        turbine.addAdditionalSaveData(saved);
         assertFalse(saved.contains("parentPos", 11));
     }
 

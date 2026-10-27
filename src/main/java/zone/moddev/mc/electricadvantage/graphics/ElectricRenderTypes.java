@@ -12,11 +12,11 @@ final class ElectricRenderTypes extends RenderState {
     }
 
     static RenderType unshaded(ResourceLocation texture, boolean translucent) {
-        return RenderType.makeType("electricadvantage_unshaded", DefaultVertexFormats.ENTITY,
-                7, 256, false, translucent, RenderType.State.getBuilder()
-                        .texture(new TextureState(texture, false, false))
-                        .transparency(translucent ? TRANSLUCENT_TRANSPARENCY : NO_TRANSPARENCY)
-                        .diffuseLighting(DIFFUSE_LIGHTING_DISABLED).cull(CULL_DISABLED)
-                        .lightmap(LIGHTMAP_ENABLED).overlay(OVERLAY_ENABLED).build(false));
+        return RenderType.create("electricadvantage_unshaded", DefaultVertexFormats.NEW_ENTITY,
+                7, 256, false, translucent, RenderType.State.builder()
+                        .setTextureState(new TextureState(texture, false, false))
+                        .setTransparencyState(translucent ? TRANSLUCENT_TRANSPARENCY : NO_TRANSPARENCY)
+                        .setDiffuseLightingState(NO_DIFFUSE_LIGHTING).setCullState(NO_CULL)
+                        .setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(false));
     }
 }

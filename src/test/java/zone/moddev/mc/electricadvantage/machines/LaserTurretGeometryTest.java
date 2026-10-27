@@ -2,16 +2,16 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class LaserTurretGeometryTest {
     @Test public void nativeRayGeometryKeepsHitsInAllSixDirections() {
-        Vec3d origin = new Vec3d(0.5D, 0.5D, 0.5D);
+        Vector3d origin = new Vector3d(0.5D, 0.5D, 0.5D);
         for (Direction facing : Direction.values()) {
-            Vec3d direction = new Vec3d(facing.getXOffset(), facing.getYOffset(), facing.getZOffset());
-            Vec3d center = origin.add(direction.scale(5.0D));
+            Vector3d direction = new Vector3d(facing.getStepX(), facing.getStepY(), facing.getStepZ());
+            Vector3d center = origin.add(direction.scale(5.0D));
             AxisAlignedBB target = new AxisAlignedBB(center.x - 0.25D, center.y - 0.25D, center.z - 0.25D,
                     center.x + 0.25D, center.y + 0.25D, center.z + 0.25D);
             assertTrue(facing.toString(), LaserTurretTileEntity.rayIntersectsBoundingBox(origin, direction, target));
@@ -20,8 +20,8 @@ public class LaserTurretGeometryTest {
     }
 
     @Test public void anOffsetTargetIsNotHitAndMissingBoundsAreIgnored() {
-        Vec3d origin = new Vec3d(0.5D, 0.5D, 0.5D);
-        Vec3d direction = new Vec3d(1.0D, 0.0D, 0.0D);
+        Vector3d origin = new Vector3d(0.5D, 0.5D, 0.5D);
+        Vector3d direction = new Vector3d(1.0D, 0.0D, 0.0D);
         assertFalse(LaserTurretTileEntity.rayIntersectsBoundingBox(origin, direction,
                 new AxisAlignedBB(5.0D, 4.0D, 4.0D, 6.0D, 5.0D, 5.0D)));
         assertFalse(LaserTurretTileEntity.rayIntersectsBoundingBox(origin, direction, null));
