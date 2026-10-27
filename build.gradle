@@ -94,7 +94,7 @@ minecraft {
     def forgeRunModClassesDirectory = layout.buildDirectory.dir('forge-run-mod-classes/main')
     def forgeMainOutputPath = forgeRunModClassesDirectory.get().asFile.absolutePath
     def mainModClasses = "${mod_id}%%${forgeMainOutputPath}${File.pathSeparator}${mod_id}%%${forgeMainOutputPath}"
-    def forge28RunTargets = [client: 'fmluserdevclient', server: 'fmluserdevserver', data: 'fmluserdevdata']
+    def forge31RunTargets = [client: 'fmluserdevclient', server: 'fmluserdevserver', data: 'fmluserdevdata']
     runs {
         configureEach {
             mainClass = 'net.minecraftforge.userdev.LaunchTesting'
@@ -102,7 +102,7 @@ minecraft {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
             systemProperty 'forge.logging.console.level', 'info'
             mods { electricadvantage { source sourceSets.main } }
-            environment 'target', forge28RunTargets[name]
+            environment 'target', forge31RunTargets[name]
             environment 'MCP_MAPPINGS', "${mapping_channel}_${mapping_version}"
             environment 'MCP_VERSION', mcp_version
             environment 'FORGE_VERSION', forge_version
@@ -130,7 +130,7 @@ sourceSets.main.resources {
 def forgeRunModClassesDirectory = layout.buildDirectory.dir('forge-run-mod-classes/main')
 def prepareForgeRunModClasses = tasks.register('prepareForgeRunModClasses', Sync) {
     group = 'ide'
-    description = 'Merges classes and processed resources for Forge 1.14 launches.'
+    description = 'Merges classes and processed resources for Forge 1.15 launches.'
     dependsOn tasks.named('classes')
     from sourceSets.main.output
     into forgeRunModClassesDirectory
@@ -178,18 +178,18 @@ if (!powerAdvantageDeobfJar.isFile()) {
 // These defaults follow the sibling MMD checkout layout. They are constants
 // here so another developer can override them without editing the script.
 def baseMetalsDeobfJar = file(providers.gradleProperty('baseMetalsDeobfJar')
-        .getOrElse('../../../../BaseMetals/BaseMetals 114/BaseMetals/build/libs-dev/'
-                + 'BaseMetals-3.0.1.114041-deobf.jar'))
+        .getOrElse('../../../../BaseMetals/BaseMetals 115/BaseMetals/build/libs-dev/'
+                + 'BaseMetals-3.0.2.115021-deobf.jar'))
 if (!baseMetalsDeobfJar.isFile()) {
     throw new GradleException("Missing Base Metals deobf jar at ${baseMetalsDeobfJar}. "
-            + "Build Base Metals 1.14 first, or pass -PbaseMetalsDeobfJar=<path>.")
+            + "Build Base Metals 1.15 first, or pass -PbaseMetalsDeobfJar=<path>.")
 }
 def oreSpawnDeobfJar = file(providers.gradleProperty('oreSpawnDeobfJar')
-        .getOrElse('../../../../MinecraftMineralogy/OS114/OreSpawn/build/libs-dev/'
-                + 'OreSpawn-4.1.1.114041-deobf.jar'))
+        .getOrElse('../../../../MinecraftMineralogy/OS115/OreSpawn/build/libs-dev/'
+                + 'OreSpawn-4.1.1.115021-deobf.jar'))
 if (!oreSpawnDeobfJar.isFile()) {
     throw new GradleException("Missing OreSpawn deobf jar at ${oreSpawnDeobfJar}. "
-            + "Build OreSpawn 1.14 first, or pass -PoreSpawnDeobfJar=<path>.")
+            + "Build OreSpawn 1.15 first, or pass -PoreSpawnDeobfJar=<path>.")
 }
 
 dependencies {
@@ -341,14 +341,17 @@ tasks.register('verifyReleaseConfiguration') {
     group = 'verification'
     description = 'Validates release identity, target metadata, and dependency policy.'
     doLast {
-        if (project.mod_version != '2.2.6.114041') {
+        if (new JsonSlurper().parse(file('src/main/resources/pack.mcmeta')).pack.pack_format != 5) {
+            throw new GradleException('Minecraft 1.15.2 resources must use pack format 5')
+        }
+        if (project.mod_version != '2.2.7.115021') {
             throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
         }
-        if (project.minecraft_version != '1.14.4'
-                || project.forge_version != '28.2.26'
+        if (project.minecraft_version != '1.15.2'
+                || project.forge_version != '31.2.57'
                 || project.mapping_channel != 'snapshot'
-                || project.mapping_version != '20190719-1.14.3'
-                || project.mcp_version != '20190829.143755') {
+                || project.mapping_version != '20200514-1.15.1'
+                || project.mcp_version != '20200515.085601') {
             throw new GradleException('Unexpected Minecraft, Forge, or mappings target')
         }
         if (project.loader_name != 'forge' || project.loader_code != '1'
@@ -366,24 +369,33 @@ tasks.register('verifyReleaseConfiguration') {
         }
         if (project.cf_requirements != 'power-advantage,base-metals'
                 || project.cf_optionals != ''
-                || project.cf_versions != '1.14.4') {
+                || project.cf_versions != '1.15.2') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
-        if (project.poweradvantage_version != '2.4.5.114041'
+        if (project.poweradvantage_version != '2.4.6.115021'
                 || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/PowerAdvantage'
-                || !(project.poweradvantage_source_ref ==~ /[a-f0-9]{40}/)
-                || !(project.poweradvantage_deobf_sha256 ==~ /[A-F0-9]{64}/)) {
+                || project.poweradvantage_source_ref != '6666099a734eba16561d98c86f3f4bb1b7c742f7'
+                || project.poweradvantage_deobf_sha256 != 'F5029356CB837E7D782BA59D4C3B961CE0AAA116B739F14DA63F0A13562A2D1F') {
             throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
+        }
+        if (project.basemetals_version != '3.0.2.115021'
+                || project.orespawn_version != '4.1.1.115021'
+                || project.basemetals_source_commit != 'ac1781e7cade15045ffe0135077087b4d1722603'
+                || project.orespawn_source_commit != '5613baf876747ed071cb7ad7e2aff4e0ce4f0a03'
+                || project.basemetals_deobf_sha256 != '426FE639C97E1DE4F6624957E3CBDE68A5FB7D415A1047903A29DCB35FD9ADA2'
+                || project.orespawn_deobf_sha256 != '358B13375A4B60622C491D6729290971A446FF14D524A600CA13710934DB3FDC'
+                || project.forge_installer_sha256 != '84FD49A743978421B26F62AC78222289FE892A46F996CF11CB5E05B7441A7773') {
+            throw new GradleException('Unexpected native dependency pins')
         }
         String mainSource = file(
                 'src/main/java/zone/moddev/mc/electricadvantage/ElectricAdvantage.java').getText('UTF-8')
         if (!mainSource.contains('MODID = "electricadvantage"')
-                || !mainSource.contains('VERSION = "2.2.6.114041"')) {
+                || !mainSource.contains('VERSION = "2.2.7.115021"')) {
             throw new GradleException('ElectricAdvantage source identity changed')
         }
         String metadata = file('src/main/resources/META-INF/mods.toml').getText('UTF-8').replace('\r\n', '\n')
         ['modId="electricadvantage"', 'modId="poweradvantage"', 'modId="basemetals"',
-         'versionRange="[2.4.5.114041,3.0.0)"'].each { marker ->
+         'versionRange="[2.4.6.115021,3.0.0)"'].each { marker ->
             if (!metadata.contains(marker)) {
                 throw new GradleException("Source mods.toml is missing ${marker}")
             }
@@ -417,7 +429,7 @@ tasks.register('verifyReleaseDependencies') {
             }
             def manifest = new Manifest(zip.getInputStream(zip.getEntry('META-INF/MANIFEST.MF'))).mainAttributes
             if (manifest.getValue('Implementation-Version') != project.poweradvantage_version
-                    || manifest.getValue('Built-On') != '1.14.4-28.2.26') {
+                    || manifest.getValue('Built-On') != '1.15.2-31.2.57') {
                 throw new GradleException('PowerAdvantage dependency manifest has the wrong version')
             }
         }

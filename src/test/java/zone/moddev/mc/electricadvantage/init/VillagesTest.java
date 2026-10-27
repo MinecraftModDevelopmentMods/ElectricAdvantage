@@ -33,7 +33,7 @@ public class VillagesTest {
         };
         MerchantOffer offer = Villages.sell(net.minecraft.item.Items.APPLE, minimum, maximum)
                 .getOffer(null, random);
-        CompoundNBT nbt = offer.func_222208_r();
+        CompoundNBT nbt = offer.write();
         assertEquals("minecraft:emerald", nbt.getCompound("buy").getString("id"));
         assertEquals(emeralds, nbt.getCompound("buy").getByte("Count"));
         assertEquals("minecraft:apple", nbt.getCompound("sell").getString("id"));

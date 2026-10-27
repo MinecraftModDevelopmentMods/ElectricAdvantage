@@ -33,7 +33,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     private final ConduitType[] types = {Power.ELECTRIC_POWER};
 
     public ElectricDrillBlock() {
-        super(Block.Properties.create(Material.PISTON).hardnessAndResistance(0.75F).variableOpacity());
+        super(Block.Properties.create(Material.PISTON).hardnessAndResistance(0.75F).variableOpacity().notSolid());
         setDefaultState(getStateContainer().getBaseState()
                 .with(ACTIVE, false)
                 .with(FACING, Direction.DOWN));

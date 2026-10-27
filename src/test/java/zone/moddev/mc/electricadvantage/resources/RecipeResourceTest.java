@@ -18,7 +18,7 @@ import com.google.gson.JsonParser;
 import org.junit.Test;
 
 public class RecipeResourceTest {
-    @Test public void allRecipesUseTheNativeOneFourteenDataPackLocationAndSerializers() throws IOException {
+    @Test public void allRecipesUseTheNativeOneFifteenDataPackLocationAndSerializers() throws IOException {
         Path recipes = Paths.get("src/main/resources/data/electricadvantage/recipes");
         List<Path> files;
         try (Stream<Path> stream = Files.list(recipes)) {
