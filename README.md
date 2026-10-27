@@ -1,9 +1,9 @@
 # ElectricAdvantage
 
-**Minecraft 1.15.2 port candidate, version 2.2.7.115021.** See the
+**Minecraft 1.15.2, version 2.2.7.115021.** See the
 [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
 for exact jars, automated machine and upgrade results, and remaining manual
-checks. This version is not published. Historical
+checks. Visuals and recipe unlocks were accepted on 27 October 2026. Historical
 [1.14 test results](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.14.4/docs/1.14/BROADER-QUALIFICATION.md)
 are not 1.15 qualification evidence.
 
@@ -26,9 +26,8 @@ bypass those checks or substitute another target's dependencies. Power Advantage
 `2.4.6.115021` is pinned to source `6666099a734eba16561d98c86f3f4bb1b7c742f7`.
 Base Metals `3.0.2.115021` and OreSpawn `4.1.1.115021` also have exact source and SHA-256 pins.
 Base Metals source `ac1781e7cade15045ffe0135077087b4d1722603` and the Power
-source pin above are local-only and unpublished. Publish both exact sources
-upstream before opening a PR or running hosted builds; hosted reproducibility
-and publication readiness are not established.
+source pin above identify the exact tested dependencies. CI builds them before
+Electric Advantage; none is embedded in the Electric Advantage jar.
 
 With the standard sibling layout:
 
@@ -73,4 +72,4 @@ runtime or world-upgrade evidence.
 The implementation namespace is `zone.moddev.mc.electricadvantage`. Runtime identities, registries, tile/entity IDs, NBT, recipes, tags, OreSpawn provider IDs, and assets remain stable. Electric registers its legacy state, tile, and hydroturbine aliases with PowerAdvantage's shared migration hook.
 
 The RF- and Tech Reborn-labelled converters belong to Power Advantage and now use Forge Energy.
-The historical [1.13 migration guide](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MIGRATION.md) explains the legacy conversion and backup process; migration acceptance for 1.15 remains pending. Always make a whole-world backup before upgrading, keep the complete set of migration backups, and test only disposable copies. Check that every other mod supports the target version; historical results do not qualify this target, unrelated mods or an entire existing modpack.
+The historical [1.13 migration guide](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MIGRATION.md) explains the legacy conversion and backup process; the shared 1.15 test record lists the completed upgrade routes and their limits. Always make a whole-world backup before upgrading, keep the complete set of migration backups, and test a disposable copy first. Check that every other mod supports the target version; bounded Advantage tests do not qualify unrelated mods or an entire modpack.

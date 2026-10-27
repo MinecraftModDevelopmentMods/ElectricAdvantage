@@ -1,4 +1,4 @@
-Electric Advantage 2.2.7.115021 (local port candidate)
+Electric Advantage 2.2.7.115021
 
 - Target Minecraft 1.15.2, Forge 31.2.57 and snapshot 20200514-1.15.1/MCP 20200515.085601.
 - Retain ForgeGradle 7.0.34, Gradle 9.6.1, Renamer 1.1.5 and Java 8 production bytecode.
@@ -11,7 +11,7 @@ Electric Advantage 2.2.7.115021 (local port candidate)
 - Preserve registries, migration aliases, entity/tile IDs, fluids, NBT, ore mining levels, loot, recipes and discoveries; no balance changes.
 - Add focused buffered-renderer geometry, UV, normals, light, control and matrix-stack regression tests.
 - Preserve solar-panel solidity, shared scaffold inheritance and the non-solid drill/turret properties with focused regression tests.
-- Record the exact build, operating, migration and client results in Power Advantage's shared 1.15 test notes; manual acceptance remains separate. Not published.
+- Record accepted in-game visuals and recipe unlocks alongside the automated machine and migration checks; the shared test notes retain the remaining limits.
 
 Electric Advantage 2.2.6.114041
 

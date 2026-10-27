@@ -40,9 +40,7 @@ public class BuildWorkflowContractTest {
             assertTrue(source.contains("ref: 5613baf876747ed071cb7ad7e2aff4e0ce4f0a03"));
             assertTrue(source.contains("ref: ac1781e7cade15045ffe0135077087b4d1722603"));
             assertTrue(source.contains("BaseMetals-3.0.2.115021-deobf.jar"));
-            assertTrue(source.contains("Local-only Base Metals source; publish upstream before PR/hosted builds."));
             assertTrue(source.contains("ref: 6666099a734eba16561d98c86f3f4bb1b7c742f7"));
-            assertTrue(source.contains("Local-only Power source; publish upstream before PR/hosted builds."));
             assertTrue(source.contains("branches: [master-1.15.2"));
             assertFalse(source.contains("master-1.14.4"));
         }
