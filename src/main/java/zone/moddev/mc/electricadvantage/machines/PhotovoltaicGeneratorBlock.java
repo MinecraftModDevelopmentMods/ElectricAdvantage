@@ -24,11 +24,6 @@ public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 		return true;
 	}
 	
-	@Override
-	public boolean isSolid(BlockState bs)
-	{
-		return true;
-	}
 
 
 }

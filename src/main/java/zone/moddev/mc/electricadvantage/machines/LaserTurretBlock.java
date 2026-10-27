@@ -25,7 +25,7 @@ public class LaserTurretBlock extends ElectricMachineBlock {
 	public final boolean evil;
 	public LaserTurretBlock(boolean isEvil) {
 		super(Block.Properties.create(Material.PISTON)
-				.hardnessAndResistance(5.0F, 100.0F).variableOpacity());
+				.hardnessAndResistance(5.0F, 100.0F).variableOpacity().notSolid());
 		this.evil = isEvil;
 	}
 

@@ -2,16 +2,14 @@ package zone.moddev.mc.electricadvantage.graphics;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricDrillTileEntity;
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -20,43 +18,29 @@ public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEnti
 
 	
 	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/materials/laser_beam.png");
-
-	private static final float RADIANS_TO_DEGREES = (float)(180 / Math.PI);
+	private final RenderType beamType = ElectricRenderTypes.unshaded(texture, false);
 	
 	
-	public LaserDrillRenderer() {
-		super();
+	public LaserDrillRenderer(TileEntityRendererDispatcher dispatcher) {
+		super(dispatcher);
 	}
 
 	
 	@Override
-	public void render(final ElectricDrillTileEntity te, final double x, final double y, final double z, final float partialTick, final int destroyStage) {
-		GlStateManager.pushMatrix();
-		GlStateManager.translated(x, y, z);
-		render(te, te.getWorld(), te.getPos(), partialTick);
-		GlStateManager.popMatrix();
-	}
-	
-	private void render(ElectricDrillTileEntity e, World world, BlockPos pos, float partialTick){
+	public void render(final ElectricDrillTileEntity e, final float partialTick, final MatrixStack matrices,
+            final IRenderTypeBuffer buffers, final int packedLight, final int packedOverlay) {
 		float laserBlastLength = e.getDrillLength();
 
 		if(laserBlastLength > 0){
-			this.bindTexture(texture);
-			final Tessellator tessellator = Tessellator.getInstance();
-
-			final BufferBuilder worldRenderer = tessellator.getBuffer();
-
 
 			final float laserU0 = 0;
 			final float laserU1 = 0;
 			final float laserV0 = 1.0f;
 			final float laserV1 = 1.0f;
 
-			final float radius = 0.25f;
 			final float laserRadius = 0.125f;
 
 
-			float tickRemainder = 1 - partialTick;
 			Direction dir = e.getFacing();
 
 			float rotY = 0, rotX = 0;
@@ -91,16 +75,12 @@ public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEnti
 			}
 			}
 			
-			GlStateManager.disableLighting();
-			
-			GlStateManager.translatef(0.5f, 0.5f, 0.5f);
-			GlStateManager.rotatef(rotY, 0.0f, 1.0f, 0.0f);
-			GlStateManager.rotatef(rotX, 1.0f, 0.0f, 0.0f);
-
-			int lightValue = 15 << 20 | 15 << 4;
-			int lmapX = lightValue >> 16 & 0xFFFF;
-			int lmapY = lightValue & 0xFFFF;
-			worldRenderer.begin(7, DefaultVertexFormats.POSITION_TEX_LMAP_COLOR);
+			matrices.push();
+			matrices.translate(0.5f, 0.5f, 0.5f);
+			matrices.rotate(Vector3f.YP.rotationDegrees(rotY));
+			matrices.rotate(Vector3f.XP.rotationDegrees(rotX));
+            final BufferedQuads worldRenderer = new BufferedQuads(matrices,
+                    buffers.getBuffer(beamType), 15 << 20 | 15 << 4, packedOverlay);
 
 			final double x1, y1, z1, x2, y2, z2,  x3, y3, z3, x4, y4, z4;
 			x1 = 0;
@@ -117,29 +97,28 @@ public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEnti
 			y4 = 0;
 			z4 = z2;
 
-			worldRenderer.pos( x1, y1, z1).tex(laserU0, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x2, y1, z2).tex(laserU1, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x2, y2, z2).tex(laserU1, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x1, y2, z1).tex(laserU0, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
+			worldRenderer.pos( x1, y1, z1).tex(laserU0, laserV1).endVertex();
+			worldRenderer.pos( x2, y1, z2).tex(laserU1, laserV1).endVertex();
+			worldRenderer.pos( x2, y2, z2).tex(laserU1, laserV0).endVertex();
+			worldRenderer.pos( x1, y2, z1).tex(laserU0, laserV0).endVertex();
 
-			worldRenderer.pos( x1, y2, z1).tex(laserU0, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x2, y2, z2).tex(laserU1, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x2, y1, z2).tex(laserU1, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x1, y1, z1).tex(laserU0, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
+			worldRenderer.pos( x1, y2, z1).tex(laserU0, laserV1).endVertex();
+			worldRenderer.pos( x2, y2, z2).tex(laserU1, laserV1).endVertex();
+			worldRenderer.pos( x2, y1, z2).tex(laserU1, laserV0).endVertex();
+			worldRenderer.pos( x1, y1, z1).tex(laserU0, laserV0).endVertex();
 
 
-			worldRenderer.pos( x3, y3, z3).tex(laserU0, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x3, y4, z4).tex(laserU1, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x4, y4, z4).tex(laserU1, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x4, y3, z3).tex(laserU0, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
+			worldRenderer.pos( x3, y3, z3).tex(laserU0, laserV1).endVertex();
+			worldRenderer.pos( x3, y4, z4).tex(laserU1, laserV1).endVertex();
+			worldRenderer.pos( x4, y4, z4).tex(laserU1, laserV0).endVertex();
+			worldRenderer.pos( x4, y3, z3).tex(laserU0, laserV0).endVertex();
 
-			worldRenderer.pos( x4, y3, z3).tex(laserU0, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x4, y4, z4).tex(laserU1, laserV1).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x3, y4, z4).tex(laserU1, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
-			worldRenderer.pos( x3, y3, z3).tex(laserU0, laserV0).lightmap(lmapX, lmapY).color(1f, 1f, 1f, 1f).endVertex();
+			worldRenderer.pos( x4, y3, z3).tex(laserU0, laserV1).endVertex();
+			worldRenderer.pos( x4, y4, z4).tex(laserU1, laserV1).endVertex();
+			worldRenderer.pos( x3, y4, z4).tex(laserU1, laserV0).endVertex();
+			worldRenderer.pos( x3, y3, z3).tex(laserU0, laserV0).endVertex();
 
-			tessellator.draw();
-			GlStateManager.enableLighting();
+			matrices.pop();
 
 		}
 	}

@@ -33,12 +33,12 @@ import zone.moddev.mc.electricadvantage.init.Villages;
 import zone.moddev.mc.electricadvantage.recipe.RecipeConditions;
 import zone.moddev.mc.electricadvantage.migration.ElectricLegacyMigrations;
 
-/** Forge 1.14 entry point for Electric Advantage. */
+/** Forge 1.15 entry point for Electric Advantage. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "electricadvantage";
     public static final String NAME = "Electric Advantage";
-    public static final String VERSION = "2.2.6.114041";
+    public static final String VERSION = "2.2.7.115021";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 
@@ -52,7 +52,6 @@ public final class ElectricAdvantage {
         Entities.init();
         Enchantments.init();
         GUI.init();
-        RecipeConditions.register();
         ElectricLegacyMigrations.register();
 
         migrateLegacyOreSpawnConfiguration();
@@ -96,6 +95,8 @@ public final class ElectricAdvantage {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
+        // CraftingHelper's shared condition map is not safe during parallel loading.
+        net.minecraftforge.fml.DeferredWorkQueue.runLater(RecipeConditions::register);
         ElectricAdvantageConfig.apply();
         Recipes.init();
         TreasureChests.init(FMLPaths.CONFIGDIR.get());

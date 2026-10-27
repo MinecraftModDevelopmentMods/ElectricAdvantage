@@ -2,13 +2,13 @@ package zone.moddev.mc.electricadvantage.graphics;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.entities.HydroturbineEntity;
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,18 +25,12 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 	}
 
 	@Override
-	public void doRender(final HydroturbineEntity entity, final double x, final double y, final double z, final float scale, final float partialTick) {
+	public void render(final HydroturbineEntity entity, final float entityYaw, final float partialTick,
+            final MatrixStack matrices, final IRenderTypeBuffer buffers, final int packedLight) {
 		{
 			final float pixel = 1.0f / 16;
 			HydroturbineEntity e = (HydroturbineEntity)entity;
-			GlStateManager.pushMatrix();
-			this.bindEntityTexture(e);
-			GlStateManager.translatef((float)x, (float)y, (float)z);
-			GlStateManager.enableRescaleNormal();
-			//   final float scale = this.scale;
-			//   GlStateManager.scale(scale / 1.0f, scale / 1.0f, scale / 1.0f);
-			final Tessellator instance = Tessellator.getInstance();
-			final BufferBuilder worldRenderer = instance.getBuffer();
+			matrices.push();
 			final float topHeight = 0.5f;
 			final float bottomHeight = 0.375f-0.5f;
 			final float radius = pixel;
@@ -45,10 +39,10 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			final float shaftMaxU = 0.5f+2*pixel;
 			final float shaftMaxV = 1.0f;
 			
-			GlStateManager.translatef(0f, 0.5f, 0f);
-			GlStateManager.rotatef(e.rotationYaw, 0.0f, 1.0f, 0.0f);
-			this.bindTexture(this.getEntityTexture(e));
-			worldRenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+			matrices.translate(0f, 0.5f, 0f);
+			matrices.rotate(Vector3f.YP.rotationDegrees(e.rotationYaw));
+            final BufferedQuads worldRenderer = new BufferedQuads(matrices,
+                    buffers.getBuffer(RenderType.getEntitySolid(texture)), packedLight, OverlayTexture.NO_OVERLAY);
 
 			// render shaft
 			worldRenderer.pos(+radius, bottomHeight, -radius).tex(shaftMinU,shaftMinV).endVertex();
@@ -179,16 +173,14 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			worldRenderer.pos(cos3b*bladeOffset, sin3b*bladeOffset, depthDelta-axelLength).tex(bladeMinU,bladeMinV).endVertex(); // inner, leading
 			
 			
-			instance.draw();
-			GlStateManager.disableRescaleNormal();
-			GlStateManager.popMatrix();
-			super.doRender(e, x, y, z, scale, partialTick);
+			matrices.pop();
+			super.render(e, entityYaw, partialTick, matrices, buffers, packedLight);
 		}
 	}
 
 
 	@Override
-	protected ResourceLocation getEntityTexture(final HydroturbineEntity e) {
+	public ResourceLocation getEntityTexture(final HydroturbineEntity e) {
 		return texture;
 	}
 }
