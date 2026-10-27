@@ -37,7 +37,7 @@ publication. Do not bypass the release audits or substitute a preliminary jar.
 Use immutable copies for verification, not a sibling's output that another
 build may replace. CI rejects pins that differ from this audited candidate.
 
-With an authorized build slot, pass the immutable input paths and run:
+With the pinned dependency jars available, pass their paths and run:
 
 ```text
 gradlew.bat classes test deobfJar -PpowerAdvantageDeobfJar=<jar> -PbaseMetalsDeobfJar=<jar> -PoreSpawnDeobfJar=<jar>
