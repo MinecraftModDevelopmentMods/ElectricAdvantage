@@ -29,8 +29,8 @@ check('Exact native target metadata', () => {
     for (const pair of ['minecraft_version=1.16.5', 'forge_version=36.2.34',
         'mapping_channel=official', 'mapping_version=1.16.5', 'mcp_version=20210115.111550',
         'mod_version=2.2.8.116051', 'poweradvantage_version=2.4.7.116051',
-        'poweradvantage_source_ref=3f1100e6f75b1fb949cc883be7288aa30789876d',
-        'poweradvantage_deobf_sha256=1A3E5B9EE45CF932CE963146D016E5270BD587A5D5AA2B9283886FF89EF14FD4',
+        'poweradvantage_source_ref=bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7',
+        'poweradvantage_deobf_sha256=2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386',
         'basemetals_version=3.1.1.116051', 'orespawn_version=4.1.0.116051',
         'java_version=8', 'gradle_java_version=17']) {
         assert(properties.split(/\r?\n/).includes(pair), pair);

@@ -26,12 +26,12 @@ inference and downloads.
 
 Build inputs are separate, non-embedded deobfuscated jars:
 
-- Power Advantage `2.4.7.116051`: source `3f1100e6f75b1fb949cc883be7288aa30789876d`.
+- Power Advantage `2.4.7.116051`: source `bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7`.
 - Base Metals `3.1.1.116051`: source `995f6cc4dd2d5eecc628a42e5c43fa5390c24bca`.
 - OreSpawn `4.1.0.116051`: source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 
 Exact checksums are recorded in `gradle.properties`. Power deobf SHA-256 is
-`1A3E5B9EE45CF932CE963146D016E5270BD587A5D5AA2B9283886FF89EF14FD4`.
+`2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386`.
 Its source is local-only; hosted reproducibility is pending upstream source
 publication. Do not bypass the release audits or substitute a preliminary jar.
 Use immutable copies for verification, not a sibling's output that another
