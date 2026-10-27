@@ -40,8 +40,8 @@ public class BuildWorkflowContractTest {
             assertTrue(source.contains("ref: a113e5d767169189f0e35ade1e173a12d550b00e"));
             assertTrue(source.contains("ref: 995f6cc4dd2d5eecc628a42e5c43fa5390c24bca"));
             assertTrue(source.contains("BaseMetals-3.1.1.116051-deobf.jar"));
-            assertTrue(source.contains("ref: e72fc3c39dab98fe2fb7b6a9105e0173585d6001"));
-            assertTrue(source.contains("C97CE8428480AF34595428F439013F517CB9024092CD8475D56AFBEB8E6F497B"));
+            assertTrue(source.contains("ref: 2116a35a40dd150d79e7dfdcdc891637793178b7"));
+            assertTrue(source.contains("F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A"));
             assertFalse(source.contains("098d4625abc8a849bd1a11dcf697b3fee0cade7b"));
             assertFalse(source.contains("78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3"));
             assertFalse(source.contains("ce90c24c302d0ff3565db2db0c6c94a3b5f21f83"));

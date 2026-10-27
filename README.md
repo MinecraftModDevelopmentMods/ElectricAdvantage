@@ -2,8 +2,9 @@
 
 **Minecraft 1.16.5 port candidate, version 2.2.8.116051.** Local compilation, all
 47 Java tests, release audits, Eclipse checks and fresh ECJ compilation pass
-against Power bootstrap C. Earlier A/B build evidence and the failed D actor
-campaign are preserved separately. C's packaged runtime qualification and manual
+against frozen Power D. All four archived Electric jars are byte-identical to C.
+Earlier A/B/C evidence and failed or partial actor
+campaigns are preserved separately. Packaged runtime qualification and manual
 acceptance remain pending. This is not a published release.
 See [the native port checklist](docs/NATIVE116.md).
 The [accepted 1.15 record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
@@ -23,12 +24,12 @@ inference and downloads.
 
 Build inputs are separate, non-embedded deobfuscated jars:
 
-- Power Advantage `2.4.7.116051`: source `e72fc3c39dab98fe2fb7b6a9105e0173585d6001`.
+- Power Advantage `2.4.7.116051`: source `2116a35a40dd150d79e7dfdcdc891637793178b7`.
 - Base Metals `3.1.1.116051`: source `995f6cc4dd2d5eecc628a42e5c43fa5390c24bca`.
 - OreSpawn `4.1.0.116051`: source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 
 Exact checksums are recorded in `gradle.properties`. Power deobf SHA-256 is
-`C97CE8428480AF34595428F439013F517CB9024092CD8475D56AFBEB8E6F497B`.
+`F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A`.
 Its source is local-only; hosted reproducibility is pending upstream source
 publication. Do not bypass the release audits or substitute a preliminary jar.
 Use immutable copies for verification, not a sibling's output that another
@@ -46,8 +47,8 @@ The complete deterministic release gates are:
 gradlew.bat clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
 ```
 
-These gates passed locally on 27 October 2026 against the exact immutable C
-inputs, with all 47 tests rerun and no build-cache reuse. The independent ECJ
+These gates passed locally on 27 October 2026 against immutable D inputs,
+with all 47 tests rerun and no build-cache reuse. The independent ECJ
 run also passed all 47 tests on Java 8. These results do not replace packaged client/server tests,
 disposable-world migration checks or manual acceptance.
 Do not run another build concurrently against a shared Gradle cache.

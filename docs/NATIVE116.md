@@ -12,9 +12,9 @@ checks and manual acceptance. Only checks actually executed may be marked passed
 - Base deobf SHA-256: `A7B0C4F394DFAF4E11E0275B1A86CB1D47C7AF8E175759D9BB84F965C684466D`.
 - OreSpawn `4.1.0.116051`, source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 - OreSpawn deobf SHA-256: `DCEE75480C9DD70EE58B218AAE799C5FAB0525DAF9A05455270F1570C24F7F8F`.
-- Power bootstrap C source: `e72fc3c39dab98fe2fb7b6a9105e0173585d6001` (local-only).
-- Power bootstrap C deobf SHA-256: `C97CE8428480AF34595428F439013F517CB9024092CD8475D56AFBEB8E6F497B`.
-- Verified immutable Power release SHA-256: `DBE2226C4A1FE505A94A411EA68540CAEC40186598847BAB936CE16EC8E2FA01`.
+- Power bootstrap D source: `2116a35a40dd150d79e7dfdcdc891637793178b7` (local-only).
+- Power bootstrap D deobf SHA-256: `F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A`.
+- Verified immutable Power release SHA-256: `94C36D3F157A120943C067D4317D1C55D62792BAB43E309640DB64BAEE3FFE7E`.
 
 Copy the final verified jars to immutable local input paths before building.
 Do not compile against a sibling output that another worker may overwrite.
@@ -99,8 +99,10 @@ reports, handoff and candidate directory remain unchanged. The B handoff is
 
 ### Bootstrap C Revalidation
 
-The active pins above select the parent's frozen local C source and immutable
-artifact. C contains native registry, entity migration and capability fixes.
+This historical run used frozen local C source
+`e72fc3c39dab98fe2fb7b6a9105e0173585d6001` and deobf SHA-256
+`C97CE8428480AF34595428F439013F517CB9024092CD8475D56AFBEB8E6F497B`.
+C contains native registry, entity migration and capability fixes.
 The C clean full suite passed on 27 October 2026 in 49 seconds with
 `--rerun-tasks --no-build-cache`: all 47 Java tests in 17 suites, zero failures,
 errors or skips, release configuration/dependency/artifact/checksum audits and
@@ -125,8 +127,9 @@ wolf UUID/owner and hydroturbine UUID failures; the chained113 route failed the
 strict registry/async-save ERROR gate on boot 16. Its raw audit and all source
 custody remain preserved under `evidence/native116_actor_d_20261027/` and the
 parent's test-rig. No strict identity, item or health oracle was relaxed.
-The prepared 108-boot matrix remains pending sealed E inputs and a new runtime
-lease. Dedicated native114 actor-origin fixtures remain unqualified; a native115
+The F actor/storage attempt is retained as interrupted baseline-only evidence,
+not final qualification. A new 108-boot matrix needs sealed G inputs and a new
+runtime lease. Dedicated native114 actor-origin fixtures remain unqualified; a native115
 actor extension needs explicit stopped-source custody, not an old destination PASS.
 
 Remaining runtime and acceptance work, only under an explicit runtime lease:
@@ -143,6 +146,21 @@ Remaining runtime and acceptance work, only under an explicit runtime lease:
 5. Manually inspect all GUIs, textures, beam directions/lighting, turret controls,
    hydroturbine orientation/spin, sounds, interaction and multiplayer behavior.
 
-No C Minecraft runtime, packaged smoke, world-upgrade pass or manual acceptance
-is claimed. A local-only commit of the C repin and checks is authorized; pushes,
+### Bootstrap D Revalidation
+
+The active pins select the parent's frozen D source and immutable artifact.
+D adds native owned-machine item and typed-player item migration fixes.
+Electric's clean full suite passed in 47 seconds with all 47 tests in 17 suites,
+zero failures/errors/skips, no build-cache reuse, and all release/Eclipse audits.
+Fresh ECJ main/test compilation and 47 Java 8 JUnit tests passed with no ignored
+or assumed tests; all emitted classes use major version 52. The ten static
+contracts and 50 recipe unlocks also pass. The exclusively leased cache was
+already warm; this is not a new cold-cache claim.
+
+All four archived raw Electric jars (runtime, deobf, sources and Javadoc) are
+byte-identical to C. Evidence is under `evidence/native116-bootstrap-d-20261027-01/`,
+`evidence/native116-ecj-bootstrap-d-root-01/` and
+`evidence/native116-bootstrap-d-candidate/`. Prior A/B/C evidence remains unchanged;
+no previous result is relabelled as D. No D Minecraft runtime, packaged smoke, world-upgrade pass or
+manual acceptance is claimed. A local-only commit of the D repin is authorized; pushes,
 PRs, tags and releases remain unauthorized.

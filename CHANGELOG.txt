@@ -5,8 +5,8 @@ Electric Advantage 2.2.8.116051 (local port candidate)
 - Use native renderer buffers, state-aware tile persistence and world-only Power Advantage conduit callbacks.
 - Retain lithium/sulfur mining levels through native correct-tool checks and serialize recipe-condition registration with enqueueWork.
 - Preserve registry IDs, legacy aliases, NBT keys, balance constants, recipes, discoveries and asset bytes from the accepted 1.15 source.
-- Pin the exact local Power Advantage 2.4.7.116051 bootstrap-C source/development artifact; retain fail-closed release audits and no dependency embedding.
-- Pass all 47 Java tests, release audits, Eclipse and independent ECJ checks against C; preserve prior A/B build evidence and failed D actor evidence.
+- Pin the exact local Power Advantage 2.4.7.116051 bootstrap-D source/development artifact; retain fail-closed release audits and no dependency embedding.
+- Pass all 47 Gradle and 47 fresh ECJ tests plus release/Eclipse audits against D; archive all four raw jars, byte-identical to C, without relabelling prior evidence.
 - Keep packaged runtime qualification, world-upgrade checks and manual acceptance pending.
 
 Electric Advantage 2.2.7.115021
