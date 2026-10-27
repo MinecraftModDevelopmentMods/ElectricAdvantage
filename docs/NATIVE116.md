@@ -15,7 +15,7 @@ checks and manual acceptance. Only checks actually executed may be marked passed
 - Power source: `bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7` (local-only).
 - Power deobf SHA-256: `2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386`.
 - Power release SHA-256: `5BE5C05D9F78BAF730553B71D07D76BA923EA0A54ABCA53F4149386B27019E71`.
-- Electric source: `61cbe49e513d4063f47a762dc3095b2239c625c2`.
+- Electric tested production source: `9a8fdf53a111499f2ebc969ac24a6f3e1017c18e`.
 - Electric release SHA-256: `A9B62DD737E42455FEE72BD2D855C9C5EDBF5A9C5EAD7B48C650C9073A35B129`.
 
 Copy the final verified jars to immutable local input paths before building.
@@ -33,9 +33,10 @@ the dependency repin changes no Electric class or resource.
 
 The current packaged jars pass combined Works, recipe modes and unlocks,
 survival mining and drops, extended drills, and connected-world operating
-checks after upgrades. Current unloading and broader player/entity checks are
-tracked in Power Advantage's `docs/1.16/CURRENT-QUALIFICATION.md`; incomplete
-cases are not counted as passes. Manual rendering, controls, sounds, weapons,
+checks after upgrades. The shared `docs/1.16/CURRENT-QUALIFICATION.md` records
+unloading and broader player/entity checks, including the separately controlled
+vanilla wolf-health difference. Incomplete cases are not counted as passes.
+Manual rendering, controls, sounds, weapons,
 multiplayer and actual player login still need checking.
 
 The bootstrap notes below are historical receipts, not current readiness
@@ -59,7 +60,8 @@ claims. Failed and interrupted runs remain recorded under their original names.
 - Rendering retains all geometry, UVs, winding normals, light/overlay values,
   timing, six drill directions, tracking settings and original test tolerances.
 - Condition registration uses common setup's `enqueueWork`. Native tag loading
-  and reload integration belong to Power and still need runtime proof.
+  and reload integration belong to Power and are covered by the shared recipe,
+  reload and restart checks.
 - Electric's tag resources contain no legacy `optional` arrays. Any future
   optional reference must use `values: [{"id": "...", "required": false}]`.
 
@@ -147,8 +149,8 @@ strict registry/async-save ERROR gate on boot 16. Its raw audit and all source
 custody remain preserved under `evidence/native116_actor_d_20261027/` and the
 parent's test-rig. No strict identity, item or health oracle was relaxed.
 The F actor/storage attempt is retained as interrupted baseline-only evidence,
-not final qualification. A new 108-boot matrix needs sealed G inputs and a new
-runtime lease. Dedicated native114 actor-origin fixtures remain unqualified; a native115
+not final qualification. At that checkpoint, a new 108-boot matrix was planned
+with sealed G inputs and a new runtime lease. Dedicated native114 actor-origin fixtures remain unqualified; a native115
 actor extension needs explicit stopped-source custody, not an old destination PASS.
 
 At that historical checkpoint, runtime and acceptance work remained:

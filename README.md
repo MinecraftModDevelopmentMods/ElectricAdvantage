@@ -3,8 +3,9 @@
 **Minecraft 1.16.5 port candidate, version 2.2.8.116051.** All 47 Java tests,
 release audits, Eclipse checks and independent Eclipse-compiler tests pass
 against the pinned Power Advantage build. Combined machine, recipe, mining and
-connected-world upgrade checks also pass; wider migration checks are still being
-completed. Manual acceptance is pending. This is not a published release.
+connected-world upgrade checks also pass. Broader player/entity checks retain a
+separately controlled vanilla wolf-health difference. Manual acceptance is
+pending. This is not a published release.
 See [the native port checklist](docs/NATIVE116.md).
 The [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
 records the exact jars, completed checks and remaining limits. That page will be
