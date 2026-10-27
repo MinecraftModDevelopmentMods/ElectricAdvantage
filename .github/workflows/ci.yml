@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           power_ref="$(sed -n 's/^poweradvantage_source_ref=//p' gradle.properties | tr -d '\r')"
           power_sha="$(sed -n 's/^poweradvantage_deobf_sha256=//p' gradle.properties | tr -d '\r')"
-          if [[ "$power_ref" != "098d4625abc8a849bd1a11dcf697b3fee0cade7b" || "$power_sha" != "78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3" ]]; then
+          if [[ "$power_ref" != "e72fc3c39dab98fe2fb7b6a9105e0173585d6001" || "$power_sha" != "C97CE8428480AF34595428F439013F517CB9024092CD8475D56AFBEB8E6F497B" ]]; then
             echo "PowerAdvantage 1.16.5 source/deobf pin differs from the audited candidate" >&2
             exit 1
           fi
@@ -53,7 +53,7 @@ jobs:
         with:
           repository: MinecraftModDevelopmentMods/PowerAdvantage
           # Local-only Power source; publish upstream before hosted builds.
-          ref: 098d4625abc8a849bd1a11dcf697b3fee0cade7b
+          ref: e72fc3c39dab98fe2fb7b6a9105e0173585d6001
           path: .ci-dependencies/PowerAdvantage
       - name: Install pinned Java 25 Mavenizer runtime
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5

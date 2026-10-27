@@ -12,9 +12,9 @@ checks and manual acceptance. Only checks actually executed may be marked passed
 - Base deobf SHA-256: `A7B0C4F394DFAF4E11E0275B1A86CB1D47C7AF8E175759D9BB84F965C684466D`.
 - OreSpawn `4.1.0.116051`, source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 - OreSpawn deobf SHA-256: `DCEE75480C9DD70EE58B218AAE799C5FAB0525DAF9A05455270F1570C24F7F8F`.
-- Power bootstrap B source: `098d4625abc8a849bd1a11dcf697b3fee0cade7b` (local-only).
-- Power bootstrap B deobf SHA-256: `78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3`.
-- Verified immutable Power release SHA-256: `60E10F94F447D948244EF088A3B77134C13FBEBCCA1D8DB6210E8630F94A051F`.
+- Power bootstrap C source: `e72fc3c39dab98fe2fb7b6a9105e0173585d6001` (local-only).
+- Power bootstrap C deobf SHA-256: `C97CE8428480AF34595428F439013F517CB9024092CD8475D56AFBEB8E6F497B`.
+- Verified immutable Power release SHA-256: `DBE2226C4A1FE505A94A411EA68540CAEC40186598847BAB936CE16EC8E2FA01`.
 
 Copy the final verified jars to immutable local input paths before building.
 Do not compile against a sibling output that another worker may overwrite.
@@ -80,7 +80,9 @@ parent's constructor-time GUI matrix initialization; it does not change the API.
 
 ### Bootstrap B Revalidation
 
-The exact B source/deobf pins above are configured. The clean full suite passed
+This historical run used Power source `098d4625abc8a849bd1a11dcf697b3fee0cade7b`
+and deobf SHA-256 `78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3`.
+The clean full suite passed
 against the immutable B jar on 27 October 2026 with `--rerun-tasks` and
 `--no-build-cache`: production/test compilation, all 47 Java tests (zero failures,
 errors or skips), release configuration/dependency/artifact/checksum audits and
@@ -94,6 +96,38 @@ after the Gradle process completed. No Minecraft client or server was launched.
 Frozen B artifacts are under `evidence/native116-bootstrap-b-candidate`. The A
 reports, handoff and candidate directory remain unchanged. The B handoff is
 `evidence/native116-bootstrap-b-handoff.json`.
+
+### Bootstrap C Revalidation
+
+The active pins above select the parent's frozen local C source and immutable
+artifact. C contains native registry, entity migration and capability fixes.
+The C clean full suite passed on 27 October 2026 in 49 seconds with
+`--rerun-tasks --no-build-cache`: all 47 Java tests in 17 suites, zero failures,
+errors or skips, release configuration/dependency/artifact/checksum audits and
+production Eclipse generation/classpath checks. The exclusively leased cache
+was already warm; this is not a new cold-cache claim.
+
+Fresh ECJ compilation passed for 85 main sources, 17 test sources and the strict
+JUnit helper. All 47 tests passed on Java 8 with zero ignored or assumed tests;
+every emitted class uses major version 52. The existing 52 main-source compiler
+warnings remain visible. The ten static contracts and all 50 recipe unlocks pass.
+
+The raw runtime, deobf and sources jars are byte-identical to frozen B. The
+Javadoc jar differs in 18 HTML pages because Power C adds inherited
+`areCapabilitiesValid` and changes the declaring owner of `reviveCaps`.
+The Javadoc difference is recorded, not normalized away. C Javadoc SHA-256 is
+`AB9EBF1BB5A79AE576AF12A25D186D2662EEAD2C79FB4F9A8A5475F776376D4D`.
+Raw archive hashes and entry-level diagnostics are under
+`evidence/native116-bootstrap-c-20261027-01/`; prior A/B evidence is unchanged.
+
+The previous D actor attempt is INCOMPLETE FAIL: five direct routes retained
+wolf UUID/owner and hydroturbine UUID failures; the chained113 route failed the
+strict registry/async-save ERROR gate on boot 16. Its raw audit and all source
+custody remain preserved under `evidence/native116_actor_d_20261027/` and the
+parent's test-rig. No strict identity, item or health oracle was relaxed.
+The prepared 108-boot matrix remains pending sealed E inputs and a new runtime
+lease. Dedicated native114 actor-origin fixtures remain unqualified; a native115
+actor extension needs explicit stopped-source custody, not an old destination PASS.
 
 Remaining runtime and acceptance work, only under an explicit runtime lease:
 
@@ -109,6 +143,6 @@ Remaining runtime and acceptance work, only under an explicit runtime lease:
 5. Manually inspect all GUIs, textures, beam directions/lighting, turret controls,
    hydroturbine orientation/spin, sounds, interaction and multiplayer behavior.
 
-No Minecraft runtime, packaged smoke, world-upgrade pass
-or manual acceptance is claimed. Commits, pushes, PRs,
-tags and releases are outside the current authorization.
+No C Minecraft runtime, packaged smoke, world-upgrade pass or manual acceptance
+is claimed. A local-only commit of the C repin and checks is authorized; pushes,
+PRs, tags and releases remain unauthorized.
