@@ -12,15 +12,34 @@ checks and manual acceptance. Only checks actually executed may be marked passed
 - Base deobf SHA-256: `A7B0C4F394DFAF4E11E0275B1A86CB1D47C7AF8E175759D9BB84F965C684466D`.
 - OreSpawn `4.1.0.116051`, source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 - OreSpawn deobf SHA-256: `DCEE75480C9DD70EE58B218AAE799C5FAB0525DAF9A05455270F1570C24F7F8F`.
-- Power bootstrap D source: `2116a35a40dd150d79e7dfdcdc891637793178b7` (local-only).
-- Power bootstrap D deobf SHA-256: `F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A`.
-- Verified immutable Power release SHA-256: `94C36D3F157A120943C067D4317D1C55D62792BAB43E309640DB64BAEE3FFE7E`.
+- Power source: `3f1100e6f75b1fb949cc883be7288aa30789876d` (local-only).
+- Power deobf SHA-256: `1A3E5B9EE45CF932CE963146D016E5270BD587A5D5AA2B9283886FF89EF14FD4`.
+- Power release SHA-256: `EB226ADC200BFB96278F1449CDB7C6941F289DB43330C8206369048378E931EB`.
+- Electric source: `61cbe49e513d4063f47a762dc3095b2239c625c2`.
+- Electric release SHA-256: `A9B62DD737E42455FEE72BD2D855C9C5EDBF5A9C5EAD7B48C650C9073A35B129`.
 
 Copy the final verified jars to immutable local input paths before building.
 Do not compile against a sibling output that another worker may overwrite.
 The release audit retains exact source/hash expectations for this candidate.
 Do not relax those checks. Publish the local-only Power source upstream before
 hosted build or release readiness is claimed.
+
+## Current Checks
+
+All 47 Java tests pass with Gradle and with a fresh Eclipse compiler build on
+Java 8. Release, dependency, bytecode, resource and Eclipse classpath audits
+pass. All four Electric jars match the independently reproduced earlier build;
+the dependency repin changes no Electric class or resource.
+
+The current packaged jars pass combined Works, recipe modes and unlocks,
+survival mining and drops, extended drills, and connected-world operating
+checks after upgrades. Current unloading and broader player/entity checks are
+tracked in Power Advantage's `docs/1.16/CURRENT-QUALIFICATION.md`; incomplete
+cases are not counted as passes. Manual rendering, controls, sounds, weapons,
+multiplayer and actual player login still need checking.
+
+The bootstrap notes below are historical receipts, not current readiness
+claims. Failed and interrupted runs remain recorded under their original names.
 
 ## Source Contracts
 
@@ -132,7 +151,7 @@ not final qualification. A new 108-boot matrix needs sealed G inputs and a new
 runtime lease. Dedicated native114 actor-origin fixtures remain unqualified; a native115
 actor extension needs explicit stopped-source custody, not an old destination PASS.
 
-Remaining runtime and acceptance work, only under an explicit runtime lease:
+At that historical checkpoint, runtime and acceptance work remained:
 
 1. Test the packaged candidate's recipes,
    unlocks, native tags, condition modes, resource reload and restart behavior.
@@ -148,7 +167,7 @@ Remaining runtime and acceptance work, only under an explicit runtime lease:
 
 ### Bootstrap D Revalidation
 
-The active pins select the parent's frozen D source and immutable artifact.
+That historical run selected the parent's frozen D source and immutable artifact.
 D adds native owned-machine item and typed-player item migration fixes.
 Electric's clean full suite passed in 47 seconds with all 47 tests in 17 suites,
 zero failures/errors/skips, no build-cache reuse, and all release/Eclipse audits.
@@ -161,6 +180,6 @@ All four archived raw Electric jars (runtime, deobf, sources and Javadoc) are
 byte-identical to C. Evidence is under `evidence/native116-bootstrap-d-20261027-01/`,
 `evidence/native116-ecj-bootstrap-d-root-01/` and
 `evidence/native116-bootstrap-d-candidate/`. Prior A/B/C evidence remains unchanged;
-no previous result is relabelled as D. No D Minecraft runtime, packaged smoke, world-upgrade pass or
-manual acceptance is claimed. A local-only commit of the D repin is authorized; pushes,
-PRs, tags and releases remain unauthorized.
+no previous result is relabelled as D. Those build receipts do not claim a D
+Minecraft runtime, packaged smoke, world-upgrade pass or manual acceptance.
+The current inputs and checks are listed at the top of this page.

@@ -1,12 +1,14 @@
 # Electric Advantage
 
-**Minecraft 1.16.5 port candidate, version 2.2.8.116051.** Local compilation, all
-47 Java tests, release audits, Eclipse checks and fresh ECJ compilation pass
-against frozen Power D. All four archived Electric jars are byte-identical to C.
-Earlier A/B/C evidence and failed or partial actor
-campaigns are preserved separately. Packaged runtime qualification and manual
-acceptance remain pending. This is not a published release.
+**Minecraft 1.16.5 port candidate, version 2.2.8.116051.** All 47 Java tests,
+release audits, Eclipse checks and independent Eclipse-compiler tests pass
+against the pinned Power Advantage build. Combined machine, recipe, mining and
+connected-world upgrade checks also pass; wider migration checks are still being
+completed. Manual acceptance is pending. This is not a published release.
 See [the native port checklist](docs/NATIVE116.md).
+The [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
+records the exact jars, completed checks and remaining limits. That page will be
+available upstream when this local port is merged.
 The [accepted 1.15 record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
 is a behavior reference, not evidence that this target passes.
 
@@ -47,7 +49,7 @@ The complete deterministic release gates are:
 gradlew.bat clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
 ```
 
-These gates passed locally on 27 October 2026 against immutable D inputs,
+These gates passed locally on 27 October 2026 against the pinned inputs,
 with all 47 tests rerun and no build-cache reuse. The independent ECJ
 run also passed all 47 tests on Java 8. These results do not replace packaged client/server tests,
 disposable-world migration checks or manual acceptance.
@@ -95,9 +97,10 @@ installation relationship is unchanged. Typed integration uses the matching
 Base Metals and OreSpawn APIs without embedding either mod.
 
 The RF- and Tech Reborn-labelled converters belong to Power Advantage and use
-Forge Energy. Visuals, GUI interaction, sound, weapons, hydroturbine behavior,
-multiplayer, tag reloads, dimensions and world upgrades need target-specific
-verification. No 1.16 publication is authorized before manual acceptance.
+Forge Energy. Check live rendering, GUI interaction, sound, weapons,
+hydroturbine orientation and animation, multiplayer and real player login in
+game. Automated tag, machine and upgrade checks do not replace that walkthrough.
+No 1.16 publication is included before manual acceptance.
 
 Always back up a whole world before upgrading and test only disposable copies.
 Keep migration backups and failed evidence. Bounded Advantage results never
