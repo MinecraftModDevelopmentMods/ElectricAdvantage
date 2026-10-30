@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,7 +19,6 @@ import net.minecraft.world.World;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 import java.util.Arrays;
-import java.util.List;
 
 public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine {
 
@@ -46,12 +46,14 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 
 	private boolean redstone = false;
+	private boolean redstoneInitialized = false;
 	private float oldEnergy = 0f;
 	@Override
 	public void powerUpdate(){
 		super.powerUpdate();
 		
 		redstone = getWorld().isBlockPowered(getPos());
+		redstoneInitialized = true;
 		
 		if(oldEnergy != this.getEnergy(Power.ELECTRIC_POWER)){
 			this.sync();
@@ -59,6 +61,11 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 	}
 	
 	protected boolean hasRedstoneSignal(){
+		// Generators can check the interlock before their first power-update refresh.
+		if(!redstoneInitialized && getWorld() != null && !getWorld().isRemote){
+			redstone = getWorld().isBlockPowered(getPos());
+			redstoneInitialized = true;
+		}
 		return redstone;
 	}
 
@@ -74,10 +81,14 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
 		if(getWorld().isRemote) return;
 		final double range = 16;
-		List<ServerPlayerEntity> players = getWorld().getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(
+		AxisAlignedBB bounds = new AxisAlignedBB(
 				x - range, y - range, z - range,
-				x + range, y + range, z + range));
-		for(ServerPlayerEntity player : players){
+				x + range, y + range, z + range);
+		// Broadcast to existing players without loading chunks for a spatial entity query.
+		for(PlayerEntity candidate : getWorld().getPlayers()){
+			if(!(candidate instanceof ServerPlayerEntity)) continue;
+			ServerPlayerEntity player = (ServerPlayerEntity)candidate;
+			if(player.connection == null || player.isSpectator() || !player.getBoundingBox().intersects(bounds)) continue;
 			player.connection.sendPacket(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
 					new net.minecraft.util.math.Vec3d(x, y, z), volume, pitch));
 		}
