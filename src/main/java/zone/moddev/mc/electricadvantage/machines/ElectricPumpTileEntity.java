@@ -7,9 +7,9 @@ import cyano.poweradvantage.api.PowerRequest;
 import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDynamicLiquid;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -81,12 +81,13 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 							float cost = ENERGY_COST_PUMP+ENERGY_COST_VERTICAL*(getPos().getY()-fluidSource.getY());
 							// Found a fluid to suck-up!
 							IBlockState blockstate = w.getBlockState(fluidSource);
-							Fluid f = getFluid(blockstate);
-							if(f != null && getEnergy() >= cost){
-								this.getTank().fill(new FluidStack(f,FluidContainerRegistry.BUCKET_VOLUME), true);
-								this.subtractEnergy(cost, Power.ELECTRIC_POWER);
-								w.setBlockToAir(fluidSource);
-								success = true;
+							if(getEnergy() >= cost){
+								FluidStack drained = drainSource(w, fluidSource, blockstate);
+								if(drained != null && drained.amount > 0){
+									this.getTank().fill(drained, true);
+									this.subtractEnergy(cost, Power.ELECTRIC_POWER);
+									success = true;
+								}
 							}
 						}
 						timeUntilNextPump = PUMP_INTERVAL;
@@ -129,7 +130,29 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	
 
 	private Fluid getFluid(IBlockState blockstate) {
+		Block block = blockstate.getBlock();
+		if(block == Blocks.WATER || block == Blocks.FLOWING_WATER) return FluidRegistry.WATER;
+		if(block == Blocks.LAVA || block == Blocks.FLOWING_LAVA) return FluidRegistry.LAVA;
 		return FluidRegistry.lookupFluidForBlock(blockstate.getBlock());
+	}
+
+	private FluidStack drainSource(World world, BlockPos pos, IBlockState state) {
+		Block block = state.getBlock();
+		if(block instanceof IFluidBlock){
+			IFluidBlock source = (IFluidBlock)block;
+			if(!source.canDrain(world, pos)) return null;
+			FluidStack preview = source.drain(world, pos, false);
+			if(preview == null || preview.amount <= 0 || getTank().fill(preview, false) != preview.amount) return null;
+			// Let the source perform its own real removal, including any mod-specific state.
+			return source.drain(world, pos, true);
+		}
+		if(block instanceof BlockLiquid && state.getValue(BlockLiquid.LEVEL) == 0){
+			Fluid fluid = getFluid(state);
+			if(fluid == null) return null;
+			FluidStack bucket = new FluidStack(fluid, FluidContainerRegistry.BUCKET_VOLUME);
+			if(getTank().fill(bucket, false) == bucket.amount && world.setBlockToAir(pos)) return bucket;
+		}
+		return null;
 	}
 
 
@@ -162,9 +185,9 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	private boolean isSourceBlock( BlockPos coord){
 		IBlockState bs = getWorld().getBlockState(coord);
 		if(bs.getBlock() instanceof BlockLiquid){
-			return (Integer)bs.getValue(BlockDynamicLiquid.LEVEL) == 0;
-		} else if(bs.getBlock() instanceof BlockFluidClassic){
-			return ((BlockFluidClassic)bs.getBlock()).isSourceBlock(getWorld(), coord);
+			return (Integer)bs.getValue(BlockLiquid.LEVEL) == 0;
+		} else if(bs.getBlock() instanceof IFluidBlock){
+			return ((IFluidBlock)bs.getBlock()).canDrain(getWorld(), coord);
 		}else{
 			return false;
 		}

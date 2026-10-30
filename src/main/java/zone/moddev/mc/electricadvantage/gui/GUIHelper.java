@@ -30,11 +30,15 @@ public class GUIHelper {
 	}
 	
 	public static void drawProgressBar(int x, int y, float progress, GUIContainer gc){
-		float clampedProgress = Math.max(0.0f, Math.min(progress, 1.0f));
-		int n = (int)(8 * (clampedProgress + 0.0625f) );
-		if(n <= 0) return;
-		int w = 1 + (n * LED_BAR_W8);
+		int w = progressBarWidth(progress);
+		if(w == 0) return;
 		gc.drawTexturedModalRect(x, y, LED_BAR_X, LED_BAR_Y, w, LED_BAR_H);
+	}
+
+	static int progressBarWidth(float progress) {
+		progress = Float.isFinite(progress) ? Math.max(0F, Math.min(1F, progress)) : 0F;
+		int n = (int)(8 * (progress + 0.0625f));
+		return n <= 0 ? 0 : 1 + n * LED_BAR_W8;
 	}
 	
 
@@ -42,6 +46,7 @@ public class GUIHelper {
 			GUIContainer guiContainer, int x, int y, float z,
 			ResourceLocation displayImage){
 
+		barHeight = Float.isFinite(barHeight) ? Math.max(0F, Math.min(1F, barHeight)) : 0F;
 		final int w = 16;
 		final int barSlotHeight = 60;
 		final int h = (int)(barSlotHeight * barHeight);

@@ -43,7 +43,8 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 			if(!this.hasRedstoneSignal()){
 				if(getInputTank().getFluidAmount() > 0 
 						&& getEnergy() >= electricityPerDistill
-						&& canDistill(getInputTank().getFluid())){
+						&& canDistill(getInputTank().getFluid())
+						&& hasSpaceForDistillation()){
 					distill();
 					if(!wasActive){
 						this.setActiveState(true);
@@ -86,6 +87,14 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 		} else {
 			return recipe.isValidInput(fs);
 		}
+	}
+
+	private boolean hasSpaceForDistillation() {
+		DistillationRecipe recipe = DistillationRecipeRegistry.getInstance()
+				.getDistillationRecipeForFluid(getInputTank().getFluid().getFluid());
+		// applyRecipe consumes its input, so preview a copy before committing either tank.
+		FluidStack output = recipe.applyRecipe(getInputTank().getFluid().copy(), speed);
+		return output != null && getOutputTank().fill(output, false) == output.amount;
 	}
 
 	private void distill(){
