@@ -1,3 +1,18 @@
+Unreleased
+
+- Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
+- Charge the moved electric drill its existing 250-unit track cost before saving its replacement, instead of charging the removed drill.
+- Preserve saved growth chamber stages exactly before the first server tick, including mature crops waiting for output space.
+- Stop the electric still consuming oil and power when the whole output batch will not fit.
+- Respect modded fluid sources' drain rules and charge pump power only after fluid is collected.
+- Keep growth controllers from requesting more electricity than they can store or use.
+- Read light above solar panels without changing their generation rates.
+- Keep turret beams within their existing range, clear of their own mounting post and blocked by adjacent cover.
+- Keep hydroturbines anchored while flowing water turns their blades.
+- Read a machine's redstone interlock on its first server tick, then keep the usual eight-tick refresh.
+- Send machine sounds to nearby connected players without loading surrounding chunks.
+- Use an empty or full-scale hydroelectric display without changing its existing power reading or electricity generation.
+
 Electric Advantage 2.2.3.112021
 
 - Retain unfinished drill progress when rebuilding the mining target after a world or chunk reload.
