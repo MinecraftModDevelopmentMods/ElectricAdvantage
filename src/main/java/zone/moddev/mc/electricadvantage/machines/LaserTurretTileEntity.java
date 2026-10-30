@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.init.Power;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.EntityClassification;
@@ -18,6 +19,9 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -293,9 +297,18 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
 	private Vec3d followRayToSolidBlock(Vec3d origin, Vec3d dir, double maxRange){
-		Vec3d max = origin.add(dir).add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
+		Entity target = getWorld().getEntityByID(targetID);
+		// A client may receive the lock before its target entity; do not trace a missing beam.
+		if(target == null) return origin;
+		Vec3d max = origin.add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
 		BlockRayTraceResult impact = getWorld().rayTraceBlocks(new RayTraceContext(origin, max,
-				RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.SOURCE_ONLY, null));
+				RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.SOURCE_ONLY, target) {
+			@Override public VoxelShape getBlockShape(BlockState state, IBlockReader world, BlockPos pos) {
+				// The optic is inside our post; nearby cover must still block the beam.
+				return pos.equals(LaserTurretTileEntity.this.getPos()) ? VoxelShapes.empty()
+						: super.getBlockShape(state, world, pos);
+			}
+		});
 		if(impact.getType() == RayTraceResult.Type.BLOCK){
 			return impact.getHitVec();
 		} else {
@@ -379,7 +392,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		Vec3d offsetOrigin = getOpticPosition().add(e.getPositionVector().subtract(getOpticPosition()).normalize());
 		BlockRayTraceResult collision = getWorld().rayTraceBlocks(new RayTraceContext(offsetOrigin,
 				e.getPositionVector().add(0, e.getHeight()*0.5, 0), RayTraceContext.BlockMode.COLLIDER,
-				RayTraceContext.FluidMode.SOURCE_ONLY, null));
+				RayTraceContext.FluidMode.SOURCE_ONLY, e));
 		if(collision.getType() == RayTraceResult.Type.BLOCK){
 			return false;
 		}

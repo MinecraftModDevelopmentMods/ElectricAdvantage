@@ -1,3 +1,17 @@
+Unreleased
+
+- Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
+- Stop the electric still consuming oil and power when its full output will not fit.
+- Drain waterlogged slabs and stairs without destroying the blocks, and only charge pump power after a successful pickup.
+- Keep growth controllers from requesting more electricity than they can store or use.
+- Read light above the solar panel so its solid body does not block its own light reading.
+- Fix a 1.14 turret crash when checking a target's line of sight. Keep nearby cover and the existing beam range effective without hitting the turret's own mounting post.
+- Keep hydroturbines anchored to their generators so flowing water cannot build up invalid movement across a restart.
+- Sample a machine's redstone interlock on its first server tick, then retain the normal eight-tick refresh.
+- Send machine sounds to nearby connected players without loading surrounding chunks.
+- Use an empty or full-scale hydroelectric display without changing the existing power-output reading or electricity generation.
+- Add operating and persistence regression tests, including blocked outputs, refused pickups and unchanged waterlogged host blocks.
+
 Electric Advantage 2.2.6.114041
 
 - Target Minecraft 1.14.4 and Forge 28.2.26 using native platform classes and Java 8 production bytecode.
