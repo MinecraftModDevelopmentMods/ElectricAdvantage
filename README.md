@@ -1,6 +1,6 @@
 # Electric Advantage
 
-**Minecraft 1.16.5 port candidate, version 2.2.8.116051.**
+**Minecraft 1.16.5 source port candidate, version 2.2.8.116051.**
 The follow-up checks measure finite machine jobs, energy and fluid conservation,
 blocked routes, real turret hits and full-process restarts. Rendered GUI checks
 require the correct labels as well as correctly placed controls. The shared
@@ -10,8 +10,7 @@ checks retain a separately controlled vanilla wolf-health difference.
 Manual acceptance is pending. This is not a published release.
 See [the native port checklist](docs/NATIVE116.md).
 The [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
-records the exact jars, completed checks and remaining limits. That page will be
-available upstream when this local port is merged.
+records the exact jars, completed checks and remaining limits.
 The [accepted 1.15 record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
 is a behavior reference, not evidence that this target passes.
 
@@ -35,8 +34,8 @@ Build inputs are separate, non-embedded deobfuscated jars:
 
 Exact checksums are recorded in `gradle.properties`. Power deobf SHA-256 is
 `2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386`.
-Its source is local-only; hosted reproducibility is pending upstream source
-publication. Do not bypass the release audits or substitute a preliminary jar.
+The pinned Power source is available upstream. Do not bypass the release audits
+or substitute a preliminary jar.
 Use immutable copies for verification, not a sibling's output that another
 build may replace. CI rejects pins that differ from this audited candidate.
 
