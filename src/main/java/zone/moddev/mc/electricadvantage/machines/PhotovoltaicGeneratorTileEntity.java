@@ -92,8 +92,10 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	}
 	
 	public static float getLightIntensityAt(BlockPos pos, World w){
+		// Sample incident light above the solid panel, not inside its body.
+		BlockPos lightPos = pos.up();
 		float light;
-		if(w.isSkyLightMax(pos) && w.dimension.hasSkyLight()){
+		if(w.isSkyLightMax(lightPos) && w.dimension.hasSkyLight()){
 			// outdoor light imposes no penalty
 			light = MathHelper.sin((float)w.getDayTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather
@@ -103,7 +105,7 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 				light *= 0.35f;
 			}
 		} else {
-			float blockLight = w.getLight(pos) * 6.66666E-2f; // block light / 15
+			float blockLight = w.getLight(lightPos) * 6.66666E-2f; // block light / 15
 			light = BLOCKLIGHT_FACTOR * blockLight;
 		}
 		return light;

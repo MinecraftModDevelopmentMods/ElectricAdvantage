@@ -59,6 +59,13 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 		}
 	}
 
+	private final float[] progress = new float[1];
+
+	public float[] getProgress() {
+		progress[0] = isActive() ? 1F : 0F;
+		return progress;
+	}
+
 	@Override
 	protected boolean isValidInputItem(ItemStack item) {
 		return false;
