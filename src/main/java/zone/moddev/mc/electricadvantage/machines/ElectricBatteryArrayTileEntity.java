@@ -114,7 +114,7 @@ public class ElectricBatteryArrayTileEntity extends ElectricGeneratorTileEntity{
 	}
 
 	protected boolean hasRedstoneSignal(){
-		return getWorld().isBlockPowered(getPos());
+		return getLevel().hasNeighborSignal(getBlockPos());
 	}
 	
 	@Override

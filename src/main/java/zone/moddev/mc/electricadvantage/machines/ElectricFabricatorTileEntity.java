@@ -73,7 +73,7 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 				case CRAFT_COMPLETE:{
                     if(canCraft()) {
                         doCraft();
-                        playSoundEffect(getPos().getX() + 0.5, getPos().getY() + 0.5, getPos().getZ() + 0.5, SoundEvents.BLOCK_ANVIL_LAND, 0.15f, 1f);
+                        playSoundEffect(getBlockPos().getX() + 0.5, getBlockPos().getY() + 0.5, getBlockPos().getZ() + 0.5, SoundEvents.ANVIL_LAND, 0.15f, 1f);
                     }
 					state = FSM.READY;
 					break;
@@ -119,7 +119,7 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 		// then check if it is craftable from our input inventory
 		AtomicReference<ItemStack> output = new AtomicReference<>();
 		ItemStack[] inv = Arrays.copyOf(getInventory(), this.numberOfInputSlots());
-		SerializedInventory result = RecipeDeconstructor.getInstance().attemptToCraft(getWorld(), referenceItem,
+		SerializedInventory result = RecipeDeconstructor.getInstance().attemptToCraft(getLevel(), referenceItem,
 				SerializedInventory.serialize(inv), output);
 		if(result == null || isEmptyStack(output.get())) return false;
 		// then check if there is space in the output buffer
@@ -134,7 +134,7 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 		// assuming that canCraft() was already used to check validity
 		AtomicReference<ItemStack> output = new AtomicReference<>();
 		ItemStack[] inv = Arrays.copyOf(getInventory(), this.numberOfInputSlots());
-		SerializedInventory result = RecipeDeconstructor.getInstance().attemptToCraft(getWorld(), referenceItem,
+		SerializedInventory result = RecipeDeconstructor.getInstance().attemptToCraft(getLevel(), referenceItem,
 				SerializedInventory.serialize(inv), output);
 		this.insertItemToOutputSlots(output.get());
 		List<ItemStack> newInventory = result.deserialize();

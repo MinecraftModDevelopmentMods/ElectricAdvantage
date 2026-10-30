@@ -35,10 +35,10 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
 	}
 
 	private void initializeDefaultState() {
-        setDefaultState(getStateContainer().getBaseState()
-                .with(ACTIVE, false)
-                .with(POWERED, false)
-                .with(FACING, Direction.NORTH));
+        registerDefaultState(getStateDefinition().any()
+                .setValue(ACTIVE, false)
+                .setValue(POWERED, false)
+                .setValue(FACING, Direction.NORTH));
     }
 
     public ElectricMachineBlock(Material material) {
@@ -46,23 +46,23 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE, FACING, POWERED);
     }
 
     /** Decodes the 1.10/1.12 metadata used by world migration fixtures. */
     public BlockState getStateFromLegacyMeta(int meta) {
-        return getDefaultState()
-                .with(FACING, metaToFacing(meta))
-                .with(ACTIVE, (meta & 0x4) != 0)
-                .with(POWERED, (meta & 0x8) != 0);
+        return defaultBlockState()
+                .setValue(FACING, metaToFacing(meta))
+                .setValue(ACTIVE, (meta & 0x4) != 0)
+                .setValue(POWERED, (meta & 0x8) != 0);
     }
 
     /** Encodes the legacy metadata layout for migration tests. */
     public int getLegacyMetaFromState(BlockState state) {
-        int meta = facingToMeta(state.get(FACING));
-        if (state.get(ACTIVE)) meta |= 0x4;
-        if (state.get(POWERED)) meta |= 0x8;
+        int meta = facingToMeta(state.getValue(FACING));
+        if (state.getValue(ACTIVE)) meta |= 0x4;
+        if (state.getValue(POWERED)) meta |= 0x8;
         return meta;
     }
 
@@ -85,31 +85,31 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    public abstract ElectricMachineTileEntity createNewTileEntity(IBlockReader world);
+    public abstract ElectricMachineTileEntity newBlockEntity(IBlockReader world);
 
     @Override
-    public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
-        TileEntity tile = world.getTileEntity(pos);
+    public int getAnalogOutputSignal(BlockState state, World world, BlockPos pos) {
+        TileEntity tile = world.getBlockEntity(pos);
         return tile instanceof ElectricMachineTileEntity
                 ? ((ElectricMachineTileEntity) tile).getComparatorOutput() : 0;
     }
 
     @Override
-    public boolean hasComparatorInputOverride(BlockState state) {
+    public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
-    public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
-            TileEntity tile = world.getTileEntity(pos);
+            TileEntity tile = world.getBlockEntity(pos);
             if (tile instanceof IInventory) {
-                InventoryHelper.dropInventoryItems(world, pos, (IInventory) tile);
-                ((IInventory) tile).clear();
-                world.updateComparatorOutputLevel(pos, this);
+                InventoryHelper.dropContents(world, pos, (IInventory) tile);
+                ((IInventory) tile).clearContent();
+                world.updateNeighbourForOutputSignal(pos, this);
             }
         }
-        super.onReplaced(state, world, pos, newState, isMoving);
+        super.onRemove(state, world, pos, newState, isMoving);
     }
 
     @Override

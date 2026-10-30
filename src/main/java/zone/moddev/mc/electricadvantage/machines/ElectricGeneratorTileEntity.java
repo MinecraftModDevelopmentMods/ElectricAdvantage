@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,7 +19,6 @@ import net.minecraft.world.World;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 import java.util.Arrays;
-import java.util.List;
 
 public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine {
 
@@ -46,12 +46,14 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 
 	private boolean redstone = false;
+	private boolean redstoneInitialized = false;
 	private float oldEnergy = 0f;
 	@Override
 	public void powerUpdate(){
 		super.powerUpdate();
 		
-		redstone = getWorld().isBlockPowered(getPos());
+		redstone = getLevel().hasNeighborSignal(getBlockPos());
+		redstoneInitialized = true;
 		
 		if(oldEnergy != this.getEnergy(Power.ELECTRIC_POWER)){
 			this.sync();
@@ -59,32 +61,41 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 	}
 	
 	protected boolean hasRedstoneSignal(){
+		// Generators can check the interlock before their first power-update refresh.
+		if(!redstoneInitialized && getLevel() != null && !getLevel().isClientSide){
+			redstone = getLevel().hasNeighborSignal(getBlockPos());
+			redstoneInitialized = true;
+		}
 		return redstone;
 	}
 
 	
 	protected void setActive(boolean active){
-		BlockState old = getWorld().getBlockState(getPos());
+		BlockState old = getLevel().getBlockState(getBlockPos());
 		if(old.getBlock() instanceof ElectricGeneratorBlock 
-				&& (Boolean)old.get(ElectricGeneratorBlock.ACTIVE) != active){
-			getWorld().setBlockState(getPos(), old.with(ElectricGeneratorBlock.ACTIVE, active), 3);
+				&& (Boolean)old.getValue(ElectricGeneratorBlock.ACTIVE) != active){
+			getLevel().setBlock(getBlockPos(), old.setValue(ElectricGeneratorBlock.ACTIVE, active), 3);
 		}
 	}
 
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
-		if(getWorld().isRemote) return;
+		if(getLevel().isClientSide) return;
 		final double range = 16;
-		List<ServerPlayerEntity> players = getWorld().getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(
+		AxisAlignedBB bounds = new AxisAlignedBB(
 				x - range, y - range, z - range,
-				x + range, y + range, z + range));
-		for(ServerPlayerEntity player : players){
-			player.connection.sendPacket(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
-					new net.minecraft.util.math.Vec3d(x, y, z), volume, pitch));
+				x + range, y + range, z + range);
+		// A world-wide entity query can load chunks just to broadcast a sound.
+		for(PlayerEntity candidate : getLevel().players()){
+			if(!(candidate instanceof ServerPlayerEntity)) continue;
+			ServerPlayerEntity player = (ServerPlayerEntity)candidate;
+			if(player.connection == null || player.isSpectator() || !player.getBoundingBox().intersects(bounds)) continue;
+			player.connection.send(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
+					new net.minecraft.util.math.vector.Vector3d(x, y, z), volume, pitch));
 		}
 	}
 
 	public boolean isActive(){
-		return (Boolean)getWorld().getBlockState(getPos()).get(ElectricGeneratorBlock.ACTIVE);
+		return (Boolean)getLevel().getBlockState(getBlockPos()).getValue(ElectricGeneratorBlock.ACTIVE);
 	}
 
 	@Override
@@ -120,12 +131,12 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public boolean canInsertItem(final int slot, final ItemStack srcItem, final Direction side) {
+	public boolean canPlaceItemThroughFace(final int slot, final ItemStack srcItem, final Direction side) {
 		return isValidInputItem(srcItem) && isInArray(slot,inputSlots);
 	}
 
 	@Override
-	public boolean isItemValidForSlot(final int slot, final ItemStack srcItem) {
+	public boolean canPlaceItem(final int slot, final ItemStack srcItem) {
 		return isValidInputItem(srcItem) && isInArray(slot,inputSlots);
 	}
 	
@@ -168,20 +179,20 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public CompoundNBT write(CompoundNBT tagRoot){
-		super.write(tagRoot);
+	public CompoundNBT save(CompoundNBT tagRoot){
+		super.save(tagRoot);
 		saveTo(tagRoot);
 		return tagRoot;
 	}
 	
 	@Override
-	public void read(CompoundNBT tagRoot){
-		super.read(tagRoot);
+	public void load(BlockState state, CompoundNBT tagRoot){
+		super.load(state, tagRoot);
 		loadFrom(tagRoot);
 	}
 	
 	protected abstract void saveTo(CompoundNBT tagRoot);
 	protected abstract void loadFrom(CompoundNBT tagRoot);
 
-	@Override public int getInventoryStackLimit(){return 64;}
+	@Override public int getMaxStackSize(){return 64;}
 }

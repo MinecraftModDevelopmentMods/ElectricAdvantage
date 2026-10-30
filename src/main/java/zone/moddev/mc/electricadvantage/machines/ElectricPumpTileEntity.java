@@ -9,6 +9,7 @@ import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -57,50 +58,52 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 			if(!hasRedstoneSignal()){
 				if(timeUntilNextPump > 0) timeUntilNextPump--;
 				if(timeUntilNextPump == 0 && getTank().getFluidAmount() <= 0){
-					World w = getWorld();
+					World w = getLevel();
 					boolean success = false;
-					BlockPos target = this.getPos().down();
+					BlockPos target = this.getBlockPos().below();
 					while(target.getY() > 0 && w.getBlockState(target).getBlock() == zone.moddev.mc.electricadvantage.init.Blocks.pump_pipe_electric){
-						target = target.down();
+						target = target.below();
 					}
-					if(target.getY() > 0 && w.isAirBlock(target) && getEnergy() >= ENERGY_COST_PIPE){
+					if(target.getY() > 0 && w.isEmptyBlock(target) && getEnergy() >= ENERGY_COST_PIPE){
 						// place pipe
-						w.setBlockState(target, zone.moddev.mc.electricadvantage.init.Blocks.pump_pipe_electric.getDefaultState());
+						w.setBlockAndUpdate(target, zone.moddev.mc.electricadvantage.init.Blocks.pump_pipe_electric.defaultBlockState());
 						this.subtractEnergy(ENERGY_COST_PIPE, Power.ELECTRIC_POWER);
 						timeUntilNextPump = PIPE_INTERVAL;
-						playSoundEffect(target.getX()+0.5, target.getY()+0.5, target.getZ()+0.5, SoundEvents.BLOCK_STONE_STEP, 0.3f, 1f);
+						playSoundEffect(target.getX()+0.5, target.getY()+0.5, target.getZ()+0.5, SoundEvents.STONE_STEP, 0.3f, 1f);
 					} else {
 						// pump fluids
 						BlockPos fluidSource = null;
 						Set<BlockPos> searchSpace = new HashSet<>(limit + 1); // pre-allocate max memory usage
-						fluidSource = scan(searchSpace,target.down(), limit);
+						fluidSource = scan(searchSpace,target.below(), limit);
 						if(fluidSource == null) fluidSource = scan(searchSpace,target.north(), limit);
 						if(fluidSource == null) fluidSource = scan(searchSpace,target.west(), limit);
 						if(fluidSource == null) fluidSource = scan(searchSpace,target.south(), limit);
 						if(fluidSource == null) fluidSource = scan(searchSpace,target.east(), limit);
 						if(fluidSource != null){
-							float cost = ENERGY_COST_PUMP+ENERGY_COST_VERTICAL*(getPos().getY()-fluidSource.getY());
+							float cost = ENERGY_COST_PUMP+ENERGY_COST_VERTICAL*(getBlockPos().getY()-fluidSource.getY());
 							// Found a fluid to suck-up!
 							BlockState blockstate = w.getBlockState(fluidSource);
-							Fluid f = getFluid(blockstate);
-							if(f != null && getEnergy() >= cost){
-								this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
-								this.subtractEnergy(cost, Power.ELECTRIC_POWER);
-								w.setBlockState(fluidSource, net.minecraft.block.Blocks.AIR.getDefaultState(), 3);
-								success = true;
+							if(blockstate.getBlock() instanceof IBucketPickupHandler && getEnergy() >= cost){
+								// Native pickup drains waterlogging without deleting the containing block.
+								Fluid f = ((IBucketPickupHandler)blockstate.getBlock()).takeLiquid(w, fluidSource, blockstate);
+								if(f != null && f != net.minecraft.fluid.Fluids.EMPTY){
+									this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
+									this.subtractEnergy(cost, Power.ELECTRIC_POWER);
+									success = true;
+								}
 							}
 						}
 						timeUntilNextPump = PUMP_INTERVAL;
 					}
 					if(success){
-						playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.ITEM_BUCKET_FILL, 0.5f, 1f);
-						playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_PISTON_EXTEND, 0.3f, 1f);
+						playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.BUCKET_FILL, 0.5f, 1f);
+						playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.PISTON_EXTEND, 0.3f, 1f);
 						timeToSound = 14;
 					}
 				}
 			}
 			if(timeToSound == 1){
-				playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_PISTON_CONTRACT, 0.3f, 1f);
+				playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.PISTON_CONTRACT, 0.3f, 1f);
 			}
 			if(timeToSound > 0) timeToSound--;
 		}
@@ -129,12 +132,6 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	}
 
 
-	private Fluid getFluid(BlockState blockstate) {
-		return blockstate.getFluidState().isEmpty() ? null : blockstate.getFluidState().getFluid();
-	}
-
-
-
 	private BlockPos scan(Set<BlockPos> searchSpace, BlockPos coord, int limit) {
 		if(isFluidBlock(coord) == false) return null;
 		do{
@@ -145,7 +142,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 				BlockPos next;
 				boolean nomore = true;
 				for(Direction dir : Direction.values()){
-					next = coord.offset(dir);
+					next = coord.relative(dir);
 					if(!searchSpace.contains(next) && isFluidBlock(next)){
 						coord = next;
 						nomore = false;
@@ -161,14 +158,15 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	}
 
 	private boolean isSourceBlock( BlockPos coord){
-		return getWorld().getFluidState(coord).isSource();
+		BlockState state = getLevel().getBlockState(coord);
+		return state.getBlock() instanceof IBucketPickupHandler && state.getFluidState().isSource();
 	}
 
 
 
 	private boolean isFluidBlock(BlockPos coord) {
-		World w = getWorld();
-		if(w.isBlockLoaded(coord) == false) return false;
+		World w = getLevel();
+		if(w.hasChunkAt(coord) == false) return false;
 		return !w.getFluidState(coord).isEmpty();
 	}
 
@@ -183,7 +181,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 			ConduitType type = Fluids.fluidToConduitType(getTank().getFluid().getFluid());
 			float availableAmount = getTank().getFluidAmount();
 			float delta = ConduitRegistry.transmitPowerToConsumers(availableAmount, zone.moddev.mc.poweradvantage.init.Fluids.fluidConduit_general, type,
-					PowerRequest.LAST_PRIORITY, getWorld(), getPos(), this);
+					PowerRequest.LAST_PRIORITY, getLevel(), getBlockPos(), this);
 			if(delta > 0){
 				getTank().drain(Math.max((int)delta,1),true); // no free energy!
 			}
@@ -211,7 +209,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	}
 	@Override
 	protected boolean hasRedstoneSignal() {
-		return getWorld().isBlockPowered(getPos());
+		return getLevel().hasNeighborSignal(getBlockPos());
 	}
 
 

@@ -23,15 +23,17 @@ import zone.moddev.mc.electricadvantage.machines.PhotovoltaicGeneratorBlock;
 import static org.junit.Assert.*;
 
 public class NativeBlockContractTest {
-    @BeforeClass public static void bootstrapNativeRegistries() { Bootstrap.register(); }
+    @BeforeClass public static void bootstrapNativeRegistries() { Bootstrap.bootStrap(); }
 
     @Test public void scaffoldRetainsNonSolidFullCollisionAndSharedStateProperties() {
         ElectricScaffoldBlock block = new ElectricScaffoldBlock();
-        BlockState state = block.getDefaultState();
-        assertFalse(state.isSolid());
-        assertFalse(block.isNormalCube(state, null, BlockPos.ZERO));
-        assertEquals(VoxelShapes.fullCube().getBoundingBox(),
-                block.getCollisionShape(state, null, BlockPos.ZERO, ISelectionContext.dummy()).getBoundingBox());
+        BlockState state = block.defaultBlockState();
+        assertFalse(state.canOcclude());
+        assertFalse(state.isRedstoneConductor(net.minecraft.world.EmptyBlockReader.INSTANCE, BlockPos.ZERO));
+        assertEquals(VoxelShapes.block().bounds(),
+                block.getCollisionShape(state, null, BlockPos.ZERO, ISelectionContext.empty()).bounds());
+        assertFalse(state.isSolidRender(net.minecraft.world.EmptyBlockReader.INSTANCE, BlockPos.ZERO));
+        assertTrue(state.isCollisionShapeFullBlock(net.minecraft.world.EmptyBlockReader.INSTANCE, BlockPos.ZERO));
         assertEquals(6, state.getProperties().size());
         assertSame(BlockSimplePowerConduit.NORTH, ElectricScaffoldBlock.NORTH);
         assertSame(BlockSimplePowerConduit.SOUTH, ElectricScaffoldBlock.SOUTH);
@@ -39,7 +41,7 @@ public class NativeBlockContractTest {
         assertSame(BlockSimplePowerConduit.WEST, ElectricScaffoldBlock.WEST);
         assertSame(BlockSimplePowerConduit.UP, ElectricScaffoldBlock.UP);
         assertSame(BlockSimplePowerConduit.DOWN, ElectricScaffoldBlock.DOWN);
-        for (PathType type : PathType.values()) assertFalse(block.allowsMovement(state, null, BlockPos.ZERO, type));
+        for (PathType type : PathType.values()) assertFalse(block.isPathfindable(state, null, BlockPos.ZERO, type));
     }
 
     @Test public void scaffoldInheritsSharedPlacementAndNetworkCallbacks() throws Exception {
@@ -48,18 +50,18 @@ public class NativeBlockContractTest {
         assertSame(BlockSimplePowerConduit.class,
                 scaffold.getMethod("getStateForPlacement", BlockItemUseContext.class).getDeclaringClass());
         assertSame(BlockSimplePowerConduit.class,
-                scaffold.getMethod("updatePostPlacement", BlockState.class, Direction.class, BlockState.class,
+                scaffold.getMethod("updateShape", BlockState.class, Direction.class, BlockState.class,
                         IWorld.class, BlockPos.class, BlockPos.class).getDeclaringClass());
         assertSame(BlockSimplePowerConduit.class,
                 scaffold.getMethod("canAcceptConnection", PowerConnectorContext.class).getDeclaringClass());
         assertSame(ConduitBlock.class,
-                scaffold.getMethod("onBlockAdded", BlockState.class, World.class, BlockPos.class,
+                scaffold.getMethod("onPlace", BlockState.class, World.class, BlockPos.class,
                         BlockState.class, boolean.class).getDeclaringClass());
         assertSame(ConduitBlock.class,
-                scaffold.getMethod("onReplaced", BlockState.class, World.class, BlockPos.class,
+                scaffold.getMethod("onRemove", BlockState.class, World.class, BlockPos.class,
                         BlockState.class, boolean.class).getDeclaringClass());
         assertSame(ConduitBlock.class,
-                scaffold.getMethod("onExplosionDestroy", World.class, BlockPos.class, Explosion.class).getDeclaringClass());
+                scaffold.getMethod("wasExploded", World.class, BlockPos.class, Explosion.class).getDeclaringClass());
         ElectricScaffoldBlock block = new ElectricScaffoldBlock();
         assertEquals(1, block.getTypes().length);
         assertSame(Power.ELECTRIC_POWER, block.getTypes()[0]);
@@ -68,15 +70,15 @@ public class NativeBlockContractTest {
     }
 
     @Test public void customMachinePropertiesKeepDrillAndBothTurretsNonSolid() {
-        assertFalse(new ElectricDrillBlock().getDefaultState().isSolid());
-        assertFalse(new LaserTurretBlock(false).getDefaultState().isSolid());
-        assertFalse(new LaserTurretBlock(true).getDefaultState().isSolid());
+        assertFalse(new ElectricDrillBlock().defaultBlockState().canOcclude());
+        assertFalse(new LaserTurretBlock(false).defaultBlockState().canOcclude());
+        assertFalse(new LaserTurretBlock(true).defaultBlockState().canOcclude());
     }
 
     @Test public void hiddenPumpPipeRemainsNonSolidAndSolarPanelRemainsSolid() {
-        assertFalse(new PumpPipeBlock().getDefaultState().isSolid());
+        assertFalse(new PumpPipeBlock().defaultBlockState().canOcclude());
         PhotovoltaicGeneratorBlock panel = new PhotovoltaicGeneratorBlock();
-        assertTrue("The 1.14 photovoltaic block explicitly overrides isSolid to true", panel.getDefaultState().isSolid());
-        assertTrue(panel.isNormalCube(panel.getDefaultState(), null, BlockPos.ZERO));
+        assertTrue("The 1.14 photovoltaic block explicitly overrides isSolid to true", panel.defaultBlockState().canOcclude());
+        assertTrue(panel.defaultBlockState().isRedstoneConductor(net.minecraft.world.EmptyBlockReader.INSTANCE, BlockPos.ZERO));
     }
 }

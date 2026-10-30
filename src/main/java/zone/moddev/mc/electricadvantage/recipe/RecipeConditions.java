@@ -55,7 +55,7 @@ public final class RecipeConditions {
 
         @Override public ModeCondition read(JsonObject json) {
             return new ModeCondition(RecipeMode.valueOf(
-                    JSONUtils.getString(json, "mode").toUpperCase(Locale.ROOT)), inverted);
+                    JSONUtils.getAsString(json, "mode").toUpperCase(Locale.ROOT)), inverted);
         }
 
         @Override public ResourceLocation getID() {

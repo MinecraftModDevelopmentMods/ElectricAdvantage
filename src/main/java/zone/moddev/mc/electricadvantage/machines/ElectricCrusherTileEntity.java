@@ -43,7 +43,7 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 						smashTime[i]++;
 						if(smashTime[i] >= totalSmashTime){
 							doCrush(i);
-							this.playSoundEffect(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5, SoundEvents.BLOCK_GRAVEL_BREAK, 0.5f, 1f);
+							this.playSoundEffect(getBlockPos().getX()+0.5, getBlockPos().getY()+0.5, getBlockPos().getZ()+0.5, SoundEvents.GRAVEL_BREAK, 0.5f, 1f);
 							smashTime[i] = 0;
 						}
 						active = true;
@@ -73,14 +73,14 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 	private boolean canCrush(int slot){
 		ItemStack input = this.getInputSlot(slot);
 		if(input == null) return false;
-		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(getWorld(), input);
+		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(getLevel(), input);
 		if(output == null) return false;
 		return this.hasSpaceForItemInOutputSlots(output);
 	}
 
 	private void doCrush(int slot){
 		ItemStack input = this.getInputSlot(slot);
-		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(getWorld(), input);
+		ItemStack output = BaseMetalsCompat.getCrusherRecipeOutput(getLevel(), input);
 		if(output == null) return;
 		this.insertItemToOutputSlots(output);
 		input.shrink(1);
@@ -112,14 +112,14 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 	protected void loadFrom(CompoundNBT tagRoot) {
 		ListNBT times = tagRoot.getList("smashTime", 2);
 		for(int i = 0; i < numberOfInputSlots() && i < times.size(); i++){
-			smashTime[i] = ((ShortNBT)times.get(i)).getShort();
+			smashTime[i] = ((ShortNBT)times.get(i)).getAsShort();
 		}
 	}
 
 	@Override
 	protected boolean isValidInputItem(ItemStack item) {
 		if(item == null) return false;
-		return BaseMetalsCompat.hasCrusherRecipe(getWorld(), item);
+		return BaseMetalsCompat.hasCrusherRecipe(getLevel(), item);
 	}
 
 	private int[] dataArray = null;

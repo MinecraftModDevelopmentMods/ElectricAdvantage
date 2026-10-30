@@ -28,11 +28,11 @@ public class FabricatorGUI extends SimpleMachineGUI{
 			@Override
 			public ItemStack onTake(PlayerEntity player, ItemStack stack)
 			{
-				stack.onCrafting(player.getEntityWorld(), player, stack.getCount());
+				stack.onCraftedBy(player.getCommandSenderWorld(), player, stack.getCount());
 				return super.onTake(player, stack);
 			}
 			@Override
-			public boolean isItemValid(ItemStack stack){ return false; }
+			public boolean mayPlace(ItemStack stack){ return false; }
 		});
 	}
 	

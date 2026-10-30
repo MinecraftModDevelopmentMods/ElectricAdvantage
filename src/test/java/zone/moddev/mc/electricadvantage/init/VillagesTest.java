@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 public class VillagesTest {
     @BeforeClass public static void bootstrapVanillaItems() {
-        Bootstrap.register();
+        Bootstrap.bootStrap();
     }
 
     @Test public void nativeNegativePricesKeepBulkGoodsForOneEmerald() {
@@ -33,7 +33,7 @@ public class VillagesTest {
         };
         MerchantOffer offer = Villages.sell(net.minecraft.item.Items.APPLE, minimum, maximum)
                 .getOffer(null, random);
-        CompoundNBT nbt = offer.write();
+        CompoundNBT nbt = offer.createTag();
         assertEquals("minecraft:emerald", nbt.getCompound("buy").getString("id"));
         assertEquals(emeralds, nbt.getCompound("buy").getByte("Count"));
         assertEquals("minecraft:apple", nbt.getCompound("sell").getString("id"));

@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 public class ElectricPumpBlock extends ElectricMachineBlock{
 
 	@Override
-	public ElectricMachineTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new ElectricPumpTileEntity();
 	}
 	
@@ -24,27 +24,27 @@ public class ElectricPumpBlock extends ElectricMachineBlock{
 	 * This method is called whenever the block is placed into the world
 	 */
 	@Override
-	public void onReplaced(BlockState state, World w, BlockPos coord, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, World w, BlockPos coord, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) destroyPipe(w, coord);
-		super.onReplaced(state, w, coord, newState, isMoving);
+		super.onRemove(state, w, coord, newState, isMoving);
 	}
 	/**
 	 * This method is called when the block is destroyed by an explosion.
 	 */
 	@Override
-	public void onExplosionDestroy(World w, BlockPos coord, Explosion boom){
+	public void wasExploded(World w, BlockPos coord, Explosion boom){
 		destroyPipe(w,coord);
-		super.onExplosionDestroy(w, coord, boom);
+		super.wasExploded(w, coord, boom);
 	}
 	
 	
 	private void destroyPipe(World w, BlockPos coord) {
-		if(w.isRemote) return;
+		if(w.isClientSide) return;
 		// destroy connected drill bits
-		BlockPos c = coord.down();
+		BlockPos c = coord.below();
 		while(c.getY() > 0 && w.getBlockState(c).getBlock() == Blocks.pump_pipe_electric){
-			w.setBlockState(c, net.minecraft.block.Blocks.AIR.getDefaultState());
-			c = c.down();
+			w.setBlockAndUpdate(c, net.minecraft.block.Blocks.AIR.defaultBlockState());
+			c = c.below();
 		}
 	}
 

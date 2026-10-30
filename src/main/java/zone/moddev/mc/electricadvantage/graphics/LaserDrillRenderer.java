@@ -5,7 +5,7 @@ import zone.moddev.mc.electricadvantage.machines.ElectricDrillTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
@@ -75,10 +75,10 @@ public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEnti
 			}
 			}
 			
-			matrices.push();
+			matrices.pushPose();
 			matrices.translate(0.5f, 0.5f, 0.5f);
-			matrices.rotate(Vector3f.YP.rotationDegrees(rotY));
-			matrices.rotate(Vector3f.XP.rotationDegrees(rotX));
+			matrices.mulPose(Vector3f.YP.rotationDegrees(rotY));
+			matrices.mulPose(Vector3f.XP.rotationDegrees(rotX));
             final BufferedQuads worldRenderer = new BufferedQuads(matrices,
                     buffers.getBuffer(beamType), 15 << 20 | 15 << 4, packedOverlay);
 
@@ -118,7 +118,7 @@ public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEnti
 			worldRenderer.pos( x3, y4, z4).tex(laserU1, laserV0).endVertex();
 			worldRenderer.pos( x3, y3, z3).tex(laserU0, laserV0).endVertex();
 
-			matrices.pop();
+			matrices.popPose();
 
 		}
 	}

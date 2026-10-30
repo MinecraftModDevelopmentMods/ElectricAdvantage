@@ -1,75 +1,114 @@
-# ElectricAdvantage
+# Electric Advantage
 
-**Minecraft 1.15.2, version 2.2.7.115021.** See the
-[shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
-for exact jars, automated machine and upgrade results, and remaining manual
-checks. Visuals and recipe unlocks were accepted on 27 October 2026. Historical
-[1.14 test results](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.14.4/docs/1.14/BROADER-QUALIFICATION.md)
-are not 1.15 qualification evidence.
+**Minecraft 1.16.5 source port candidate, version 2.2.8.116051.**
+The follow-up checks measure finite machine jobs, energy and fluid conservation,
+blocked routes, real turret hits and full-process restarts. Rendered GUI checks
+require the correct labels as well as correctly placed controls. The shared
+record below identifies the current jars and each completed run; earlier
+results are retained separately rather than counted again. Broader player/entity
+checks retain a separately controlled vanilla wolf-health difference.
+Manual acceptance is pending. This is not a published release.
+See [the native port checklist](docs/NATIVE116.md).
+The [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
+records the exact jars, completed checks and remaining limits.
+The [accepted 1.15 record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
+is a behavior reference, not evidence that this target passes.
 
-Electric Advantage adds electric machines, generation, storage, automation, and defence to Power Advantage for Minecraft 1.15.2.
+Electric Advantage adds electric machines, generation, storage, automation,
+and defence to Power Advantage for Minecraft 1.16.5.
 
-Every crafting and vanilla smelting variant has an ingredient-triggered recipe-book discovery. See the [shared material checklist and discovery tests](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/RECIPE-DISCOVERY.md) and [manufacturing progression audit](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MANUFACTURING-PROGRESSION.md). Regenerate unlock JSON after recipe changes with `node tools/generate-recipe-unlocks.js`; `check` audits recipe coverage and criteria. Custom machine and crushing recipes are not crafting-book entries.
+## Build Target
 
-## Building Minecraft 1.15.2
+The build targets Forge `36.2.34`, official `1.16.5` mappings and MCP
+`20210115.111550`, using ForgeGradle `7.0.34`, Renamer `1.1.5` and Gradle
+`9.6.1`. Run Gradle with Temurin `17.0.1+12`; production code and Minecraft
+use Temurin `8.0.502+7`. Mavenizer needs Temurin `25.0.3+9.0.LTS`, including
+on a cold cache. CI registers all three JDK paths and disables toolchain
+inference and downloads.
 
-The `master-1.15.2` build targets Forge `31.2.57`, mappings `snapshot 20200514-1.15.1`,
-and MCP `20200515.085601`, using ForgeGradle `7.0.34`, Renamer `1.1.5` and Gradle `9.6.1`.
-Run Gradle with Temurin `17.0.1+12`; production code uses Temurin `8.0.502+7`.
-Mavenizer also needs Temurin `25.0.3+9.0.LTS`, including on a cold cache. CI explicitly
-registers all three JDK paths and disables toolchain auto-detection and downloads.
+Build inputs are separate, non-embedded deobfuscated jars:
 
-Build the matching 1.15 PowerAdvantage, Base Metals and OreSpawn deobf jars first.
-Dependency versions, checksums and the exact Power source reference belong in
-`gradle.properties`. Release audits reject missing or placeholder pins; do not
-bypass those checks or substitute another target's dependencies. Power Advantage
-`2.4.6.115021` is pinned to source `6666099a734eba16561d98c86f3f4bb1b7c742f7`.
-Base Metals `3.0.2.115021` and OreSpawn `4.1.1.115021` also have exact source and SHA-256 pins.
-Base Metals source `ac1781e7cade15045ffe0135077087b4d1722603` and the Power
-source pin above identify the exact tested dependencies. CI builds them before
-Electric Advantage; none is embedded in the Electric Advantage jar.
+- Power Advantage `2.4.7.116051`: source `bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7`.
+- Base Metals `3.1.1.116051`: source `995f6cc4dd2d5eecc628a42e5c43fa5390c24bca`.
+- OreSpawn `4.1.0.116051`: source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 
-With the standard sibling layout:
+Exact checksums are recorded in `gradle.properties`. Power deobf SHA-256 is
+`2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386`.
+The pinned Power source is available upstream. Do not bypass the release audits
+or substitute a preliminary jar.
+Use immutable copies for verification, not a sibling's output that another
+build may replace. CI rejects pins that differ from this audited candidate.
+
+With the pinned dependency jars available, pass their paths and run:
 
 ```text
-cd ..\..\PowerAdvantage
-gradlew.bat deobfJar
+gradlew.bat classes test deobfJar -PpowerAdvantageDeobfJar=<jar> -PbaseMetalsDeobfJar=<jar> -PoreSpawnDeobfJar=<jar>
 ```
 
-For local development with the matching native jars, compile and run tests:
-
-```text
-gradlew.bat classes test deobfJar
-```
-
-With the exact Power dependency pinned, run the complete release gates:
+The complete deterministic release gates are:
 
 ```text
 gradlew.bat clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
 ```
 
-Alternative layouts may pass `-PpowerAdvantageDeobfJar=<path>`, `-PbaseMetalsDeobfJar=<path>`, and `-PoreSpawnDeobfJar=<path>`. None of those dependencies is embedded.
+These gates passed locally on 27 October 2026 against the pinned inputs,
+with all 47 tests rerun and no build-cache reuse. The independent ECJ
+run also passed all 47 tests on Java 8. These results do not replace packaged client/server tests,
+disposable-world migration checks or manual acceptance.
+Do not run another build concurrently against a shared Gradle cache.
 
-For Eclipse, import this repository as an existing Gradle project and run:
+Static checks need no Gradle or game launch:
 
 ```text
-gradlew.bat cleanEclipse verifyEclipseProductionClasspath
+node tools/verify-native-port.js --report build/native-port-static.json
+node tools/generate-recipe-unlocks.js --check
 ```
 
-Refresh the project in Eclipse, allow its Java build to finish, and launch the generated `runClient.launch`. Eclipse launches discover ElectricAdvantage from `bin/main`; command-line Gradle launches use `build/forge-run-mod-classes/main`. The Eclipse audit checks that discovery points at the same production output Eclipse compiles into.
+The static contract compares resources, identity strings and numeric constants
+with accepted source `74aa1cee1ddec821ebcd12b9f8b0515b7aec61d9`. Its reports are
+not compilation, gameplay or migration results.
 
-The Eclipse resource root is `build/resources/main`, so its builder copies expanded mod metadata rather than raw source templates. Refresh the Gradle project and clean/rebuild after this setup changes. After resource/version edits, run `processResources` or refresh Gradle before launching; do not put `src/main/resources` back on the Eclipse Java build path.
+## Eclipse
+
+Import this repository as an existing Gradle project. Once dependencies and
+build access are available, run `cleanEclipse verifyEclipseProductionClasspath`.
+Eclipse mod discovery uses `bin/main`; command-line launches use
+`build/forge-run-mod-classes/main`. The production classpath audit checks those
+paths and excludes test output.
+
+The Eclipse resource root is `build/resources/main`, so its builder copies
+expanded metadata. After resource or version edits, process resources before
+launching. Do not add raw source metadata to the production classpath.
 
 ## Compatibility
 
-For an all-Advantage play-test, run `prepareCombinedEclipseLaunch` in the sibling PowerAdvantage checkout and select its `runClientAllAdvantage.launch`. Combined 1.15 client resources and gameplay require new target-specific evidence; resource checks do not replace gameplay testing.
+The implementation namespace remains `zone.moddev.mc.electricadvantage`.
+Runtime registries, legacy aliases, tile/entity IDs, NBT keys, recipe IDs,
+ratios, tags, OreSpawn provider IDs and assets are retained. Electric uses
+Power Advantage's shared migration hook, dimension-key network registry,
+capability adapters and native lifecycle contracts. It does not create
+synthetic numeric dimension IDs or a second capability implementation.
 
-Automated coverage is bounded to the recorded scenarios. It does not establish every
-in-world GUI, rendering, sound, control or weapon interaction, multiplayer behavior,
-or compatibility with arbitrary third-party mods. Unit/resource tests alone are not
-runtime or world-upgrade evidence.
+All 46 crafting variants and four smelting recipes retain ingredient-triggered
+recipe-book discoveries. The eight Base Metals crushing recipes are not
+crafting-book entries. Regenerate unlocks only after an intentional recipe
+change; `check` audits their coverage and criteria.
 
-The implementation namespace is `zone.moddev.mc.electricadvantage`. Runtime identities, registries, tile/entity IDs, NBT, recipes, tags, OreSpawn provider IDs, and assets remain stable. Electric registers its legacy state, tile, and hydroturbine aliases with PowerAdvantage's shared migration hook.
+Base Metals remains optional in Forge metadata; CurseForge's existing required
+installation relationship is unchanged. Typed integration uses the matching
+Base Metals and OreSpawn APIs without embedding either mod.
 
-The RF- and Tech Reborn-labelled converters belong to Power Advantage and now use Forge Energy.
-The historical [1.13 migration guide](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MIGRATION.md) explains the legacy conversion and backup process; the shared 1.15 test record lists the completed upgrade routes and their limits. Always make a whole-world backup before upgrading, keep the complete set of migration backups, and test a disposable copy first. Check that every other mod supports the target version; bounded Advantage tests do not qualify unrelated mods or an entire modpack.
+The RF- and Tech Reborn-labelled converters belong to Power Advantage and use
+Forge Energy. Check live rendering, GUI interaction, sound, weapons,
+hydroturbine orientation and animation, multiplayer and real player login in
+game. Automated tag, machine and upgrade checks do not replace that walkthrough.
+No 1.16 publication is included before manual acceptance.
+
+Always back up a whole world before upgrading and test only disposable copies.
+Keep migration backups and failed evidence. Bounded Advantage results never
+qualify unrelated mods or an arbitrary existing modpack.
+
+The shared [machine operating checks](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/OPERATING-TESTS.md)
+exercise finite processing, fabrication, growth, pumping, lighting, generation,
+battery and turret jobs. They check real output, damage and resource use, with
+blocked and starved controls and complete server restarts.

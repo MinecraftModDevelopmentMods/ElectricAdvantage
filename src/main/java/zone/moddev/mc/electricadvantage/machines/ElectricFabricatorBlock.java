@@ -5,7 +5,7 @@ import net.minecraft.world.World;
 public class ElectricFabricatorBlock extends ElectricMachineBlock{
 
 	@Override
-	public ElectricMachineTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new ElectricFabricatorTileEntity();
 	}
 

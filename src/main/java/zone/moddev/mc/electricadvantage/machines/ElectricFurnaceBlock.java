@@ -9,7 +9,7 @@ public class ElectricFurnaceBlock extends ElectricMachineBlock{
 	}
 
 	@Override
-	public ElectricMachineTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new ElectricFurnaceTileEntity();
 	}
 

@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 public class ElectricStillBlock extends ElectricMachineBlock{
 
 	@Override
-	public ElectricMachineTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new ElectricStillTileEntity();
 	}
 

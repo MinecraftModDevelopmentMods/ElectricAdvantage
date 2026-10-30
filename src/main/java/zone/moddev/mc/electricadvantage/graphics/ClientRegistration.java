@@ -13,7 +13,7 @@ public final class ClientRegistration {
     private ClientRegistration() {}
 
     public static void onClientSetup(FMLClientSetupEvent event) {
-        RenderTypeLookup.setRenderLayer(Blocks.electric_track, RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(Blocks.electric_track, RenderType.cutout());
         ClientRegistry.bindTileEntityRenderer(Entities.ELECTRIC_DRILL, LaserDrillRenderer::new);
         ClientRegistry.bindTileEntityRenderer(Entities.LASER_TURRET, LaserTurretRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(Entities.HYDROTURBINE, HydroturbineRenderer::new);

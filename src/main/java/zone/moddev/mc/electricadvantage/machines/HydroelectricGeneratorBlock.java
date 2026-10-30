@@ -11,14 +11,14 @@ public class HydroelectricGeneratorBlock extends ElectricGeneratorBlock {
 	}
 
 	@Override
-	public ElectricGeneratorTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new HydroelectricGeneratorTileEntity();
 	}
 
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos)
+	public boolean canSurvive(BlockState state, IWorldReader worldIn, BlockPos pos)
 	{
-		return super.isValidPosition(state, worldIn, pos)
-				&& !worldIn.getBlockState(pos.down()).getMaterial().isSolid();
+		return super.canSurvive(state, worldIn, pos)
+				&& !worldIn.getBlockState(pos.below()).getMaterial().isSolid();
 	}
 }

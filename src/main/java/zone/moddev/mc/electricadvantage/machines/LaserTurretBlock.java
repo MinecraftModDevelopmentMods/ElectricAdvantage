@@ -18,19 +18,19 @@ import net.minecraft.world.World;
 public class LaserTurretBlock extends ElectricMachineBlock {
 
 	private static final VoxelShape SHAPE = VoxelShapes.or(
-			Block.makeCuboidShape(0, 0, 0, 16, 4, 16),
-			Block.makeCuboidShape(4, 4, 4, 12, 16, 12));
+			Block.box(0, 0, 0, 16, 4, 16),
+			Block.box(4, 4, 4, 12, 16, 12));
 
 	// Evil laser turrets target players and not hostile mobs
 	public final boolean evil;
 	public LaserTurretBlock(boolean isEvil) {
-		super(Block.Properties.create(Material.PISTON)
-				.hardnessAndResistance(5.0F, 100.0F).variableOpacity().notSolid());
+		super(Block.Properties.of(Material.PISTON)
+				.strength(5.0F, 100.0F).dynamicShape().noOcclusion());
 		this.evil = isEvil;
 	}
 
 	@Override
-	public ElectricMachineTileEntity createNewTileEntity(net.minecraft.world.IBlockReader world) {
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
 		return new LaserTurretTileEntity();
 	}
 
@@ -48,9 +48,9 @@ public class LaserTurretBlock extends ElectricMachineBlock {
 	}
 
 	@Override
-	public void onBlockPlacedBy(World w, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-		super.onBlockPlacedBy(w, pos, state, placer, stack);
-		TileEntity te = w.getTileEntity(pos);
+	public void setPlacedBy(World w, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+		super.setPlacedBy(w, pos, state, placer, stack);
+		TileEntity te = w.getBlockEntity(pos);
 		if(placer instanceof PlayerEntity && te instanceof LaserTurretTileEntity){
 			((LaserTurretTileEntity)te).setOwner((PlayerEntity)placer);
 		}

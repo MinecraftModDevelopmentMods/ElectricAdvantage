@@ -34,53 +34,53 @@ public abstract class ElectricGeneratorBlock extends BlockSimplePowerMachine {
 	}
 
 	private void initializeDefaultState() {
-        setDefaultState(getStateContainer().getBaseState()
-                .with(ACTIVE, false)
-                .with(FACING, Direction.NORTH));
+        registerDefaultState(getStateDefinition().any()
+                .setValue(ACTIVE, false)
+                .setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE, FACING);
     }
 
     /** Decodes the 1.10/1.12 metadata used by world migration fixtures. */
     public BlockState getStateFromLegacyMeta(int meta) {
-        Direction facing = Direction.byIndex(meta & 0x7);
+        Direction facing = Direction.from3DDataValue(meta & 0x7);
         if (facing.getAxis() == Direction.Axis.Y) facing = Direction.NORTH;
-        return getDefaultState().with(FACING, facing).with(ACTIVE, (meta & 0x8) != 0);
+        return defaultBlockState().setValue(FACING, facing).setValue(ACTIVE, (meta & 0x8) != 0);
     }
 
     public int getLegacyMetaFromState(BlockState state) {
-        return state.get(FACING).getIndex() | (state.get(ACTIVE) ? 0x8 : 0);
+        return state.getValue(FACING).get3DDataValue() | (state.getValue(ACTIVE) ? 0x8 : 0);
     }
 
     @Override
-    public abstract ElectricGeneratorTileEntity createNewTileEntity(IBlockReader world);
+    public abstract ElectricGeneratorTileEntity newBlockEntity(IBlockReader world);
 
     @Override
-    public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
-        TileEntity tile = world.getTileEntity(pos);
+    public int getAnalogOutputSignal(BlockState state, World world, BlockPos pos) {
+        TileEntity tile = world.getBlockEntity(pos);
         return tile instanceof ElectricGeneratorTileEntity
                 ? ((ElectricGeneratorTileEntity) tile).getComparatorOutput() : 0;
     }
 
     @Override
-    public boolean hasComparatorInputOverride(BlockState state) {
+    public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
-    public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
-            TileEntity tile = world.getTileEntity(pos);
+            TileEntity tile = world.getBlockEntity(pos);
             if (tile instanceof IInventory) {
-                InventoryHelper.dropInventoryItems(world, pos, (IInventory) tile);
-                ((IInventory) tile).clear();
-                world.updateComparatorOutputLevel(pos, this);
+                InventoryHelper.dropContents(world, pos, (IInventory) tile);
+                ((IInventory) tile).clearContent();
+                world.updateNeighbourForOutputSignal(pos, this);
             }
         }
-        super.onReplaced(state, world, pos, newState, isMoving);
+        super.onRemove(state, world, pos, newState, isMoving);
     }
 
     @Override

@@ -30,11 +30,11 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 			if(!isInitialized){
 				initialize();
 			}
-			if((getWorld().getGameTime() + checkOffset) % checkInterval == 0){
+			if((getLevel().getGameTime() + checkOffset) % checkInterval == 0){
 				// periodically check if the hydroturbine entity is still present
-				List turbines = getWorld().getEntitiesWithinAABB(HydroturbineEntity.class, new AxisAlignedBB(
-						getPos().getX(),getPos().getY()-1,getPos().getZ(),
-						getPos().getX()+1,getPos().getY(),getPos().getZ()+1));
+				List turbines = getLevel().getEntitiesOfClass(HydroturbineEntity.class, new AxisAlignedBB(
+						getBlockPos().getX(),getBlockPos().getY()-1,getBlockPos().getZ(),
+						getBlockPos().getX()+1,getBlockPos().getY(),getBlockPos().getZ()+1));
 				if(turbines == null || turbines.isEmpty()){
 					// turbine entity got deleted
 					initialize();
@@ -45,15 +45,15 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	
 	private void initialize() {
 		isInitialized = true;
-		if(getPos().getY() > 0){
-			getWorld().addEntity(new HydroturbineEntity(getWorld(),this));
+		if(getBlockPos().getY() > 0){
+			getLevel().addFreshEntity(new HydroturbineEntity(getLevel(),this));
 		}
 	}
 
 	@Override
 	public float getPowerOutput() {
 		if(this.isActive()){
-			return 15;
+			return 1F;
 		} else {
 			return 0;
 		}

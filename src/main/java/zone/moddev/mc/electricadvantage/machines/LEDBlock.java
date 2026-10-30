@@ -16,34 +16,34 @@ public class LEDBlock extends ElectricConduitBlock implements ITileEntityProvide
 
     public LEDBlock() {
         super();
-        setDefaultState(getStateContainer().getBaseState()
-                .with(WEST, false).with(DOWN, false).with(SOUTH, false)
-                .with(EAST, false).with(UP, false).with(NORTH, false)
-                .with(LIT, false));
+        registerDefaultState(getStateDefinition().any()
+                .setValue(WEST, false).setValue(DOWN, false).setValue(SOUTH, false)
+                .setValue(EAST, false).setValue(UP, false).setValue(NORTH, false)
+                .setValue(LIT, false));
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader world) {
+    public TileEntity newBlockEntity(IBlockReader world) {
         return new LEDTileEntity();
     }
 
     @Override
-    public int getLightValue(BlockState state) {
-        return state.getBlock() == this && state.get(LIT) ? 15 : 0;
+    public int getLightValue(BlockState state, IBlockReader world, net.minecraft.util.math.BlockPos pos) {
+        return state.getBlock() == this && state.getValue(LIT) ? 15 : 0;
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder);
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(LIT);
     }
 
     public BlockState getStateFromLegacyMeta(int meta) {
-        return getDefaultState().with(LIT, (meta & 1) != 0);
+        return defaultBlockState().setValue(LIT, (meta & 1) != 0);
     }
 
     public int getLegacyMetaFromState(BlockState state) {
-        return state.get(LIT) ? 1 : 0;
+        return state.getValue(LIT) ? 1 : 0;
     }
 
     @Override

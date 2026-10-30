@@ -5,13 +5,13 @@ import zone.moddev.mc.electricadvantage.machines.HydroelectricGeneratorTileEntit
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -30,54 +30,60 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	
 	public HydroturbineEntity(EntityType<?> type, World w) {
 		super(type, w);
-		this.preventEntitySpawning = true;
-		roffset = w.rand.nextInt(8);
+		this.blocksBuilding = true;
+		roffset = w.random.nextInt(8);
 	}
 	public HydroturbineEntity(World w, BlockPos parentTileEntity) {
-		this(w, w.getTileEntity(parentTileEntity));
+		this(w, w.getBlockEntity(parentTileEntity));
 	}
 
 	public HydroturbineEntity(World w, TileEntity parentTileEntity) {
 		this(zone.moddev.mc.electricadvantage.init.Entities.HYDROTURBINE, w);
 		this.parent = parentTileEntity;
-		BlockPos p = parentTileEntity.getPos();
-		this.setPosition(p.getX()+0.5, p.getY()-1, p.getZ()+0.5);
+		BlockPos p = parentTileEntity.getBlockPos();
+		this.setPos(p.getX()+0.5, p.getY()-1, p.getZ()+0.5);
 	}
 
 	@Override
-	protected void registerData() {
+	protected void defineSynchedData() {
 		// do nothing
 	}
 
 	@Override
-	public IPacket<?> createSpawnPacket() {
+	public IPacket<?> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
+	}
+
+	@Override
+	public boolean isPushedByFluid() {
+		// This is anchored to its generator; flow drives rotation, not linear movement.
+		return false;
 	}
 
 	@Override
 	public void tick(){
 		super.tick();
-		IFluidState fluidState = this.getEntityWorld().getFluidState(getPosition());
-		Vec3d directionVector;
+		FluidState fluidState = this.getCommandSenderWorld().getFluidState(blockPosition());
+		Vector3d directionVector;
 		if(!fluidState.isEmpty()){
-			directionVector = fluidState.getFlow(getEntityWorld(), getPosition());
+			directionVector = fluidState.getFlow(getCommandSenderWorld(), blockPosition());
 			isSpinning = !(directionVector.x == 0 && directionVector.z == 0);
 		} else {
 			isSpinning = false;
-			directionVector = new Vec3d(0,0,0);
+			directionVector = new Vector3d(0,0,0);
 		}
-		if(this.getEntityWorld().isRemote){
+		if(this.getCommandSenderWorld().isClientSide){
 			// client-side only
 			if(isSpinning){
 				rotation += DEGREES_PER_TICK;
-				this.rotationYaw = RADIANS_TO_DEGREES * (float)Math.atan2(-directionVector.z, directionVector.x) -90;
+				this.yRot = RADIANS_TO_DEGREES * (float)Math.atan2(-directionVector.z, directionVector.x) -90;
 			} else {
 				// do nothing
 			}
 		} else {
 			// server-side only
 			if(parent == null && parentCoord != null){
-				parent = this.getEntityWorld().getTileEntity(parentCoord);
+				parent = this.getCommandSenderWorld().getBlockEntity(parentCoord);
 				parentCoord = null;
 			}
 			if(parent == null || parent.isRemoved()){
@@ -89,18 +95,18 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 				}
 				generator.setActive(isSpinning);
 			}
-			if(isSpinning && getEntityWorld().getGameTime() % 8 == roffset){
+			if(isSpinning && getCommandSenderWorld().getGameTime() % 8 == roffset){
 				// slice-n-dice unfortunate souls caught in the blades
-				List<LivingEntity> victims = getEntityWorld().getEntitiesWithinAABB(LivingEntity.class, this.getBoundingBox());
+				List<LivingEntity> victims = getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
 				for(Entity e : victims){
-					e.attackEntityFrom(Power.propeller_damage, PROPELLER_DAMAGE);
+					e.hurt(Power.propeller_damage, PROPELLER_DAMAGE);
 				}
 			}
 		}
 	}
 	
 	@Override
-	protected void readAdditional(CompoundNBT root) {
+	protected void readAdditionalSaveData(CompoundNBT root) {
 		parent = null;
 		parentCoord = null;
 		if(root.contains("parentPos", 11)){
@@ -112,8 +118,8 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	}
 
 	@Override
-	protected void writeAdditional(CompoundNBT root) {
-		BlockPos p = parent != null ? parent.getPos() : parentCoord;
+	protected void addAdditionalSaveData(CompoundNBT root) {
+		BlockPos p = parent != null ? parent.getBlockPos() : parentCoord;
 		if(p != null){
 			int[] coords = new int[3];
 			coords[0] = p.getX();

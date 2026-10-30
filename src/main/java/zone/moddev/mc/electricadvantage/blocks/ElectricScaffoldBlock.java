@@ -13,10 +13,10 @@ import zone.moddev.mc.electricadvantage.init.Power;
 /** Full-block electric track/scaffold with conduit behavior. */
 public class ElectricScaffoldBlock extends BlockSimplePowerConduit {
     public ElectricScaffoldBlock() {
-        super(Properties.create(Material.PISTON).hardnessAndResistance(0.75F).notSolid(),
+        super(Properties.of(Material.PISTON).strength(0.75F).noOcclusion()
+                .isRedstoneConductor((state, world, pos) -> false),
                 2.0F / 16.0F, Power.ELECTRIC_POWER);
     }
-    @Override public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) { return VoxelShapes.fullCube(); }
-    @Override public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) { return VoxelShapes.fullCube(); }
-    @Override public boolean isNormalCube(BlockState state, IBlockReader world, BlockPos pos) { return false; }
+    @Override public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) { return VoxelShapes.block(); }
+    @Override public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) { return VoxelShapes.block(); }
 }

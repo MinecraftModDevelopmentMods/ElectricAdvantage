@@ -11,8 +11,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameters;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -25,16 +25,16 @@ public class Ore extends Block {
     private final int harvestLevel;
 
     public Ore(ItemStack oreDrop, int pickLevel, int variation) {
-        super(Properties.create(Material.ROCK).sound(SoundType.STONE)
-                .hardnessAndResistance(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
+        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
+                .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
         dropItem = oreDrop.copy();
         dropRange = variation + 1;
         harvestLevel = pickLevel;
     }
 
     public Ore(int pickLevel) {
-        super(Properties.create(Material.ROCK).sound(SoundType.STONE)
-                .hardnessAndResistance(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
+        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
+                .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
         dropItem = ItemStack.EMPTY;
         dropRange = 0;
         harvestLevel = pickLevel;
@@ -45,12 +45,12 @@ public class Ore extends Block {
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootContext.Builder context) {
-        ItemStack tool = context.get(LootParameters.TOOL);
+        ItemStack tool = context.getOptionalParameter(LootParameters.TOOL);
         if (dropItem.isEmpty() || (tool != null
-                && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, tool) > 0)) {
+                && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool) > 0)) {
             return Collections.singletonList(new ItemStack(this));
         }
-        Random random = context.getWorld().rand;
+        Random random = context.getLevel().random;
         ItemStack result = dropItem.copy();
         result.setCount(dropItem.getCount() + (dropRange > 1 ? random.nextInt(dropRange) : 0));
         return Collections.singletonList(result);

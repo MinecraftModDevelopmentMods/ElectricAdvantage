@@ -108,7 +108,7 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 	protected void loadFrom(CompoundNBT tagRoot) {
 		ListNBT burnTimes = tagRoot.getList("cookTime", 2);
 		for(int i = 0; i < numberOfInputSlots() && i < burnTimes.size(); i++){
-			burnTime[i] = ((ShortNBT)burnTimes.get(i)).getShort();
+			burnTime[i] = ((ShortNBT)burnTimes.get(i)).getAsShort();
 		}
 	}
 

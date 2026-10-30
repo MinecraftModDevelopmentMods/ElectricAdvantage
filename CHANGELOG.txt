@@ -1,3 +1,25 @@
+Electric Advantage 2.2.8.116051 (local port candidate)
+
+- Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
+- Sample machine redstone on first use after loading so the interlock applies before the first eight-tick cache refresh.
+- Use native bucket pickup in electric pumps so waterlogged blocks survive draining and non-pickup blocks remain untouched.
+- Keep hydroturbines anchored so flowing water cannot accumulate unused linear motion that native loading discards.
+- Send machine and generator sounds to existing nearby players without querying chunks; skip players without connections.
+- Limit growth-controller electricity requests to available input capacity and account for energy already stored.
+- Sample solar light above the solid panel and keep turret beams from colliding with their own mounting post.
+- Preserve still input and electricity when the output tank cannot hold a complete distillation result.
+- Keep progress and fluid indicators inside their GUI frames.
+- Show the hydroelectric generator's output on the same 0-to-1 scale as the other generators, without changing its energy production.
+- Fix restricted-JDK access errors in Eclipse test fixtures and include those restrictions in the independent compiler check; gameplay code is unchanged.
+- Target Minecraft 1.16.5, Forge 36.2.34, official 1.16.5 mappings and MCP 20210115.111550.
+- Retain Java 8 runtime/bytecode, Java 17 Gradle, Java 25 Mavenizer, ForgeGradle 7.0.34 and Gradle 9.6.1.
+- Use native renderer buffers, state-aware tile persistence and world-only Power Advantage conduit callbacks.
+- Retain lithium/sulfur mining levels through native correct-tool checks and serialize recipe-condition registration with enqueueWork.
+- Preserve registry IDs, legacy aliases, NBT keys, balance constants, recipes, discoveries and asset bytes from the accepted 1.15 source.
+- Pin Power Advantage's repair for old Forge swimming speed, name-tag distance, gravity and player reach; keep exact release audits and dependencies outside the jar.
+- Check the current Java tests with both Gradle and the Eclipse compiler, alongside release and Eclipse audits against the pinned dependencies.
+- Recheck connected-machine upgrades, recipes, mining, loot and full-restart operation through the shared Advantage Works rig; keep wider migration checks and manual acceptance separate.
+
 Electric Advantage 2.2.7.115021
 
 - Target Minecraft 1.15.2, Forge 31.2.57 and snapshot 20200514-1.15.1/MCP 20200515.085601.

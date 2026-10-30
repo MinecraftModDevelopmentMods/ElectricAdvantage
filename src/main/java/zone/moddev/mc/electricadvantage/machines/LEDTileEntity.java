@@ -50,12 +50,12 @@ public class LEDTileEntity extends TileEntitySimplePowerMachine {
 	public void powerUpdate(){
 		super.powerUpdate();
 		boolean on = getEnergy(Power.ELECTRIC_POWER) > 0;
-		BlockState bs = getWorld().getBlockState(getPos());
+		BlockState bs = getLevel().getBlockState(getBlockPos());
 		if(on){
 			this.subtractEnergy(ENERGY_COST, Power.ELECTRIC_POWER);
 		}
-		if((Boolean)bs.get(LEDBlock.LIT) != on){
-			getWorld().setBlockState(getPos(),bs.with(LEDBlock.LIT, on));
+		if((Boolean)bs.getValue(LEDBlock.LIT) != on){
+			getLevel().setBlockAndUpdate(getBlockPos(),bs.setValue(LEDBlock.LIT, on));
 		}
 	}
 	

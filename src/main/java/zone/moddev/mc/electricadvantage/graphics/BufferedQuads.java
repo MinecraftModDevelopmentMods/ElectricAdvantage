@@ -13,7 +13,7 @@ final class BufferedQuads {
     private int count;
 
     BufferedQuads(MatrixStack matrices, IVertexBuilder buffer, int light, int overlay) {
-        this.transform = matrices.getLast();
+        this.transform = matrices.last();
         this.buffer = buffer;
         this.light = light;
         this.overlay = overlay;
@@ -50,10 +50,10 @@ final class BufferedQuads {
             nz /= length;
         }
         for (float[] vertex : vertices) {
-            buffer.pos(transform.getMatrix(), vertex[0], vertex[1], vertex[2])
-                    .color(255, 255, 255, 255).tex(vertex[3], vertex[4])
-                    .overlay(overlay).lightmap(light)
-                    .normal(transform.getNormal(), nx, ny, nz).endVertex();
+            buffer.vertex(transform.pose(), vertex[0], vertex[1], vertex[2])
+                    .color(255, 255, 255, 255).uv(vertex[3], vertex[4])
+                    .overlayCoords(overlay).uv2(light)
+                    .normal(transform.normal(), nx, ny, nz).endVertex();
         }
         count = 0;
     }
