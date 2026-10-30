@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -22,7 +23,6 @@ import net.minecraft.item.crafting.IRecipeType;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 import java.util.Arrays;
-import java.util.List;
 
 public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine{
 
@@ -71,6 +71,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 	
 	private boolean redstone = false;
+	private boolean redstoneInitialized = false;
 	private float oldEnergy = 0f;
 	private int[] syncArrayOld = null;
 	private int[] syncArrayNew = null;
@@ -79,6 +80,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		super.powerUpdate();
 		
 		redstone = getLevel().hasNeighborSignal(getBlockPos());
+		redstoneInitialized = true;
 		
 		this.setPowerState(this.isPowered());
 		
@@ -99,6 +101,11 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 
 	
 	protected boolean hasRedstoneSignal(){
+		// tickUpdate runs before the first scheduled powerUpdate after loading.
+		if(!redstoneInitialized && getLevel() != null && !getLevel().isClientSide){
+			redstone = getLevel().hasNeighborSignal(getBlockPos());
+			redstoneInitialized = true;
+		}
 		return redstone;
 	}
 
@@ -343,10 +350,14 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
 		if(getLevel().isClientSide) return;
 		final double range = 16;
-		List<ServerPlayerEntity> players = getLevel().getEntitiesOfClass(ServerPlayerEntity.class, new AxisAlignedBB(
+		AxisAlignedBB bounds = new AxisAlignedBB(
 				x - range, y - range, z - range,
-				x + range, y + range, z + range));
-		for(ServerPlayerEntity player : players){
+				x + range, y + range, z + range);
+		// A world-wide entity query can load chunks just to broadcast a sound.
+		for(PlayerEntity candidate : getLevel().players()){
+			if(!(candidate instanceof ServerPlayerEntity)) continue;
+			ServerPlayerEntity player = (ServerPlayerEntity)candidate;
+			if(player.connection == null || player.isSpectator() || !player.getBoundingBox().intersects(bounds)) continue;
 			player.connection.send(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
 					new net.minecraft.util.math.vector.Vector3d(x, y, z), volume, pitch));
 		}

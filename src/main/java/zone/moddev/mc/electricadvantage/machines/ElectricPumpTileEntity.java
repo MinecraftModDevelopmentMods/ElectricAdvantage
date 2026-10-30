@@ -9,6 +9,7 @@ import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -82,12 +83,14 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 							float cost = ENERGY_COST_PUMP+ENERGY_COST_VERTICAL*(getBlockPos().getY()-fluidSource.getY());
 							// Found a fluid to suck-up!
 							BlockState blockstate = w.getBlockState(fluidSource);
-							Fluid f = getFluid(blockstate);
-							if(f != null && getEnergy() >= cost){
-								this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
-								this.subtractEnergy(cost, Power.ELECTRIC_POWER);
-								w.setBlock(fluidSource, net.minecraft.block.Blocks.AIR.defaultBlockState(), 3);
-								success = true;
+							if(blockstate.getBlock() instanceof IBucketPickupHandler && getEnergy() >= cost){
+								// Native pickup drains waterlogging without deleting the containing block.
+								Fluid f = ((IBucketPickupHandler)blockstate.getBlock()).takeLiquid(w, fluidSource, blockstate);
+								if(f != null && f != net.minecraft.fluid.Fluids.EMPTY){
+									this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
+									this.subtractEnergy(cost, Power.ELECTRIC_POWER);
+									success = true;
+								}
 							}
 						}
 						timeUntilNextPump = PUMP_INTERVAL;
@@ -129,12 +132,6 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	}
 
 
-	private Fluid getFluid(BlockState blockstate) {
-		return blockstate.getFluidState().isEmpty() ? null : blockstate.getFluidState().getType();
-	}
-
-
-
 	private BlockPos scan(Set<BlockPos> searchSpace, BlockPos coord, int limit) {
 		if(isFluidBlock(coord) == false) return null;
 		do{
@@ -161,7 +158,8 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	}
 
 	private boolean isSourceBlock( BlockPos coord){
-		return getLevel().getFluidState(coord).isSource();
+		BlockState state = getLevel().getBlockState(coord);
+		return state.getBlock() instanceof IBucketPickupHandler && state.getFluidState().isSource();
 	}
 
 

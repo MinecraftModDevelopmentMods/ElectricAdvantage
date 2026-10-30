@@ -1,11 +1,13 @@
 # Electric Advantage
 
-**Minecraft 1.16.5 port candidate, version 2.2.8.116051.** All 47 Java tests,
-release audits, Eclipse checks and independent Eclipse-compiler tests pass
-against the pinned Power Advantage build. Combined machine, recipe, mining and
-connected-world upgrade checks also pass. Broader player/entity checks retain a
-separately controlled vanilla wolf-health difference. Manual acceptance is
-pending. This is not a published release.
+**Minecraft 1.16.5 port candidate, version 2.2.8.116051.**
+The follow-up checks measure finite machine jobs, energy and fluid conservation,
+blocked routes, real turret hits and full-process restarts. Rendered GUI checks
+require the correct labels as well as correctly placed controls. The shared
+record below identifies the current jars and each completed run; earlier
+results are retained separately rather than counted again. Broader player/entity
+checks retain a separately controlled vanilla wolf-health difference.
+Manual acceptance is pending. This is not a published release.
 See [the native port checklist](docs/NATIVE116.md).
 The [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
 records the exact jars, completed checks and remaining limits. That page will be
@@ -106,3 +108,8 @@ No 1.16 publication is included before manual acceptance.
 Always back up a whole world before upgrading and test only disposable copies.
 Keep migration backups and failed evidence. Bounded Advantage results never
 qualify unrelated mods or an arbitrary existing modpack.
+
+The shared [machine operating checks](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/OPERATING-TESTS.md)
+exercise finite processing, fabrication, growth, pumping, lighting, generation,
+battery and turret jobs. They check real output, damage and resource use, with
+blocked and starved controls and complete server restarts.

@@ -13,7 +13,6 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ToolType;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import sun.misc.Unsafe;
 import static org.junit.Assert.*;
 
 public class OreHarvestContractTest {
@@ -43,9 +42,11 @@ public class OreHarvestContractTest {
     }
 
     private static boolean canHarvest(BlockState state, ItemStack held) throws Exception {
-        Field field = Unsafe.class.getDeclaredField("theUnsafe");
+        Class<?> allocator = Class.forName("sun.misc.Unsafe");
+        Field field = allocator.getDeclaredField("theUnsafe");
         field.setAccessible(true);
-        HarvestPlayer player = (HarvestPlayer) ((Unsafe) field.get(null)).allocateInstance(HarvestPlayer.class);
+        HarvestPlayer player = (HarvestPlayer) allocator.getMethod("allocateInstance", Class.class)
+                .invoke(field.get(null), HarvestPlayer.class);
         player.held = held;
         return ForgeHooks.canHarvestBlock(state, player, EmptyBlockReader.INSTANCE, BlockPos.ZERO);
     }

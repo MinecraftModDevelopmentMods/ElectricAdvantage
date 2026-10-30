@@ -20,6 +20,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -295,9 +298,15 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
 	private Vector3d followRayToSolidBlock(Vector3d origin, Vector3d dir, double maxRange){
-		Vector3d max = origin.add(dir).add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
+		Vector3d max = origin.add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
 		BlockRayTraceResult impact = getLevel().clip(new RayTraceContext(origin, max,
-				RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.SOURCE_ONLY, null));
+				RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.SOURCE_ONLY, null) {
+			@Override public VoxelShape getBlockShape(BlockState state, IBlockReader world, BlockPos pos) {
+				// The optic is inside our collision post; ignore only this block, not nearby cover.
+				return pos.equals(LaserTurretTileEntity.this.getBlockPos()) ? VoxelShapes.empty()
+						: super.getBlockShape(state, world, pos);
+			}
+		});
 		if(impact.getType() == RayTraceResult.Type.BLOCK){
 			return impact.getLocation();
 		} else {

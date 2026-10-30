@@ -315,7 +315,10 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 			float powerWanted = (this.getEnergyCapacity(Power.GROWTHCHAMBER_POWER) - this.getEnergy(Power.GROWTHCHAMBER_POWER));
 			powerWanted = Math.min(powerWanted, soil / SOIL_PER_UNIT);
 			powerWanted = Math.min(powerWanted, tank.getFluidAmount() / WATER_PER_UNIT);
-			return new PowerRequest(PowerRequest.MEDIUM_PRIORITY,ELECTRICITY_PER_UNIT * powerWanted,this);
+			float stored = getEnergy(Power.ELECTRIC_POWER);
+			float room = getEnergyCapacity(Power.ELECTRIC_POWER) - stored;
+			float electricityWanted = Math.max(0, Math.min(room, ELECTRICITY_PER_UNIT * powerWanted - stored));
+			return new PowerRequest(PowerRequest.MEDIUM_PRIORITY,electricityWanted,this);
 		} else {
 			return PowerRequest.REQUEST_NOTHING;
 		}

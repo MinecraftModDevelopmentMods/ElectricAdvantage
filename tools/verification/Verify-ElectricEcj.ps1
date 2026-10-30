@@ -39,8 +39,12 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
     $output = Join-Path $Evidence $Name
     $null = New-Item -ItemType Directory -Path $output
     $xmlLog = Join-Path $Evidence "$Name.xml"
-    $arguments = @('-1.8', '-proc:none', '-encoding', 'UTF-8', '-bootclasspath',
-        ('"' + (($bootLibraries.path -replace '\\', '/') -join ';') + '"'), '-classpath',
+    # Match Eclipse's Java 8 JRE access restrictions, not just its compiler version.
+    $restrictedBoot = @($bootLibraries.path | ForEach-Object {
+        $_.Replace('\', '/') + '[-sun/**;-com/sun/**;-jdk/internal/**]'
+    })
+    $arguments = @('-1.8', '-proc:none', '-encoding', 'UTF-8', '-err:+forbidden,discouraged', '-bootclasspath',
+        ('"' + ($restrictedBoot -join ';') + '"'), '-classpath',
         ('"' + (($Libraries -replace '\\', '/') -join ';') + '"'), '-d',
         ('"' + $output.Replace('\', '/') + '"'), '-log', ('"' + $xmlLog.Replace('\', '/') + '"'))
     $arguments += @($Sources | ForEach-Object { '"' + $_.Replace('\', '/') + '"' })
@@ -114,7 +118,7 @@ try {
         $expected += [int]$inventory.testsuite.tests
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 17 -or $expected -ne 47 -or $sources.test.Count -ne 17 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.16.5 source/test inventory' }
+    if ($classes.Count -ne 18 -or $expected -ne 51 -or $sources.test.Count -ne 18 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.16.5 source/test inventory' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
     $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
     $helperSource = Join-Path $PSScriptRoot 'AuditedJUnit.java'

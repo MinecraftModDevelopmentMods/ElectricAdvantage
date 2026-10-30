@@ -3,7 +3,24 @@
 This checklist separates source changes, deterministic tests, packaged runtime
 checks and manual acceptance. Only checks actually executed may be marked passed.
 
-## Inputs
+## Current Follow-Up
+
+The local machine corrections pass 84 Java tests with Gradle and the Eclipse
+compiler. The shared [qualification record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
+identifies the new jars and their operating, cold-restart and negative-control
+checks. Neither the frozen hashes nor the earlier GUI results below qualify a
+different build. Manual acceptance and publication remain separate.
+
+## Earlier GUI Follow-Up
+
+The local display correction bounds progress/fluid indicators and normalizes the
+hydroelectric GUI reading without changing generation. All 51 Java tests pass
+with Gradle and a fresh Eclipse compiler. All 15 registered Electric screens
+also pass the combined native layout, inventory-hover and item-tooltip checks.
+The shared Power test record keeps these new jar hashes separate from the
+earlier frozen machine and migration qualification.
+
+## Frozen Port Inputs
 
 - Electric source baseline: `74aa1cee1ddec821ebcd12b9f8b0515b7aec61d9`.
 - Electric candidate: `2.2.8.116051`; Power candidate: `2.4.7.116051`.
@@ -41,6 +58,11 @@ multiplayer and actual player login still need checking.
 
 The bootstrap notes below are historical receipts, not current readiness
 claims. Failed and interrupted runs remain recorded under their original names.
+
+The 28 October Eclipse correction removes direct `Unsafe` imports from test
+fixtures. The independent compiler now applies Java 8 JRE access rules and
+treats restricted references as errors. No project-wide warning suppression or
+gameplay change is required.
 
 ## Source Contracts
 

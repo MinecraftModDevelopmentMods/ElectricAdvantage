@@ -13,7 +13,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.registry.Bootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import sun.misc.Unsafe;
 import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.electricadvantage.machines.ElectricDrillTileEntity;
 import zone.moddev.mc.electricadvantage.machines.LaserTurretTileEntity;
@@ -153,10 +152,11 @@ public class RendererBufferContractTest {
 
     // Keep the real turret controls; only omit the world-dependent constructor.
     private static LaserTurretTileEntity turret() throws Exception {
-        Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+        Class<?> allocator = Class.forName("sun.misc.Unsafe");
+        Field unsafeField = allocator.getDeclaredField("theUnsafe");
         unsafeField.setAccessible(true);
         LaserTurretTileEntity turret = (LaserTurretTileEntity)
-                ((Unsafe) unsafeField.get(null)).allocateInstance(LaserTurretTileEntity.class);
+                allocator.getMethod("allocateInstance", Class.class).invoke(unsafeField.get(null), LaserTurretTileEntity.class);
         set(TileEntitySimplePowerMachine.class, turret, "types", new ConduitType[] {Power.ELECTRIC_POWER});
         set(TileEntitySimplePowerMachine.class, turret, "energyBuffers", new float[] {0});
         set(TileEntitySimplePowerMachine.class, turret, "energyBufferSizes", new float[] {2000});
