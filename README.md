@@ -73,4 +73,4 @@ profiles and their independent audit pass; the reporter-only unit/replay
 qualification preserves the original native proof. Survival harvest checks pass
 before and after restart. The report's extra network/drill scopes are now
 qualified; manual acceptance remains separate. Earlier checkpoints keep their original scope;
-nothing has been published by this local test work.
+No release publication is included.
