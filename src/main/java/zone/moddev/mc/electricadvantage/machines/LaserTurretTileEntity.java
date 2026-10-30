@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.init.Power;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
@@ -290,9 +291,29 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
 	private Vec3d followRayToSolidBlock(Vec3d origin, Vec3d dir, double maxRange){
-		Vec3d max = origin.add(dir).addVector(maxRange * dir.xCoord, maxRange * dir.yCoord, maxRange * dir.zCoord);
-		RayTraceResult impact = getWorld().rayTraceBlocks(origin, max, true, true, false);
+		Vec3d max = origin.addVector(maxRange * dir.xCoord, maxRange * dir.yCoord, maxRange * dir.zCoord);
+		Vec3d traceOrigin = origin;
+		AxisAlignedBB ownBlock = new AxisAlignedBB(getPos());
+		if(ownBlock.isVecInside(origin)){
+			// Trace back into our block to find its exit without skipping adjacent cover.
+			RayTraceResult exit = ownBlock.calculateIntercept(max, origin);
+			if(exit != null) traceOrigin = exit.hitVec.add(dir.scale(1.0E-7));
+		}
+		World world = getWorld();
+		RayTraceResult impact = null;
+		if(traceOrigin != origin){
+			BlockPos firstPos = new BlockPos(traceOrigin);
+			IBlockState firstState = world.getBlockState(firstPos);
+			if(firstState.getCollisionBoundingBox(world, firstPos) != null
+					&& firstState.getBlock().canCollideCheck(firstState, true)){
+				impact = firstState.collisionRayTrace(world, firstPos, origin, max);
+			}
+		}
+		if(impact == null) impact = world.rayTraceBlocks(traceOrigin, max, true, true, false);
 		if(impact != null && impact.typeOfHit == RayTraceResult.Type.BLOCK){
+			RayTraceResult exact = world.getBlockState(impact.getBlockPos())
+					.collisionRayTrace(world, impact.getBlockPos(), origin, max);
+			if(exact != null) impact = exact;
 			final Vec3d impactSite;
 			if(impact.hitVec != null){
 				impactSite = impact.hitVec;

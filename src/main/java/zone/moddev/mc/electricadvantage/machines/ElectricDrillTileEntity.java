@@ -153,6 +153,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		te.readFromNBT(dataTransfer);
 		te.setPos(nextPos);
 		te.validate();
+		te.subtractEnergy(ENERGY_COST_MOVE, te.getType());
 		te.markDirty();
 		Arrays.fill(this.getInventory(), null);
 		
@@ -161,7 +162,6 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		w.setBlockState(getPos(), Blocks.electric_conduit.getDefaultState(), 2);
 		
 		
-		this.subtractEnergy(ENERGY_COST_MOVE, getType());
 		return true;
 	}
 	
