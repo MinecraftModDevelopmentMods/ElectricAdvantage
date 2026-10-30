@@ -23,6 +23,11 @@ public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 	{
 		return true;
 	}
+
+	@Override
+	public boolean isSolid(IBlockState state) {
+		return true;
+	}
 	
 	@Override
 	public boolean isOpaqueCube(IBlockState bs)

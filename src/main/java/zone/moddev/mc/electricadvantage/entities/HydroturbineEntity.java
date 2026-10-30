@@ -51,6 +51,12 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	}
 
 	@Override
+	public boolean isPushedByWater() {
+		// Anchored to the generator: flow drives rotation, not linear movement.
+		return false;
+	}
+
+	@Override
 	public void tick(){
 		super.tick();
 		IFluidState fluidState = this.getEntityWorld().getFluidState(getPosition());

@@ -3,6 +3,7 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.init.Power;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
@@ -291,9 +292,30 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
 	private Vec3d followRayToSolidBlock(Vec3d origin, Vec3d dir, double maxRange){
-		Vec3d max = origin.add(dir).add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
-		RayTraceResult impact = getWorld().rayTraceBlocks(origin, max, RayTraceFluidMode.SOURCE_ONLY, true, false);
+		Vec3d max = origin.add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
+		Vec3d traceOrigin = origin;
+		AxisAlignedBB ownBlock = new AxisAlignedBB(getPos());
+		if(ownBlock.contains(origin)){
+			// Trace back into our block to find its exit without skipping adjacent cover.
+			RayTraceResult exit = ownBlock.calculateIntercept(max, origin);
+			if(exit != null) traceOrigin = exit.hitVec.add(dir.scale(1.0E-7));
+		}
+		World world = getWorld();
+		RayTraceResult impact = null;
+		if(traceOrigin != origin){
+			// Check the entry face from the original optic, even for very thin adjacent shapes.
+			BlockPos firstPos = new BlockPos(traceOrigin);
+			IBlockState firstState = world.getBlockState(firstPos);
+			if(!firstState.getCollisionShape(world, firstPos).isEmpty() && firstState.getBlock().isCollidable(firstState)){
+				impact = Block.collisionRayTrace(firstState, world, firstPos, origin, max);
+			}
+		}
+		if(impact == null) impact = world.rayTraceBlocks(traceOrigin, max, RayTraceFluidMode.SOURCE_ONLY, true, false);
 		if(impact != null && impact.type == RayTraceResult.Type.BLOCK){
+			// Native 1.13 rays starting inside a neighbour report a point just inside its shape.
+			RayTraceResult exact = Block.collisionRayTrace(world.getBlockState(impact.getBlockPos()),
+					world, impact.getBlockPos(), origin, max);
+			if(exact != null) impact = exact;
 			final Vec3d impactSite;
 			if(impact.hitVec != null){
 				impactSite = impact.hitVec;
